@@ -6,3 +6,9 @@ A 2d survival game about running a data center
 
 ### Keith Eberhard Quote
 "perfection is achieved not when there is nothing more to add, but when there is nothing left to take away" - Antoine de Saint-Exupéry
+
+### Zach Sutherland Quote
+“Anything that can go wrong will go wrong.” - Murphy's Law
+
+### Micaela Morales Quote
+"There is nothing like dogma to produce a dream, and nothing like a dream to create the future." - Victor Hugo (Les Miserables)
