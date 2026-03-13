@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://ey4pav7ya4xy"]
+
+[ext_resource type="PackedScene" uid="uid://cn6x5ssw581m4" path="res://scenes/player/player.tscn" id="1_cxwue"]
+[ext_resource type="Script" path="res://scripts/maps/checkerboard_floor.gd" id="2_uuq7d"]
+
+[node name="TestMap" type="Node2D" unique_id=1954177505]
+
+[node name="CheckerboardFloor" type="Node2D" parent="."]
+script = ExtResource("2_uuq7d")
+
+[node name="Player" parent="." instance=ExtResource("1_cxwue")]
+position = Vector2(960, 540)
