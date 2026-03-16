@@ -11,9 +11,14 @@ config_version=5
 [application]
 
 config/name="Uptime: Critical"
-run/main_scene="uid://ey4pav7ya4xy"
+run/main_scene="uid://03ldyiyyegrm"
 config/features=PackedStringArray("4.6", "Mobile")
+run/max_fps=60
 config/icon="res://icon.svg"
+
+[autoload]
+
+SceneTransition="*uid://cpd5odj12w7ey"
 
 [display]
 
@@ -27,4 +32,5 @@ window/size/viewport_height=1080
 [rendering]
 
 rendering_device/driver.windows="d3d12"
-renderer/rendering_method="mobile"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
