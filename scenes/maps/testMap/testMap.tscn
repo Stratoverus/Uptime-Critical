@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://ey4pav7ya4xy"]
 
 [ext_resource type="PackedScene" uid="uid://cn6x5ssw581m4" path="res://scenes/player/player.tscn" id="1_cxwue"]
+[ext_resource type="Script" uid="uid://dum5m5apspkau" path="res://scripts/test_map_main.gd" id="1_ycy7d"]
 [ext_resource type="Script" uid="uid://cjyk1d6lpn01e" path="res://scripts/maps/checkerboard_floor.gd" id="2_uuq7d"]
 [ext_resource type="Script" uid="uid://bypsyjhf0o4a4" path="res://scripts/interaction/server_rack.gd" id="3_e4dex"]
 [ext_resource type="Texture2D" uid="uid://dchw0142nlbsj" path="res://assets/placeholders/ai_server.png" id="4_jm4fq"]
@@ -10,6 +11,7 @@
 [ext_resource type="Texture2D" uid="uid://8e6uqoqurdnk" path="res://assets/placeholders/ai_router.png" id="8_3fo2i"]
 [ext_resource type="Script" uid="uid://diecpo4k8f3yl" path="res://scripts/interaction/breaker.gd" id="9_0dew7"]
 [ext_resource type="Texture2D" uid="uid://dx6uve4e1wwmi" path="res://assets/placeholders/ai_breaker.png" id="10_6jtrr"]
+[ext_resource type="PackedScene" uid="uid://iopwhmejcr8b" path="res://addons/RadialMenu/RadialMenu.tscn" id="12_ycy7d"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bwda7"]
 size = Vector2(150, 204)
@@ -24,6 +26,7 @@ size = Vector2(102, 120)
 size = Vector2(98, 133)
 
 [node name="TestMap" type="Node2D" unique_id=1954177505]
+script = ExtResource("1_ycy7d")
 
 [node name="CheckerboardFloor" type="Node2D" parent="." unique_id=797863680]
 script = ExtResource("2_uuq7d")
@@ -78,3 +81,17 @@ texture = ExtResource("10_6jtrr")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Breaker" unique_id=571687929]
 position = Vector2(-2, -0.5)
 shape = SubResource("RectangleShape2D_a04uf")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=398686787]
+
+[node name="RadialMenu" parent="UI" unique_id=168351301 instance=ExtResource("12_ycy7d")]
+visible = false
+custom_minimum_size = Vector2(400, 290.7981)
+offset_right = 400.0
+offset_bottom = 290.7981
+pivot_offset = Vector2(200, 200)
+radius = 200
+width = 100
+center_radius = 80
+selector_position = 2
+icon_scale = 0.08
