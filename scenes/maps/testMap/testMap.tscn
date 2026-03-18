@@ -1,12 +1,156 @@
 [gd_scene format=3 uid="uid://ey4pav7ya4xy"]
 
 [ext_resource type="PackedScene" uid="uid://cn6x5ssw581m4" path="res://scenes/player/player.tscn" id="1_cxwue"]
-[ext_resource type="Script" path="res://scripts/maps/checkerboard_floor.gd" id="2_uuq7d"]
+[ext_resource type="Script" uid="uid://cjyk1d6lpn01e" path="res://scripts/maps/checkerboard_floor.gd" id="2_uuq7d"]
+[ext_resource type="Theme" uid="uid://cgovku5fdfya3" path="res://assets/themes/ui_theme.tres" id="3_8ysvq"]
+[ext_resource type="Script" uid="uid://dl75p1j0weo4e" path="res://scenes/maps/testMap/traffic_bar.gd" id="3_c3qrg"]
+[ext_resource type="Script" uid="uid://cmyg1t6hm4rac" path="res://scenes/maps/testMap/canvas_layer.gd" id="3_tnotu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c3qrg"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.6455514, 1.8289685e-06, 3.3691526e-07, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8ysvq"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.101960786, 0.6, 0.6, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
 
 [node name="TestMap" type="Node2D" unique_id=1954177505]
 
-[node name="CheckerboardFloor" type="Node2D" parent="."]
+[node name="CheckerboardFloor" type="Node2D" parent="." unique_id=1789086398]
 script = ExtResource("2_uuq7d")
 
-[node name="Player" parent="." instance=ExtResource("1_cxwue")]
+[node name="Player" parent="." unique_id=1583619331 instance=ExtResource("1_cxwue")]
 position = Vector2(960, 540)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1617902762]
+script = ExtResource("3_tnotu")
+
+[node name="Control" type="Control" parent="CanvasLayer" unique_id=890184133]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control" unique_id=564560212]
+layout_mode = 0
+offset_right = 514.0
+offset_bottom = 99.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+
+[node name="HUDContainer" type="VBoxContainer" parent="CanvasLayer/Control/MarginContainer" unique_id=1191675694]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StatsBar" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=1655064097]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="Time" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/StatsBar" unique_id=139099530]
+layout_mode = 2
+theme = ExtResource("3_8ysvq")
+theme_type_variation = &"TooltipLabel"
+text = "10:30 AM"
+
+[node name="TrafficContainer" type="VBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=782097779]
+layout_mode = 2
+
+[node name="TrafficBar" type="ProgressBar" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=368270853]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+show_percentage = false
+script = ExtResource("3_c3qrg")
+
+[node name="TrafficLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer/TrafficBar" unique_id=1714462917]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RPSLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1856545126]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "887 RPS (Requests/sec)"
+
+[node name="MoneyContainer" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=1483519986]
+layout_mode = 2
+
+[node name="RevenueLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/MoneyContainer" unique_id=1819286462]
+layout_mode = 2
+theme = ExtResource("3_8ysvq")
+theme_type_variation = &"TooltipLabel"
+text = "$4,871.49"
+vertical_alignment = 1
+
+[node name="IncomeLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/MoneyContainer" unique_id=1877335602]
+layout_mode = 2
+theme = ExtResource("3_8ysvq")
+theme_type_variation = &"TooltipLabel"
+theme_override_colors/font_color = Color(0, 0.5411765, 0, 1)
+theme_override_font_sizes/font_size = 20
+text = "+ $315.12/hr"
+vertical_alignment = 1
+
+[node name="TempContainer" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=613485908]
+layout_mode = 2
+
+[node name="TempLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TempContainer" unique_id=1327066591]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "CPU Temp: "
+
+[node name="Temp" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TempContainer" unique_id=1280962340]
+layout_mode = 2
+
+[node name="TestingControls" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=128546134]
+layout_mode = 2
+
+[node name="DDoSButton" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls" unique_id=1908075445]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_c3qrg")
+text = "DDoS Attack"
+
+[node name="UpgradeButton" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls" unique_id=384815839]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_8ysvq")
+text = "Upgrade Server"
+
+[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/DDoSButton" to="CanvasLayer" method="_on_ddos_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/UpgradeButton" to="CanvasLayer" method="_on_upgrade_button_pressed"]
