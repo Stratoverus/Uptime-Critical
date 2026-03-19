@@ -72,6 +72,12 @@ theme_override_constants/separation = 10
 layout_mode = 2
 theme_override_constants/separation = 15
 
+[node name="Day" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/StatsBar" unique_id=534346441]
+layout_mode = 2
+theme = ExtResource("3_8ysvq")
+theme_type_variation = &"TooltipLabel"
+text = "Day 1"
+
 [node name="Time" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/StatsBar" unique_id=139099530]
 layout_mode = 2
 theme = ExtResource("3_8ysvq")
@@ -135,6 +141,8 @@ text = "CPU Temp: "
 
 [node name="Temp" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TempContainer" unique_id=1280962340]
 layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "35"
 
 [node name="TestingControls" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=128546134]
 layout_mode = 2

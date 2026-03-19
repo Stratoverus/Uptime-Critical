@@ -1,5 +1,8 @@
 extends CanvasLayer
 
+
+@onready var clock_label = $Control/MarginContainer/HUDContainer/StatsBar/Time
+@onready var day_label = $Control/MarginContainer/HUDContainer/StatsBar/Day
 @onready var traffic_bar = $Control/MarginContainer/HUDContainer/TrafficContainer/TrafficBar
 @onready var rps_label = $Control/MarginContainer/HUDContainer/TrafficContainer/RPSLabel
 @onready var cash_label = $Control/MarginContainer/HUDContainer/MoneyContainer/RevenueLabel
@@ -7,6 +10,9 @@ extends CanvasLayer
 @onready var temp_label = $Control/MarginContainer/HUDContainer/TempContainer/Temp
 
 # Game State Variables
+var time = 700.0
+var time_scale = 1.0
+var current_day = int(time / 1440) + 1
 var revenue = 0.0
 var income_rate = 0.0
 var base_growth_rate = 0.01 
@@ -26,6 +32,28 @@ func _ready():
 	temp_home_x = temp_label.position.x
 
 func _process(delta: float):
+	# ============================================
+	# TIME LOGIC
+	# ============================================
+	time += delta * time_scale
+	var total_minutes_today = fmod(time, 1440.0)
+
+	var hours_24 = int(total_minutes_today / 60)
+	var minutes = int(total_minutes_today) % 60
+
+	var period = "AM" if hours_24 < 12 else "PM"
+
+	var display_hours = hours_24 % 12
+	if display_hours == 0:
+		display_hours = 12
+
+	day_label.text = "Day %d" % current_day
+	clock_label.text = "%d:%02d %s" % [display_hours, minutes, period]
+
+
+	# ============================================
+	# TRAFFIC LOGIC
+	# ============================================
 	# 1. Calculate Traffic Growth
 	current_load += (traffic_bar.max_value * base_growth_rate) * delta
 	
@@ -36,7 +64,7 @@ func _process(delta: float):
 	# Update the Target Ratio every 0.5 seconds (prevents the 'jitter')
 	update_timer += delta
 	if update_timer > 0.5:
-		# Pick a new ratio between 5-20 Mbps/person
+		# Pick a new ratio between 8-12 Mbps/person
 		target_ratio = randf_range(0.08, 0.12)
 		update_timer = 0.0
 	
@@ -53,17 +81,27 @@ func _process(delta: float):
 
 	rps_label.text = "%d Requests/Sec" % ceil(smoothed_rps + jitter)
 
-	# 3. Handle Revenue (Earn $0.01 per Mbps every second)
+
+	# ============================================
+	# MONEY LOGIC
+	# ============================================
+	# Handle Revenue (Earn $0.01 per Mbps every second)
 	revenue += (total_active_traffic * 0.01) * delta
 	cash_label.text = "$%.2f" % revenue
 
 	income_rate = (total_active_traffic * 0.01)
 	revenue_label.text = "+ $%.2f/sec" % income_rate
-	
-	# 4. Handle Temperature (Temp rises if traffic > 70% of capacity)
+
+	# ============================================
+	# TEMPERATURE LOGIC
+	# ============================================	
+	# Handle Temperature (Temp rises if traffic > 70% of capacity)
 	update_temperature(total_active_traffic, delta)
 	
-	# 5. Check for Crash
+	# ============================================
+	# GAME OVER LOGIC
+	# ============================================	
+	# Check for Crash
 	if temperature >= 100:
 		get_tree().paused = true
 		print("Server Meltdown! Final Revenue: ", revenue)
@@ -85,7 +123,7 @@ func update_temperature(serverLoad, delta):
 	# 35 is 0%, 100 is 100%
 	var heat_perc = (temperature - 35) / (100 - 35)
 	
-	var cold_color = Color.CYAN
+	var cold_color = Color.GREEN
 	var hot_color = Color.RED
 	
 	# Apply the color to the text
