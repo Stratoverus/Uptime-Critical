@@ -90,7 +90,7 @@ func _process(delta: float):
 	cash_label.text = "$%.2f" % revenue
 
 	income_rate = (total_active_traffic * 0.01)
-	revenue_label.text = "+ $%.2f/sec" % income_rate
+	revenue_label.text = "+ $%.2f/min" % income_rate
 
 	# ============================================
 	# TEMPERATURE LOGIC

@@ -214,7 +214,7 @@ theme = ExtResource("3_8ysvq")
 theme_type_variation = &"TooltipLabel"
 theme_override_colors/font_color = Color(0, 0.5411765, 0, 1)
 theme_override_font_sizes/font_size = 20
-text = "+ $315.12/hr"
+text = "+ $315.12/min"
 vertical_alignment = 1
 
 [node name="TempContainer" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=1398418640]
