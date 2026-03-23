@@ -12,6 +12,7 @@ const MOVE_ACTIONS := {
 }
 
 func _ready() -> void:
+	add_to_group("player")
 	_ensure_wasd_actions()
 	animated_sprite.play("idle")
 
@@ -47,7 +48,7 @@ func _ensure_wasd_actions() -> void:
 			continue
 
 		var key_event := InputEventKey.new()
-		key_event.physical_keycode = key_code as Key
+		key_event.physical_keycode = key_code
 		InputMap.action_add_event(action_name, key_event)
 
 func _action_has_key(action_name: String, key_code: int) -> bool:
