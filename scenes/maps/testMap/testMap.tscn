@@ -1,7 +1,11 @@
 [gd_scene format=3 uid="uid://ey4pav7ya4xy"]
 
 [ext_resource type="PackedScene" uid="uid://cn6x5ssw581m4" path="res://scenes/player/player.tscn" id="1_cxwue"]
+[ext_resource type="PackedScene" path="res://scenes/server/server_level_1.tscn" id="2_ym4qs"]
 [ext_resource type="Script" path="res://scripts/maps/checkerboard_floor.gd" id="2_uuq7d"]
+[ext_resource type="PackedScene" path="res://scenes/server/server_level_2.tscn" id="3_blqy5"]
+[ext_resource type="PackedScene" path="res://scenes/server/server_level_3.tscn" id="4_5bi2g"]
+[ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="5_8rdjp"]
 
 [node name="TestMap" type="Node2D" unique_id=1954177505]
 
@@ -10,3 +14,17 @@ script = ExtResource("2_uuq7d")
 
 [node name="Player" parent="." instance=ExtResource("1_cxwue")]
 position = Vector2(960, 540)
+
+[node name="ServerLevel1" parent="." instance=ExtResource("2_ym4qs")]
+position = Vector2(1220, 490)
+traffic_per_second = 55.0
+
+[node name="ServerLevel2" parent="." instance=ExtResource("3_blqy5")]
+position = Vector2(1220, 610)
+traffic_per_second = 95.0
+
+[node name="ServerLevel3" parent="." instance=ExtResource("4_5bi2g")]
+position = Vector2(1220, 740)
+traffic_per_second = 140.0
+
+[node name="ThermalSystem" parent="." instance=ExtResource("5_8rdjp")]
