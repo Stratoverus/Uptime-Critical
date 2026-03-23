@@ -12,6 +12,7 @@ const MOVE_ACTIONS := {
 }
 
 func _ready() -> void:
+	add_to_group("player")
 	_ensure_wasd_actions()
 	animated_sprite.play("idle")
 
