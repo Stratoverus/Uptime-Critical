@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/servers/server.gd" id="1_7y0q0"]
+[ext_resource type="Texture2D" path="res://assets/object_sprites/servers/server_rack_2_front.png" id="2_2a54y"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fq00v"]
 size = Vector2(96, 64)
@@ -12,17 +13,8 @@ base_heat = 18.0
 heat_per_tps = 0.45
 heat_radius = 280.0
 
-[node name="ServerVisual" type="Polygon2D" parent="."]
-color = Color(0.17, 0.21, 0.24, 1)
-polygon = PackedVector2Array(-48, -32, 48, -32, 48, 32, -48, 32)
-
-[node name="ServerPanel" type="Polygon2D" parent="."]
-color = Color(0.09, 0.11, 0.13, 1)
-polygon = PackedVector2Array(-38, -20, 38, -20, 38, 20, -38, 20)
-
-[node name="StatusLight" type="Polygon2D" parent="."]
-color = Color(1, 0.76, 0.3, 1)
-polygon = PackedVector2Array(-36, -28, -22, -28, -22, -14, -36, -14)
+[node name="ServerVisual" type="Sprite2D" parent="."]
+texture = ExtResource("2_2a54y")
 
 [node name="CollisionArea" type="Area2D" parent="."]
 
