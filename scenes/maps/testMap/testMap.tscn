@@ -62,6 +62,22 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6jtrr"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.23609412, 0.6139884, 0.35257745, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0dew7"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
 
@@ -150,7 +166,7 @@ mouse_filter = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control" unique_id=2036028602]
 layout_mode = 0
-offset_right = 380.0
+offset_right = 438.0
 offset_bottom = 248.0
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 20
@@ -198,10 +214,28 @@ offset_bottom = 11.5
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="RPSLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=985636982]
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=693742528]
+layout_mode = 2
+
+[node name="RPSLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer/HBoxContainer" unique_id=985636982]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "887 RPS (Requests/sec)"
+
+[node name="DDoSLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer/HBoxContainer" unique_id=1055753169]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.79897434, 4.379898e-06, 6.738305e-07, 1)
+text = "+ 400 (DDoS)"
+
+[node name="MDLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=2080214949]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Market Demand: 81 Mbps"
+
+[node name="EventLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1489081758]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Event Label"
 
 [node name="MoneyContainer" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=1181454110]
 layout_mode = 2
@@ -217,7 +251,7 @@ vertical_alignment = 1
 layout_mode = 2
 theme = ExtResource("3_8ysvq")
 theme_type_variation = &"TooltipLabel"
-theme_override_colors/font_color = Color(0, 0.5411765, 0, 1)
+theme_override_colors/font_color = Color(0.77788156, 0.77788156, 0.7778816, 1)
 theme_override_font_sizes/font_size = 20
 text = "+ $315.12/min"
 vertical_alignment = 1
@@ -238,18 +272,47 @@ text = "35"
 [node name="TestingControls" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=974076455]
 layout_mode = 2
 
-[node name="DDoSButton" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls" unique_id=764716979]
+[node name="DemandButton" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls" unique_id=764716979]
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_c3qrg")
-text = "DDoS Attack"
+text = "Increase Demand 50%"
 
 [node name="UpgradeButton" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls" unique_id=1003414583]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_8ysvq")
 text = "Upgrade Server"
+
+[node name="SpeedButton" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls" unique_id=1066573798]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_6jtrr")
+text = "Speed x100: OFF"
+
+[node name="EventControls" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=471766038]
+layout_mode = 2
+
+[node name="DDoSButton" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/EventControls" unique_id=1361626724]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_c3qrg")
+text = "DDoS Attack"
+
+[node name="BlackFriday" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/EventControls" unique_id=600725349]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_8ysvq")
+text = "Black Friday"
+
+[node name="ViralVideo" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/EventControls" unique_id=1352769636]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_6jtrr")
+text = "Viral Video"
 
 [node name="BuyMenu" type="CanvasLayer" parent="." unique_id=1222855576]
 script = ExtResource("16_0dew7")
@@ -313,5 +376,9 @@ script = ExtResource("17_6jtrr")
 
 [node name="Area2D" type="Area2D" parent="." unique_id=1119569488]
 
-[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/DDoSButton" to="CanvasLayer" method="_on_ddos_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/DemandButton" to="CanvasLayer" method="_on_demand_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/UpgradeButton" to="CanvasLayer" method="_on_upgrade_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/SpeedButton" to="CanvasLayer" method="_on_speed_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/EventControls/DDoSButton" to="CanvasLayer" method="_on_ddos_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/EventControls/BlackFriday" to="CanvasLayer" method="_on_black_friday_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/EventControls/ViralVideo" to="CanvasLayer" method="_on_viral_video_pressed"]
