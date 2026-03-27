@@ -13,7 +13,7 @@ config_version=5
 config/name="Uptime: Critical"
 run/main_scene="uid://03ldyiyyegrm"
 config/features=PackedStringArray("4.6", "Mobile")
-run/max_fps=165
+run/max_fps=60
 config/icon="res://icon.svg"
 
 [autoload]
@@ -24,10 +24,6 @@ SceneTransition="*uid://cpd5odj12w7ey"
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-
-[editor_plugins]
-
-enabled=PackedStringArray("res://addons/RadialMenu/plugin.cfg")
 
 [physics]
 
