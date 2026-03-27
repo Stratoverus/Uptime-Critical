@@ -232,6 +232,11 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "Market Demand: 81 Mbps"
 
+[node name="EventLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1489081758]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Event Label"
+
 [node name="MoneyContainer" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=1181454110]
 layout_mode = 2
 

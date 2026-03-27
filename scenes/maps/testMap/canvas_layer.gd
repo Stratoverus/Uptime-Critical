@@ -7,6 +7,7 @@ extends CanvasLayer
 @onready var rps_label = $Control/MarginContainer/HUDContainer/TrafficContainer/HBoxContainer/RPSLabel
 @onready var ddos_rps_label = $Control/MarginContainer/HUDContainer/TrafficContainer/HBoxContainer/DDoSLabel
 @onready var demand_label = $Control/MarginContainer/HUDContainer/TrafficContainer/MDLabel
+@onready var event_label = $Control/MarginContainer/HUDContainer/TrafficContainer/EventLabel
 @onready var cash_label = $Control/MarginContainer/HUDContainer/MoneyContainer/RevenueLabel
 @onready var income_label = $Control/MarginContainer/HUDContainer/MoneyContainer/IncomeLabel
 @onready var temp_label = $Control/MarginContainer/HUDContainer/TempContainer/Temp
@@ -283,7 +284,6 @@ func start_event(event_id: String):
 		print("An event is already active!")
 		return
 
-	
 	var data = EVENTS[event_id]
 	active_event_id = event_id
 	
@@ -296,6 +296,8 @@ func start_event(event_id: String):
 	ddos_load += applied_ddos_bonus
 	
 	event_expiry_time = time + data.duration_minutes
+
+	event_label.text = "Active Event: %s" % data.display_name
 	
 	print("EVENT STARTED: ", data.display_name, " - ", data.message)
 
@@ -313,6 +315,7 @@ func end_active_event():
 	event_expiry_time = -1.0
 	applied_demand_bonus = 0.0
 	applied_ddos_bonus = 0.0
+	event_label.text = "Active Event: None"
 
 
 func check_for_events(day, hour):
@@ -338,7 +341,24 @@ func _on_demand_button_pressed() -> void:
 	market_demand *= 1.5
 
 func _on_upgrade_button_pressed() -> void:
-	traffic_bar.max_value = traffic_bar.max_value * 1.1
+	traffic_bar.max_value = traffic_bar.max_value * 1.5
+
+func _on_speed_button_pressed() -> void:
+	if time_scale == 1.0:
+		time_scale = 100.0
+		speed_button.text = "Speed x100: ON"
+	else:
+		time_scale = 1.0 
+		speed_button.text = "Speed x100: OFF"
+
+func _on_ddos_button_pressed() -> void:
+	start_event("botnet_attack")
+
+func _on_black_friday_pressed() -> void:
+	start_event("black_friday")
+
+func _on_viral_video_pressed() -> void:
+	start_event("viral_video")
 
 # HELPERS FOR BUYING UNITS (zach)
 
