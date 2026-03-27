@@ -338,21 +338,20 @@ func _on_demand_button_pressed() -> void:
 	market_demand *= 1.5
 
 func _on_upgrade_button_pressed() -> void:
-	traffic_bar.max_value = traffic_bar.max_value * 1.5
+	traffic_bar.max_value = traffic_bar.max_value * 1.1
 
-func _on_speed_button_pressed() -> void:
-	if time_scale == 1.0:
-		time_scale = 100.0
-		speed_button.text = "Speed x100: ON"
-	else:
-		time_scale = 1.0 
-		speed_button.text = "Speed x100: OFF"
+# HELPERS FOR BUYING UNITS (zach)
 
-func _on_ddos_button_pressed() -> void:
-	start_event("botnet_attack")
+func can_afford(amount: float) -> bool:
+	return revenue >= amount
 
-func _on_black_friday_pressed() -> void:
-	start_event("black_friday")
+func spend_money(amount: float) -> bool:
+	if revenue < amount:
+		return false
 
-func _on_viral_video_pressed() -> void:
-	start_event("viral_video")
+	revenue -= amount
+	cash_label.text = "$%.2f" % revenue
+	return true
+
+func get_money() -> float:
+	return revenue

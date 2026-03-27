@@ -1,22 +1,58 @@
 extends InteractableObject
 
+@export var level: int = 1
+
+var sprites_by_level = {
+	1: {
+		"front": preload("res://assets/object_sprites/server_rack_1_front.png"),
+		"right": preload("res://assets/object_sprites/server_rack_1_right.png"),
+		"back": preload("res://assets/object_sprites/server_rack_1_back.png"),
+		"left": preload("res://assets/object_sprites/server_rack_1_left.png")
+	},
+	2: {
+		"front": preload("res://assets/object_sprites/server_rack_2_front.png"),
+		"right": preload("res://assets/object_sprites/server_rack_2_right.png"),
+		"back": preload("res://assets/object_sprites/server_rack_2_back.png"),
+		"left": preload("res://assets/object_sprites/server_rack_2_left.png")
+	},
+	3: {
+		"front": preload("res://assets/object_sprites/server_rack_3_front.png"),
+		"right": preload("res://assets/object_sprites/server_rack_3_right.png"),
+		"back": preload("res://assets/object_sprites/server_rack_3_back.png"),
+		"left": preload("res://assets/object_sprites/server_rack_3_left.png")
+	}
+}
+
 func _ready() -> void:
-	object_name = "Server Rack"
+	object_name = "Server Rack L" + str(level)
 	actions = ["Turn Off", "Turn On", "Reboot"]
 	interaction_range = 150.0
 	super._ready()
 
+func set_facing(direction: String) -> void:
+	if sprites_by_level.has(level):
+		var sprites = sprites_by_level[level]
+
+		if sprites.has(direction):
+			sprite.texture = sprites[direction]
+		else:
+			print("Missing direction:", direction)
+	else:
+		print("Missing level:", level)
+
 func perform_action(action_name: String) -> void:
 	match action_name:
 		"Turn Off":
-			print("Turning off server rack")
+			print("Turning off server rack L", level)
 			turn_off()
 		"Turn On":
-			print("Turning on server rack")
+			print("Turning on server rack L", level)
 			turn_on()
 		"Reboot":
-			print("Rebooting server rack")
+			print("Rebooting server rack L", level)
 			reboot()
+		_:
+			super.perform_action(action_name)
 
 func turn_off() -> void:
 	pass
