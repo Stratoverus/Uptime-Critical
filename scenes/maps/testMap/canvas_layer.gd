@@ -158,3 +158,19 @@ func _end_ddos_attack(amount_to_remove: float):
 
 func _on_upgrade_button_pressed() -> void:
 	traffic_bar.max_value = traffic_bar.max_value * 1.1
+
+# HELPERS FOR BUYING UNITS (zach)
+
+func can_afford(amount: float) -> bool:
+	return revenue >= amount
+
+func spend_money(amount: float) -> bool:
+	if revenue < amount:
+		return false
+
+	revenue -= amount
+	cash_label.text = "$%.2f" % revenue
+	return true
+
+func get_money() -> float:
+	return revenue
