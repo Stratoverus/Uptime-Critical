@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://3v7gvmk6c7mi"]
+
+[ext_resource type="Script" uid="uid://bypsyjhf0o4a4" path="res://scripts/interaction/server_rack.gd" id="1_mefap"]
+[ext_resource type="Texture2D" uid="uid://5gygs0dclcbk" path="res://assets/object_sprites/server_rack_1_front.png" id="2_mju2r"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rnq3t"]
+size = Vector2(100, 100)
+
+[node name="ServerRackL1" type="Area2D" unique_id=559956324]
+script = ExtResource("1_mefap")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1301325800]
+texture = ExtResource("2_mju2r")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=955458495]
+shape = SubResource("RectangleShape2D_rnq3t")
