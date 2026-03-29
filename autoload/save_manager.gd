@@ -6,15 +6,22 @@ const DEFAULT_SLOT: String = "slot_1"
 
 var active_slot: String = DEFAULT_SLOT
 var slot_data: Dictionary = {}
+var slot_dirty: bool = false
+var autosave_on_mutation: bool = false
 
 func _ready() -> void:
 	load_slot(active_slot)
+
+func _exit_tree() -> void:
+	# Persist pending dirty data during application shutdown.
+	save_checkpoint()
 
 func get_slot_path(slot_name: String) -> String:
 	return "%s/%s.save" % [SAVE_DIR, slot_name]
 
 func load_slot(slot_name: String = DEFAULT_SLOT) -> bool:
 	active_slot = slot_name
+	slot_dirty = false
 	slot_data = {
 		"version": SAVE_VERSION,
 		"created_unix": Time.get_unix_time_from_system(),
@@ -44,6 +51,7 @@ func load_slot(slot_name: String = DEFAULT_SLOT) -> bool:
 			slot_data["thermal_sections"] = {}
 		if not slot_data.has("placed_structures"):
 			slot_data["placed_structures"] = {}
+		slot_dirty = false
 		return true
 
 	push_warning("SaveManager: Save file format invalid; starting fresh slot.")
@@ -76,6 +84,36 @@ func save_slot(slot_name: String = "") -> bool:
 
 	file.store_var(slot_data)
 	file.close()
+	slot_dirty = false
+	return true
+
+func flush_pending_changes() -> bool:
+	if not slot_dirty:
+		return true
+	return save_slot(active_slot)
+
+func save_checkpoint() -> bool:
+	capture_runtime_state_for_checkpoint()
+	return flush_pending_changes()
+
+func capture_runtime_state_for_checkpoint() -> void:
+	var tree := get_tree()
+	if tree == null:
+		return
+
+	for node_variant in tree.get_nodes_in_group("thermal_system"):
+		if node_variant is Node:
+			var thermal_node := node_variant as Node
+			if thermal_node.has_method("save_simulation_state_to_manager"):
+				thermal_node.call("save_simulation_state_to_manager")
+
+func set_autosave_on_mutation(enabled: bool) -> void:
+	autosave_on_mutation = enabled
+
+func commit_mutation() -> bool:
+	slot_dirty = true
+	if autosave_on_mutation:
+		return save_slot(active_slot)
 	return true
 
 func clear_slot(slot_name: String = "") -> bool:
@@ -90,6 +128,7 @@ func clear_slot(slot_name: String = "") -> bool:
 		"thermal_sections": {},
 		"placed_structures": {}
 	}
+	slot_dirty = true
 	return save_slot(slot_name)
 
 func load_placed_structures(scene_key: String, section_key: String = "default") -> Array:
@@ -133,7 +172,7 @@ func save_placed_structures(scene_key: String, section_key: String, entries: Arr
 	scene_sections[section_key] = entries.duplicate(true)
 	placed_structures[scene_key] = scene_sections
 	slot_data["placed_structures"] = placed_structures
-	return save_slot(active_slot)
+	return commit_mutation()
 
 func add_placed_structure(scene_key: String, section_key: String, entry: Dictionary) -> String:
 	if scene_key.is_empty() or section_key.is_empty() or entry.is_empty():
@@ -194,6 +233,39 @@ func load_thermal_section_state(scene_key: String, section_key: String = "defaul
 
 	return {}
 
+func clear_thermal_section_state(scene_key: String, section_key: String = "default") -> bool:
+	if scene_key.is_empty():
+		return false
+	if section_key.is_empty():
+		section_key = "default"
+
+	var changed: bool = false
+
+	if slot_data.has("thermal_sections"):
+		var thermal_sections: Variant = slot_data["thermal_sections"]
+		if thermal_sections is Dictionary and thermal_sections.has(scene_key):
+			var scene_sections: Variant = thermal_sections[scene_key]
+			if scene_sections is Dictionary and scene_sections.has(section_key):
+				scene_sections.erase(section_key)
+				changed = true
+				if scene_sections.is_empty():
+					thermal_sections.erase(scene_key)
+				else:
+					thermal_sections[scene_key] = scene_sections
+				slot_data["thermal_sections"] = thermal_sections
+
+	if section_key == "default" and slot_data.has("thermal_maps"):
+		var thermal_maps: Variant = slot_data["thermal_maps"]
+		if thermal_maps is Dictionary and thermal_maps.has(scene_key):
+			thermal_maps.erase(scene_key)
+			slot_data["thermal_maps"] = thermal_maps
+			changed = true
+
+	if changed:
+		return commit_mutation()
+
+	return true
+
 func save_thermal_section_state(scene_key: String, section_key: String, state: Dictionary) -> bool:
 	if scene_key.is_empty() or section_key.is_empty() or state.is_empty():
 		return false
@@ -211,7 +283,7 @@ func save_thermal_section_state(scene_key: String, section_key: String, state: D
 	scene_sections[section_key] = state
 	thermal_sections[scene_key] = scene_sections
 	slot_data["thermal_sections"] = thermal_sections
-	return save_slot(active_slot)
+	return commit_mutation()
 
 func load_thermal_state(scene_key: String) -> Dictionary:
 	if scene_key.is_empty():
@@ -243,5 +315,5 @@ func save_thermal_state(scene_key: String, state: Dictionary) -> bool:
 	slot_data["thermal_maps"] = thermal_maps
 	# Keep legacy and new default section in sync.
 	if not save_thermal_section_state(scene_key, "default", state):
-		return save_slot(active_slot)
+		return commit_mutation()
 	return true

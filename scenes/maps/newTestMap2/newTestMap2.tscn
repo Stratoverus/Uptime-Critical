@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://c3kup51lsoybx"]
+[gd_scene format=3]
 
 [ext_resource type="Script" uid="uid://dum5m5apspkau" path="res://scripts/test_map_main.gd" id="1_cbmk6"]
 [ext_resource type="Script" uid="uid://cjyk1d6lpn01e" path="res://scripts/maps/checkerboard_floor.gd" id="2_i7j68"]
@@ -55,7 +55,7 @@ corner_radius_bottom_left = 5
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0dew7"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
 
-[node name="NewTestMap" type="Node2D" unique_id=1954177505]
+[node name="NewTestMap2" type="Node2D" unique_id=1954177505]
 script = ExtResource("1_cbmk6")
 
 [node name="CheckerboardFloor" type="Node2D" parent="." unique_id=797863680]
@@ -67,7 +67,7 @@ tiles_y = 60
 position = Vector2(961.00006, 539)
 
 [node name="ThermalSystem" parent="." unique_id=1996936049 instance=ExtResource("4_p8uv2")]
-simulation_section_id = &"new_test_map_main"
+simulation_section_id = &"new_test_map2_main"
 clear_saved_thermal_state_on_startup = true
 simulation_size_from_viewport = false
 

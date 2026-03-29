@@ -1,6 +1,6 @@
 extends InteractableObject
 
-@export var base_heat: float = 18.0
+@export var base_heat: float = 15.0  # Represents ~30°C idle temperature
 @export var heat_radius: float = 260.0
 @export var back_local_direction: Vector2 = Vector2.RIGHT
 @export var intake_local_direction: Vector2 = Vector2.LEFT
