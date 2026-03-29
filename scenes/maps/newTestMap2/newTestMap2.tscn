@@ -1,6 +1,6 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cpco2r05532jg"]
 
-[ext_resource type="Script" path="res://scripts/test_map_main_newTestMap2.gd" id="1_cbmk6"]
+[ext_resource type="Script" uid="uid://bsods8tx2cbh7" path="res://scripts/test_map_main_newTestMap2.gd" id="1_cbmk6"]
 [ext_resource type="Script" uid="uid://cjyk1d6lpn01e" path="res://scripts/maps/checkerboard_floor.gd" id="2_i7j68"]
 [ext_resource type="PackedScene" uid="uid://cn6x5ssw581m4" path="res://scenes/player/player.tscn" id="3_wemyn"]
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="4_p8uv2"]
@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://diecpo4k8f3yl" path="res://scripts/interaction/breaker.gd" id="11_5410t"]
 [ext_resource type="Texture2D" uid="uid://dx6uve4e1wwmi" path="res://assets/placeholders/ai_breaker.png" id="12_hbkad"]
 [ext_resource type="PackedScene" uid="uid://iopwhmejcr8b" path="res://addons/RadialMenu/RadialMenu.tscn" id="13_2ikki"]
-[ext_resource type="Script" path="res://scenes/maps/testMap/canvas_layer.gd" id="14_px3av"]
+[ext_resource type="Script" uid="uid://cmyg1t6hm4rac" path="res://scenes/maps/testMap/canvas_layer.gd" id="14_px3av"]
 [ext_resource type="Theme" uid="uid://cgovku5fdfya3" path="res://assets/themes/ui_theme.tres" id="15_sg8gq"]
-[ext_resource type="Script" path="res://scenes/maps/testMap/traffic_bar.gd" id="16_04i22"]
+[ext_resource type="Script" uid="uid://dl75p1j0weo4e" path="res://scenes/maps/testMap/traffic_bar.gd" id="16_04i22"]
 [ext_resource type="Script" uid="uid://cj5a2dvcp17um" path="res://scripts/UI/buy_menu.gd" id="17_amrog"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5ivrf"]

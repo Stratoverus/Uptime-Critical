@@ -93,7 +93,6 @@ func _ready():
 	if traffic_bar != null:
 		traffic_bar.max_value = max(starting_traffic_capacity_mbps, 1.0)
 	current_load = traffic_bar.max_value * clamp(starting_load_ratio, 0.0, 1.0)
-	target_ratio = min_rps_ratio
 	current_display_ratio = min_rps_ratio
 	# Record where the label starts so we can always return to center
 	temp_home_x = temp_label.position.x
