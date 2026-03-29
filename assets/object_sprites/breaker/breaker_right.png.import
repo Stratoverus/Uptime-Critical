@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bguobypfythl8"
-path="res://.godot/imported/breaker_right.png-4561f8f65d142d8e43f3aea5bbbed666.ctex"
+path="res://.godot/imported/breaker_right.png-a9f5915406ecb08dabd91a926ecb48fa.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/object_sprites/breaker_right.png"
-dest_files=["res://.godot/imported/breaker_right.png-4561f8f65d142d8e43f3aea5bbbed666.ctex"]
+source_file="res://assets/object_sprites/breaker/breaker_right.png"
+dest_files=["res://.godot/imported/breaker_right.png-a9f5915406ecb08dabd91a926ecb48fa.ctex"]
 
 [params]
 

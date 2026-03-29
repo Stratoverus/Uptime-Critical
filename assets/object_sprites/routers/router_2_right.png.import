@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cm4otb6a30x3y"
-path="res://.godot/imported/router_2_right.png-7cf0d3383a4fe8e00a43b356ce1b7501.ctex"
+path="res://.godot/imported/router_2_right.png-d1945d7f2936d4d111ad24fa3df0c551.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/object_sprites/router_2_right.png"
-dest_files=["res://.godot/imported/router_2_right.png-7cf0d3383a4fe8e00a43b356ce1b7501.ctex"]
+source_file="res://assets/object_sprites/routers/router_2_right.png"
+dest_files=["res://.godot/imported/router_2_right.png-d1945d7f2936d4d111ad24fa3df0c551.ctex"]
 
 [params]
 

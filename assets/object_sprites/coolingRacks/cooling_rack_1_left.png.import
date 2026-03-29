@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bk8ay2l4715hn"
-path="res://.godot/imported/cooling_rack_1_left.png-d34411a20b3c2e51b6315d866b905121.ctex"
+path="res://.godot/imported/cooling_rack_1_left.png-009bf3d6e5b552db4f80a46291697dd9.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/object_sprites/cooling_rack_1_left.png"
-dest_files=["res://.godot/imported/cooling_rack_1_left.png-d34411a20b3c2e51b6315d866b905121.ctex"]
+source_file="res://assets/object_sprites/coolingRacks/cooling_rack_1_left.png"
+dest_files=["res://.godot/imported/cooling_rack_1_left.png-009bf3d6e5b552db4f80a46291697dd9.ctex"]
 
 [params]
 
