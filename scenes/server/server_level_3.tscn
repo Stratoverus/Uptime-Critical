@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/servers/server.gd" id="1_8ujag"]
+[ext_resource type="Texture2D" path="res://assets/object_sprites/servers/server_rack_3_front.png" id="2_iyk1w"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u4ef4"]
+size = Vector2(112, 72)
+
+[node name="ServerLevel3" type="Node2D"]
+script = ExtResource("1_8ujag")
+level = 3
+base_heat = 24.0
+heat_per_tps = 0.6
+heat_radius = 340.0
+
+[node name="ServerVisual" type="Sprite2D" parent="."]
+texture = ExtResource("2_iyk1w")
+
+[node name="CollisionArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionArea"]
+shape = SubResource("RectangleShape2D_u4ef4")

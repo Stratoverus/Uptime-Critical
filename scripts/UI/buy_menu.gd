@@ -3,9 +3,9 @@ extends CanvasLayer
 signal unit_selected(unit_data)
 signal add_dev_money_requested(amount)
 
-@onready var title_label = $Panel/MarginContainer/MainVBox/TitleLabel
-@onready var unit_grid = $Panel/MarginContainer/MainVBox/UnitGrid
-@onready var dev_money_button = $Panel/MarginContainer/MainVBox/DevMoneyButton
+@onready var title_label = $Panel/MainVBox/TitleLabel
+@onready var unit_grid = $Panel/MainVBox/UnitGrid
+@onready var dev_money_button = $Panel/MainVBox/DevMoneyButton
 
 var selected_button: Button = null
 
@@ -139,6 +139,10 @@ var unit_data = [
 ]
 
 func style_menu_button(button: Button, color: Color) -> void:
+	if button == null:
+		print("style_menu_button got null button")
+		return
+
 	var normal = StyleBoxFlat.new()
 	normal.bg_color = color
 	normal.border_color = Color.WHITE
@@ -185,12 +189,18 @@ func style_dev_button(button: Button) -> void:
 	style_menu_button(button, Color("16a34a"))
 
 func _ready() -> void:
+	print(get_node_or_null("Panel/MainVBox"))
+	print(get_node_or_null("Panel/MainVBox/UnitGrid"))
+	print("title_label:", title_label)
+	print("unit_grid:", unit_grid)
+	print("dev_money_button:", dev_money_button)
+
+	if title_label == null or unit_grid == null or dev_money_button == null:
+		push_error("BuyMenu node path mismatch")
+		return
+
 	title_label.text = "Buy Menu"
-
-	# tabs.add_theme_constant_override("h_separation", 8)
-
 	style_dev_button(dev_money_button)
-
 	build_unit_list()
 	dev_money_button.pressed.connect(_on_dev_money_button_pressed)
 

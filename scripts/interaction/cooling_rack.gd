@@ -1,8 +1,12 @@
+# extends "res://scripts/systems/thermal_source.gd"
 extends InteractableObject
-
 @export var level: int = 1
 
 var current_facing: String = "front"
+var upgrade_costs = {
+	1: 200,
+	2: 300
+}
 
 var sprites_by_level = {
 	1: {
@@ -23,11 +27,6 @@ var sprites_by_level = {
 		"back": preload("res://assets/object_sprites/coolingRacks/cooling_rack_3_back.png"),
 		"left": preload("res://assets/object_sprites/coolingRacks/cooling_rack_3_left.png")
 	}
-}
-
-var upgrade_costs = {
-	1: 200,
-	2: 300
 }
 
 func update_actions() -> void:

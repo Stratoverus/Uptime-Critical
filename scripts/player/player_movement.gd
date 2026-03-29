@@ -48,7 +48,7 @@ func _ensure_wasd_actions() -> void:
 			continue
 
 		var key_event := InputEventKey.new()
-		key_event.physical_keycode = key_code
+		key_event.physical_keycode = key_code as Key
 		InputMap.action_add_event(action_name, key_event)
 
 

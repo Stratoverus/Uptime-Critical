@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://dj1mth4ekjseh"]
+
+[ext_resource type="Script" uid="uid://cegepbn0ko76s" path="res://scripts/servers/server.gd" id="1_ntixv"]
+[ext_resource type="Texture2D" path="res://assets/object_sprites/servers/server_rack_1_front.png" id="2_6xw4i"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lqgon"]
+size = Vector2(88, 56)
+
+[node name="ServerLevel1" type="Node2D" unique_id=1632710466]
+script = ExtResource("1_ntixv")
+base_heat = 18.0
+heat_per_tps = 0.5
+heat_radius = 300.0
+
+[node name="ServerVisual" type="Sprite2D" parent="." unique_id=1280471333]
+texture = ExtResource("2_6xw4i")
+
+[node name="CollisionArea" type="Area2D" parent="." unique_id=192986871]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionArea" unique_id=1657086859]
+shape = SubResource("RectangleShape2D_lqgon")

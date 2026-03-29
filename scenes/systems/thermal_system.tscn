@@ -1,0 +1,25 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/thermal_system.gd" id="1_0cshj"]
+[ext_resource type="Shader" path="res://assets/shaders/heat_vision.gdshader" id="2_njxp3"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7eu2j"]
+shader = ExtResource("2_njxp3")
+
+[node name="ThermalSystem" type="Node"]
+script = ExtResource("1_0cshj")
+
+[node name="WorldTint" type="CanvasModulate" parent="."]
+
+[node name="HeatVisionCanvas" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="HeatVisionOverlay" type="ColorRect" parent="HeatVisionCanvas"]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+material = SubResource("ShaderMaterial_7eu2j")
