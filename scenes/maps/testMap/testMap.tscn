@@ -16,7 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://dx6uve4e1wwmi" path="res://assets/placeholders/ai_breaker.png" id="10_6jtrr"]
 [ext_resource type="PackedScene" uid="uid://iopwhmejcr8b" path="res://addons/RadialMenu/RadialMenu.tscn" id="12_ycy7d"]
 [ext_resource type="Script" uid="uid://cj5a2dvcp17um" path="res://scripts/UI/buy_menu.gd" id="16_0dew7"]
-[ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="17_hvsy2"]
+[ext_resource type="Script" uid="uid://d1re1xcsywghq" path="res://scripts/placed_units/placed_units.gd" id="17_6jtrr"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bwda7"]
 size = Vector2(150, 204)
@@ -52,6 +52,22 @@ content_margin_top = 5.0
 content_margin_right = 10.0
 content_margin_bottom = 5.0
 bg_color = Color(0.101960786, 0.6, 0.6, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6jtrr"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.23609412, 0.6139884, 0.35257745, 1)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
@@ -153,7 +169,7 @@ mouse_filter = 1
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control" unique_id=2036028602]
 layout_mode = 0
-offset_right = 380.0
+offset_right = 438.0
 offset_bottom = 248.0
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 20
@@ -201,10 +217,28 @@ offset_bottom = 11.5
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="RPSLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=985636982]
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=693742528]
+layout_mode = 2
+
+[node name="RPSLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer/HBoxContainer" unique_id=985636982]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "887 RPS (Requests/sec)"
+
+[node name="DDoSLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer/HBoxContainer" unique_id=1055753169]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.79897434, 4.379898e-06, 6.738305e-07, 1)
+text = "+ 400 (DDoS)"
+
+[node name="MDLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=2080214949]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Market Demand: 81 Mbps"
+
+[node name="EventLabel" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1489081758]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Event Label"
 
 [node name="MoneyContainer" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=1181454110]
 layout_mode = 2
@@ -220,7 +254,7 @@ vertical_alignment = 1
 layout_mode = 2
 theme = ExtResource("3_8ysvq")
 theme_type_variation = &"TooltipLabel"
-theme_override_colors/font_color = Color(0, 0.5411765, 0, 1)
+theme_override_colors/font_color = Color(0.77788156, 0.77788156, 0.7778816, 1)
 theme_override_font_sizes/font_size = 20
 text = "+ $315.12/min"
 vertical_alignment = 1
@@ -241,12 +275,12 @@ text = "35"
 [node name="TestingControls" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=974076455]
 layout_mode = 2
 
-[node name="DDoSButton" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls" unique_id=764716979]
+[node name="DemandButton" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls" unique_id=764716979]
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_c3qrg")
-text = "DDoS Attack"
+text = "Increase Demand 50%"
 
 [node name="UpgradeButton" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls" unique_id=1003414583]
 layout_mode = 2
@@ -254,20 +288,50 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_8ysvq")
 text = "Upgrade Server"
 
+[node name="SpeedButton" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls" unique_id=1066573798]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_6jtrr")
+text = "Speed x100: OFF"
+
+[node name="EventControls" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=471766038]
+layout_mode = 2
+
+[node name="DDoSButton" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/EventControls" unique_id=1361626724]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_c3qrg")
+text = "DDoS Attack"
+
+[node name="BlackFriday" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/EventControls" unique_id=600725349]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_8ysvq")
+text = "Black Friday"
+
+[node name="ViralVideo" type="Button" parent="CanvasLayer/Control/MarginContainer/HUDContainer/EventControls" unique_id=1352769636]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_6jtrr")
+text = "Viral Video"
+
 [node name="BuyMenu" type="CanvasLayer" parent="." unique_id=1222855576]
 script = ExtResource("16_0dew7")
 
 [node name="Panel" type="PanelContainer" parent="BuyMenu" unique_id=1116638510]
-custom_minimum_size = Vector2(260, 320)
-anchors_preset = 3
+custom_minimum_size = Vector2(200, 300)
+anchors_preset = 6
 anchor_left = 1.0
-anchor_top = 1.0
+anchor_top = 0.5
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -40.0
-offset_top = -40.0
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_bottom = 150.0
 grow_horizontal = 0
-grow_vertical = 0
+grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_0dew7")
 
 [node name="MainVBox" type="VBoxContainer" parent="BuyMenu/Panel" unique_id=1514181974]
@@ -279,9 +343,45 @@ theme_override_colors/font_color = Color(0, 0.043137256, 0.02745098, 1)
 text = "Buy Menu"
 horizontal_alignment = 1
 
-[node name="UnitGrid" type="GridContainer" parent="BuyMenu/Panel/MainVBox" unique_id=1130119268]
+[node name="DevMoneyButton" type="Button" parent="BuyMenu/Panel/MainVBox" unique_id=1624180305]
 layout_mode = 2
-size_flags_horizontal = 4
+text = "Dev +$100"
 
-[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/DDoSButton" to="CanvasLayer" method="_on_ddos_button_pressed"]
+[node name="Tabs" type="TabContainer" parent="BuyMenu/Panel/MainVBox" unique_id=1929974051]
+layout_mode = 2
+current_tab = 0
+
+[node name="UnitsTab" type="Control" parent="BuyMenu/Panel/MainVBox/Tabs" unique_id=1837145032]
+layout_mode = 2
+metadata/_tab_index = 0
+
+[node name="UnitGrid" type="GridContainer" parent="BuyMenu/Panel/MainVBox/Tabs/UnitsTab" unique_id=1513841036]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="OtherTab" type="Control" parent="BuyMenu/Panel/MainVBox/Tabs" unique_id=62017418]
+visible = false
+layout_mode = 2
+metadata/_tab_index = 1
+
+[node name="OtherLabel" type="Label" parent="BuyMenu/Panel/MainVBox/Tabs/OtherTab" unique_id=1600354339]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Nothing added just yet
+"
+
+[node name="PlacedUnits" type="Node2D" parent="." unique_id=1365032951]
+script = ExtResource("17_6jtrr")
+
+[node name="PlacementPreview" type="Node2D" parent="." unique_id=1408599993]
+
+[node name="Area2D" type="Area2D" parent="." unique_id=1119569488]
+
+[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/DemandButton" to="CanvasLayer" method="_on_demand_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/UpgradeButton" to="CanvasLayer" method="_on_upgrade_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/SpeedButton" to="CanvasLayer" method="_on_speed_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/EventControls/DDoSButton" to="CanvasLayer" method="_on_ddos_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/EventControls/BlackFriday" to="CanvasLayer" method="_on_black_friday_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/EventControls/ViralVideo" to="CanvasLayer" method="_on_viral_video_pressed"]
