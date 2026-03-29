@@ -37,7 +37,7 @@ func _on_interaction_requested(interactable) -> void:
 	radial_menu.set_items(items)
 	radial_menu.open_menu(get_viewport().get_mouse_position())
 
-func _on_menu_item_selected(id, position) -> void:
+func _on_menu_item_selected(id, _position) -> void:
 	if current_interactable:
 		current_interactable.perform_action(id)
 		current_interactable = null

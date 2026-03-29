@@ -1,5 +1,11 @@
 extends CanvasLayer
 
+@export var starting_traffic_capacity_mbps: float = 1000.0
+@export var starting_load_ratio: float = 0.1
+@export var min_rps_ratio: float = 0.08
+@export var max_rps_ratio: float = 0.12
+@export var traffic_growth_rate: float = 0.01
+
 
 @onready var clock_label = $Control/MarginContainer/HUDContainer/StatsBar/Time
 @onready var day_label = $Control/MarginContainer/HUDContainer/StatsBar/Day
@@ -84,6 +90,11 @@ var temp_home_x: float
 func _ready():
 	# Wait one frame for containers to finish setting up
 	await get_tree().process_frame
+	if traffic_bar != null:
+		traffic_bar.max_value = max(starting_traffic_capacity_mbps, 1.0)
+	current_load = traffic_bar.max_value * clamp(starting_load_ratio, 0.0, 1.0)
+	target_ratio = min_rps_ratio
+	current_display_ratio = min_rps_ratio
 	# Record where the label starts so we can always return to center
 	temp_home_x = temp_label.position.x
 

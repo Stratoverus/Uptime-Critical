@@ -90,6 +90,9 @@ script = ExtResource("2_uuq7d")
 [node name="Player" parent="." unique_id=1081700995 instance=ExtResource("1_cxwue")]
 position = Vector2(961.00006, 539)
 
+[node name="ThermalSystem" parent="." instance=ExtResource("17_hvsy2")]
+simulation_section_id = &"test_map_main"
+
 [node name="ServerRack" type="Area2D" parent="." unique_id=609418582]
 position = Vector2(1367, 515)
 script = ExtResource("3_e4dex")

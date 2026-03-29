@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/interaction/cooling_rack.gd" id="1_qg7eb"]
+[ext_resource type="Texture2D" path="res://assets/object_sprites/coolingRacks/cooling_rack_3_front.png" id="2_45o4i"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7b4x2"]
+size = Vector2(112, 72)
+
+[node name="CoolingLevel3" type="Node2D"]
+script = ExtResource("1_qg7eb")
+level = 3
+base_heat = 0.0
+heat_radius = 320.0
+airflow_rate = 1.75
+cooling_capacity = 72.0
+
+[node name="CoolerVisual" type="Sprite2D" parent="."]
+texture = ExtResource("2_45o4i")
+
+[node name="CollisionArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionArea"]
+shape = SubResource("RectangleShape2D_7b4x2")

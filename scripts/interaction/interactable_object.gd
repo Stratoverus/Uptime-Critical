@@ -16,7 +16,7 @@ func _ready() -> void:
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
 
-func _input_event(viewport, event, shape_idx) -> void:
+func _input_event(_viewport, event, _shape_idx) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 		var distance := get_distance_to_player()
 		print(object_name, " distance to player = ", distance)

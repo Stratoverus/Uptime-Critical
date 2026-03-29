@@ -1,4 +1,4 @@
-extends InteractableObject
+extends "res://scripts/systems/thermal_source.gd"
 
 @export var level: int = 1
 
