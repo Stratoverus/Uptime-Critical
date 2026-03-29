@@ -2,8 +2,9 @@
 
 [ext_resource type="Texture2D" uid="uid://bw7bfhk3xm7yl" path="res://assets/Tech Dungeon Roguelite - Asset Pack (DEMO)/tileset x1.png" id="1_s5mfu"]
 [ext_resource type="Texture2D" uid="uid://bf4rv4wyemkmj" path="res://assets/player/julia/Julia.png" id="2_q4j5m"]
-[ext_resource type="Texture2D" path="res://assets/placeholders/datacenter_tileset.png" id="3_10x5o"]
-[ext_resource type="Texture2D" uid="uid://ce3wjgbh3fp30" path="res://assets/object_sprites/breaker_front.png" id="4_10x5o"]
+[ext_resource type="Texture2D" uid="uid://djssu66lvsqm2" path="res://assets/placeholders/datacenter_tileset.png" id="3_10x5o"]
+[ext_resource type="Texture2D" uid="uid://ce3wjgbh3fp30" path="res://assets/object_sprites/breaker/breaker_front.png" id="4_10x5o"]
+[ext_resource type="Script" uid="uid://cj5a2dvcp17um" path="res://scripts/UI/buy_menu.gd" id="5_wj644"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_snfe3"]
 texture = ExtResource("1_s5mfu")
@@ -802,6 +803,9 @@ size = Vector2(18, 16)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jk1q2"]
 size = Vector2(20, 16)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hsg4r"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
 [node name="serverRoom" type="Node2D" unique_id=1104353977]
 
 [node name="tileServerRoomMap1" type="TileMap" parent="." unique_id=1862195284]
@@ -842,3 +846,38 @@ shape = SubResource("RectangleShape2D_jk1q2")
 [node name="BreakerBox3(StaticBody2D)" type="StaticBody2D" parent="." unique_id=1791042991]
 
 [node name="Sprite2D" type="Sprite2D" parent="BreakerBox3(StaticBody2D)" unique_id=1355587087]
+
+[node name="BuyMenu" type="CanvasLayer" parent="." unique_id=1504608784]
+script = ExtResource("5_wj644")
+
+[node name="Panel" type="PanelContainer" parent="BuyMenu" unique_id=921903662]
+custom_minimum_size = Vector2(260, 320)
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -40.0
+offset_top = -40.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_hsg4r")
+
+[node name="MainVBox" type="VBoxContainer" parent="BuyMenu/Panel" unique_id=962053447]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="BuyMenu/Panel/MainVBox" unique_id=1522813735]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.043137256, 0.02745098, 1)
+text = "Buy Menu"
+horizontal_alignment = 1
+
+[node name="UnitGrid" type="GridContainer" parent="BuyMenu/Panel/MainVBox" unique_id=1380032608]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="UnitsTab" type="Control" parent="BuyMenu/Panel/MainVBox/UnitGrid" unique_id=2008886080]
+layout_mode = 2
+
+[node name="DevMoneyButton" type="Button" parent="BuyMenu/Panel/MainVBox" unique_id=722331545]
+layout_mode = 2

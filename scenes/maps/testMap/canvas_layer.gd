@@ -79,6 +79,7 @@ var target_user_bandwidth_ratio = 0.1
 var current_display_ratio = 0.1
 var displayed_traffic: float = 0.0
 var update_timer = 0.0
+var target_ratio: float = 0.08
 
 # TEMP CONSTANTS
 var recovery_threshold = 60.0 # Temp must drop to 60°C to reboot
