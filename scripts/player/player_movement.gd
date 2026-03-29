@@ -43,7 +43,7 @@ func _ensure_wasd_actions() -> void:
 		if not InputMap.has_action(action_name):
 			InputMap.add_action(action_name)
 
-		var key_code: int = MOVE_ACTIONS[action_name]
+		var key_code: Key = MOVE_ACTIONS[action_name]
 		if _action_has_key(action_name, key_code):
 			continue
 
@@ -51,7 +51,8 @@ func _ensure_wasd_actions() -> void:
 		key_event.physical_keycode = key_code
 		InputMap.action_add_event(action_name, key_event)
 
-func _action_has_key(action_name: String, key_code: int) -> bool:
+
+func _action_has_key(action_name: String, key_code: Key) -> bool:
 	for event: InputEvent in InputMap.action_get_events(action_name):
 		if event is InputEventKey and event.physical_keycode == key_code:
 			return true

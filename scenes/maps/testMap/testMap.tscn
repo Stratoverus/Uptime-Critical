@@ -5,30 +5,10 @@
 [ext_resource type="Script" uid="uid://cjyk1d6lpn01e" path="res://scripts/maps/checkerboard_floor.gd" id="2_uuq7d"]
 [ext_resource type="Theme" uid="uid://cgovku5fdfya3" path="res://assets/themes/ui_theme.tres" id="3_8ysvq"]
 [ext_resource type="Script" uid="uid://dl75p1j0weo4e" path="res://scenes/maps/testMap/traffic_bar.gd" id="3_c3qrg"]
-[ext_resource type="Script" uid="uid://bypsyjhf0o4a4" path="res://scripts/interaction/server_rack.gd" id="3_e4dex"]
 [ext_resource type="Script" uid="uid://cmyg1t6hm4rac" path="res://scenes/maps/testMap/canvas_layer.gd" id="3_tnotu"]
-[ext_resource type="Texture2D" uid="uid://dchw0142nlbsj" path="res://assets/placeholders/ai_server.png" id="4_jm4fq"]
-[ext_resource type="Script" uid="uid://c5m3hc4ck6g41" path="res://scripts/interaction/cooling_rack.gd" id="5_ycy7d"]
-[ext_resource type="Texture2D" uid="uid://bx723gw7uleot" path="res://assets/placeholders/ai_cooling.png" id="6_xv6yo"]
-[ext_resource type="Script" uid="uid://b4wqubjhokd5q" path="res://scripts/interaction/router.gd" id="7_xm7c4"]
-[ext_resource type="Texture2D" uid="uid://8e6uqoqurdnk" path="res://assets/placeholders/ai_router.png" id="8_3fo2i"]
-[ext_resource type="Script" uid="uid://diecpo4k8f3yl" path="res://scripts/interaction/breaker.gd" id="9_0dew7"]
-[ext_resource type="Texture2D" uid="uid://dx6uve4e1wwmi" path="res://assets/placeholders/ai_breaker.png" id="10_6jtrr"]
 [ext_resource type="PackedScene" uid="uid://iopwhmejcr8b" path="res://addons/RadialMenu/RadialMenu.tscn" id="12_ycy7d"]
 [ext_resource type="Script" uid="uid://cj5a2dvcp17um" path="res://scripts/UI/buy_menu.gd" id="16_0dew7"]
 [ext_resource type="Script" uid="uid://d1re1xcsywghq" path="res://scripts/placed_units/placed_units.gd" id="17_6jtrr"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_bwda7"]
-size = Vector2(150, 204)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_gpwly"]
-size = Vector2(96, 130)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_5ivrf"]
-size = Vector2(102, 120)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_a04uf"]
-size = Vector2(98, 133)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c3qrg"]
 content_margin_left = 10.0
@@ -90,54 +70,6 @@ script = ExtResource("2_uuq7d")
 [node name="Player" parent="." unique_id=1081700995 instance=ExtResource("1_cxwue")]
 position = Vector2(961.00006, 539)
 
-[node name="ServerRack" type="Area2D" parent="." unique_id=609418582]
-position = Vector2(1367, 515)
-script = ExtResource("3_e4dex")
-
-[node name="Sprite2D" type="Sprite2D" parent="ServerRack" unique_id=913661745]
-position = Vector2(2, 8)
-scale = Vector2(1.5567019, 1.3187497)
-texture = ExtResource("4_jm4fq")
-region_rect = Rect2(0, 0, 32, 32)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ServerRack" unique_id=1393399191]
-position = Vector2(3, 4)
-shape = SubResource("RectangleShape2D_bwda7")
-
-[node name="CoolingRack" type="Area2D" parent="." unique_id=371192697]
-position = Vector2(1033, 881)
-script = ExtResource("5_ycy7d")
-
-[node name="Sprite2D" type="Sprite2D" parent="CoolingRack" unique_id=1541262594]
-texture = ExtResource("6_xv6yo")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CoolingRack" unique_id=1109763423]
-position = Vector2(0, -1)
-shape = SubResource("RectangleShape2D_gpwly")
-
-[node name="Router" type="Area2D" parent="." unique_id=1254323557]
-position = Vector2(362, 542)
-script = ExtResource("7_xm7c4")
-
-[node name="Sprite2D" type="Sprite2D" parent="Router" unique_id=2129226520]
-position = Vector2(-3, -1)
-texture = ExtResource("8_3fo2i")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Router" unique_id=268936232]
-position = Vector2(-2, -5)
-shape = SubResource("RectangleShape2D_5ivrf")
-
-[node name="Breaker" type="Area2D" parent="." unique_id=1439469915]
-position = Vector2(884, 213)
-script = ExtResource("9_0dew7")
-
-[node name="Sprite2D" type="Sprite2D" parent="Breaker" unique_id=877670270]
-texture = ExtResource("10_6jtrr")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Breaker" unique_id=571687929]
-position = Vector2(-2, -0.5)
-shape = SubResource("RectangleShape2D_a04uf")
-
 [node name="UI" type="CanvasLayer" parent="." unique_id=398686787]
 
 [node name="RadialMenu" parent="UI" unique_id=168351301 instance=ExtResource("12_ycy7d")]
@@ -152,7 +84,7 @@ center_radius = 80
 selector_position = 2
 icon_scale = 0.08
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1405838555]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1405838555 groups=["hud"]]
 script = ExtResource("3_tnotu")
 
 [node name="Control" type="Control" parent="CanvasLayer" unique_id=731972954]
@@ -331,43 +263,26 @@ grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_0dew7")
 
-[node name="MainVBox" type="VBoxContainer" parent="BuyMenu/Panel" unique_id=1514181974]
+[node name="MarginContainer" type="MarginContainer" parent="BuyMenu/Panel" unique_id=840371475]
+layout_mode = 2
+theme_override_constants/margin_right = 30
+
+[node name="MainVBox" type="VBoxContainer" parent="BuyMenu/Panel/MarginContainer" unique_id=1514181974]
 layout_mode = 2
 
-[node name="TitleLabel" type="Label" parent="BuyMenu/Panel/MainVBox" unique_id=1186750359]
+[node name="TitleLabel" type="Label" parent="BuyMenu/Panel/MarginContainer/MainVBox" unique_id=1186750359]
 layout_mode = 2
 theme_override_colors/font_color = Color(0, 0.043137256, 0.02745098, 1)
 text = "Buy Menu"
 horizontal_alignment = 1
 
-[node name="DevMoneyButton" type="Button" parent="BuyMenu/Panel/MainVBox" unique_id=1624180305]
+[node name="DevMoneyButton" type="Button" parent="BuyMenu/Panel/MarginContainer/MainVBox" unique_id=1624180305]
 layout_mode = 2
 text = "Dev +$100"
 
-[node name="Tabs" type="TabContainer" parent="BuyMenu/Panel/MainVBox" unique_id=1929974051]
+[node name="UnitGrid" type="GridContainer" parent="BuyMenu/Panel/MarginContainer/MainVBox" unique_id=1513841036]
+custom_minimum_size = Vector2(220, 250)
 layout_mode = 2
-current_tab = 0
-
-[node name="UnitsTab" type="Control" parent="BuyMenu/Panel/MainVBox/Tabs" unique_id=1837145032]
-layout_mode = 2
-metadata/_tab_index = 0
-
-[node name="UnitGrid" type="GridContainer" parent="BuyMenu/Panel/MainVBox/Tabs/UnitsTab" unique_id=1513841036]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="OtherTab" type="Control" parent="BuyMenu/Panel/MainVBox/Tabs" unique_id=62017418]
-visible = false
-layout_mode = 2
-metadata/_tab_index = 1
-
-[node name="OtherLabel" type="Label" parent="BuyMenu/Panel/MainVBox/Tabs/OtherTab" unique_id=1600354339]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 23.0
-text = "Nothing added just yet
-"
 
 [node name="PlacedUnits" type="Node2D" parent="." unique_id=1365032951]
 script = ExtResource("17_6jtrr")
