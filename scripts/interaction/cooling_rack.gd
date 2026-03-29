@@ -1,6 +1,12 @@
-extends "res://scripts/systems/thermal_source.gd"
-
+# extends "res://scripts/systems/thermal_source.gd"
+extends InteractableObject
 @export var level: int = 1
+
+var current_facing: String = "front"
+var upgrade_costs = {
+	1: 200,
+	2: 300
+}
 
 var sprites_by_level = {
 	1: {
@@ -23,13 +29,27 @@ var sprites_by_level = {
 	}
 }
 
+func update_actions() -> void:
+	if level >= 3:
+		actions = ["Turn Off", "Turn On", "Inspect"]
+	else:
+		var cost = upgrade_costs.get(level, 0)
+		actions = [
+			"Turn Off",
+			"Turn On",
+			"Inspect",
+			"Upgrade $" + str(cost)
+		]
+
 func _ready() -> void:
 	object_name = "Cooling Rack L" + str(level)
-	actions = ["Turn Off", "Turn On", "Inspect"]
+	update_actions()
 	interaction_range = 150.0
 	super._ready()
 
 func set_facing(direction: String) -> void:
+	current_facing = direction
+
 	if sprites_by_level.has(level):
 		var sprites = sprites_by_level[level]
 
@@ -41,18 +61,20 @@ func set_facing(direction: String) -> void:
 		print("Missing level:", level)
 
 func perform_action(action_name: String) -> void:
-	match action_name:
-		"Turn Off":
-			print("Cooling rack L", level, "off")
-			turn_off()
-		"Turn On":
-			print("Cooling rack L", level, "on")
-			turn_on()
-		"Inspect":
-			print("Inspecting cooling rack L", level)
-			inspect()
-		_:
-			super.perform_action(action_name)
+	if action_name == "Turn Off":
+		print("Cooling rack L", level, "off")
+		turn_off()
+	elif action_name == "Turn On":
+		print("Cooling rack L", level, "on")
+		turn_on()
+	elif action_name == "Inspect":
+		print("Inspecting cooling rack L", level)
+		inspect()
+	elif action_name.begins_with("Upgrade"):
+		print("Upgrading cooling rack L", level)
+		upgrade()
+	else:
+		super.perform_action(action_name)
 
 func turn_off() -> void:
 	pass
@@ -62,3 +84,23 @@ func turn_on() -> void:
 
 func inspect() -> void:
 	pass
+
+func upgrade() -> void:
+	if level >= 3:
+		print("Already max level")
+		return
+
+	var cost = upgrade_costs.get(level, 0)
+	var game = get_tree().get_first_node_in_group("hud")
+
+	if game and game.can_afford(cost):
+		game.spend_money(cost)
+
+		level += 1
+		object_name = "Cooling Rack L" + str(level)
+		update_actions()
+		set_facing(current_facing)
+
+		print("Upgraded to level", level)
+	else:
+		print("Not enough money to upgrade")

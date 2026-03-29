@@ -121,6 +121,10 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = -1.0
+offset_right = 2.0
+offset_bottom = -1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
@@ -256,6 +260,12 @@ horizontal_alignment = 1
 [node name="UnitGrid" type="GridContainer" parent="BuyMenu/Panel/MainVBox" unique_id=1130119268]
 layout_mode = 2
 size_flags_horizontal = 4
+
+[node name="UnitsTab" type="Control" parent="BuyMenu/Panel/MainVBox/UnitGrid" unique_id=1675206475]
+layout_mode = 2
+
+[node name="DevMoneyButton" type="Button" parent="BuyMenu/Panel/MainVBox" unique_id=1996540630]
+layout_mode = 2
 
 [connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/DDoSButton" to="CanvasLayer" method="_on_ddos_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/UpgradeButton" to="CanvasLayer" method="_on_upgrade_button_pressed"]
