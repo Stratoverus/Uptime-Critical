@@ -6,22 +6,22 @@ var current_facing: String = "front"
 
 var sprites_by_level = {
 	1: {
-		"front": preload("res://assets/object_sprites/server_rack_1_front.png"),
-		"right": preload("res://assets/object_sprites/server_rack_1_right.png"),
-		"back": preload("res://assets/object_sprites/server_rack_1_back.png"),
-		"left": preload("res://assets/object_sprites/server_rack_1_left.png")
+		"front": preload("res://assets/object_sprites/servers/server_rack_1_front.png"),
+		"right": preload("res://assets/object_sprites/servers/server_rack_1_right.png"),
+		"back": preload("res://assets/object_sprites/servers/server_rack_1_back.png"),
+		"left": preload("res://assets/object_sprites/servers/server_rack_1_left.png")
 	},
 	2: {
-		"front": preload("res://assets/object_sprites/server_rack_2_front.png"),
-		"right": preload("res://assets/object_sprites/server_rack_2_right.png"),
-		"back": preload("res://assets/object_sprites/server_rack_2_back.png"),
-		"left": preload("res://assets/object_sprites/server_rack_2_left.png")
+		"front": preload("res://assets/object_sprites/servers/server_rack_2_front.png"),
+		"right": preload("res://assets/object_sprites/servers/server_rack_2_right.png"),
+		"back": preload("res://assets/object_sprites/servers/server_rack_2_back.png"),
+		"left": preload("res://assets/object_sprites/servers/server_rack_2_left.png")
 	},
 	3: {
-		"front": preload("res://assets/object_sprites/server_rack_3_front.png"),
-		"right": preload("res://assets/object_sprites/server_rack_3_right.png"),
-		"back": preload("res://assets/object_sprites/server_rack_3_back.png"),
-		"left": preload("res://assets/object_sprites/server_rack_3_left.png")
+		"front": preload("res://assets/object_sprites/servers/server_rack_3_front.png"),
+		"right": preload("res://assets/object_sprites/servers/server_rack_3_right.png"),
+		"back": preload("res://assets/object_sprites/servers/server_rack_3_back.png"),
+		"left": preload("res://assets/object_sprites/servers/server_rack_3_left.png")
 	}
 }
 

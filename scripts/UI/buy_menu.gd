@@ -18,10 +18,10 @@ var unit_data = [
 		"level": 1,
 		"scene_path": "res://scenes/units/server_rack_l1.tscn",
 		"sprites": {
-			"front": "res://assets/object_sprites/server_rack_1_front.png",
-			"back": "res://assets/object_sprites/server_rack_1_back.png",
-			"left": "res://assets/object_sprites/server_rack_1_left.png",
-			"right": "res://assets/object_sprites/server_rack_1_right.png"
+			"front": "res://assets/object_sprites/servers/server_rack_1_front.png",
+			"back": "res://assets/object_sprites/servers/server_rack_1_back.png",
+			"left": "res://assets/object_sprites/servers/server_rack_1_left.png",
+			"right": "res://assets/object_sprites/servers/server_rack_1_right.png"
 		}
 	},
 	{
@@ -32,10 +32,10 @@ var unit_data = [
 		"level": 2,
 		"scene_path": "res://scenes/units/server_rack_l2.tscn",
 		"sprites": {
-			"front": "res://assets/object_sprites/server_rack_2_front.png",
-			"back": "res://assets/object_sprites/server_rack_2_back.png",
-			"left": "res://assets/object_sprites/server_rack_2_left.png",
-			"right": "res://assets/object_sprites/server_rack_2_right.png"
+			"front": "res://assets/object_sprites/servers/server_rack_2_front.png",
+			"back": "res://assets/object_sprites/servers/server_rack_2_back.png",
+			"left": "res://assets/object_sprites/servers/server_rack_2_left.png",
+			"right": "res://assets/object_sprites/servers/server_rack_2_right.png"
 		}
 	},
 	{
@@ -46,10 +46,10 @@ var unit_data = [
 		"level": 3,
 		"scene_path": "res://scenes/units/server_rack_l3.tscn",
 		"sprites": {
-			"front": "res://assets/object_sprites/server_rack_3_front.png",
-			"back": "res://assets/object_sprites/server_rack_3_back.png",
-			"left": "res://assets/object_sprites/server_rack_3_left.png",
-			"right": "res://assets/object_sprites/server_rack_3_right.png"
+			"front": "res://assets/object_sprites/servers/server_rack_3_front.png",
+			"back": "res://assets/object_sprites/servers/server_rack_3_back.png",
+			"left": "res://assets/object_sprites/servers/server_rack_3_left.png",
+			"right": "res://assets/object_sprites/servers/server_rack_3_right.png"
 		}
 	},
 	{
@@ -60,10 +60,10 @@ var unit_data = [
 		"level": 1,
 		"scene_path": "res://scenes/units/cooling_unit_l1.tscn",
 		"sprites": {
-			"front": "res://assets/object_sprites/cooling_rack_1_front.png",
-			"back": "res://assets/object_sprites/cooling_rack_1_back.png",
-			"left": "res://assets/object_sprites/cooling_rack_1_left.png",
-			"right": "res://assets/object_sprites/cooling_rack_1_right.png"
+			"front": "res://assets/object_sprites/coolingRacks/cooling_rack_1_front.png",
+			"back": "res://assets/object_sprites/coolingRacks/cooling_rack_1_back.png",
+			"left": "res://assets/object_sprites/coolingRacks/cooling_rack_1_left.png",
+			"right": "res://assets/object_sprites/coolingRacks/cooling_rack_1_right.png"
 		}
 	},
 	{
@@ -74,10 +74,10 @@ var unit_data = [
 		"level": 2,
 		"scene_path": "res://scenes/units/cooling_unit_l2.tscn",
 		"sprites": {
-			"front": "res://assets/object_sprites/cooling_rack_2_front.png",
-			"back": "res://assets/object_sprites/cooling_rack_2_back.png",
-			"left": "res://assets/object_sprites/cooling_rack_2_left.png",
-			"right": "res://assets/object_sprites/cooling_rack_2_right.png"
+			"front": "res://assets/object_sprites/coolingRacks/cooling_rack_2_front.png",
+			"back": "res://assets/object_sprites/coolingRacks/cooling_rack_2_back.png",
+			"left": "res://assets/object_sprites/coolingRacks/cooling_rack_2_left.png",
+			"right": "res://assets/object_sprites/coolingRacks/cooling_rack_2_right.png"
 		}
 	},
 	{
@@ -88,10 +88,10 @@ var unit_data = [
 		"level": 3,
 		"scene_path": "res://scenes/units/cooling_unit_l3.tscn",
 		"sprites": {
-			"front": "res://assets/object_sprites/cooling_rack_3_front.png",
-			"back": "res://assets/object_sprites/cooling_rack_3_back.png",
-			"left": "res://assets/object_sprites/cooling_rack_3_left.png",
-			"right": "res://assets/object_sprites/cooling_rack_3_right.png"
+			"front": "res://assets/object_sprites/coolingRacks/cooling_rack_3_front.png",
+			"back": "res://assets/object_sprites/coolingRacks/cooling_rack_3_back.png",
+			"left": "res://assets/object_sprites/coolingRacks/cooling_rack_3_left.png",
+			"right": "res://assets/object_sprites/coolingRacks/cooling_rack_3_right.png"
 		}
 	},
 	{
@@ -102,10 +102,10 @@ var unit_data = [
 		"level": 1,
 		"scene_path": "res://scenes/units/router_l1.tscn",
 		"sprites": {
-			"front": "res://assets/object_sprites/router_1_front.png",
-			"back": "res://assets/object_sprites/router_1_back.png",
-			"left": "res://assets/object_sprites/router_1_left.png",
-			"right": "res://assets/object_sprites/router_1_right.png"
+			"front": "res://assets/object_sprites/routers/router_1_front.png",
+			"back": "res://assets/object_sprites/routers/router_1_back.png",
+			"left": "res://assets/object_sprites/routers/router_1_left.png",
+			"right": "res://assets/object_sprites/routers/router_1_right.png"
 		}
 	},
 	{
@@ -116,10 +116,10 @@ var unit_data = [
 		"level": 2,
 		"scene_path": "res://scenes/units/router_l2.tscn",
 		"sprites": {
-			"front": "res://assets/object_sprites/router_2_front.png",
-			"back": "res://assets/object_sprites/router_2_back.png",
-			"left": "res://assets/object_sprites/router_2_left.png",
-			"right": "res://assets/object_sprites/router_2_right.png"
+			"front": "res://assets/object_sprites/routers/router_2_front.png",
+			"back": "res://assets/object_sprites/routers/router_2_back.png",
+			"left": "res://assets/object_sprites/routers/router_2_left.png",
+			"right": "res://assets/object_sprites/routers/router_2_right.png"
 		}
 	},
 	{
@@ -130,10 +130,10 @@ var unit_data = [
 		"level": 3,
 		"scene_path": "res://scenes/units/router_l3.tscn",
 		"sprites": {
-			"front": "res://assets/object_sprites/router_3_front.png",
-			"back": "res://assets/object_sprites/router_3_back.png",
-			"left": "res://assets/object_sprites/router_3_left.png",
-			"right": "res://assets/object_sprites/router_3_right.png"
+			"front": "res://assets/object_sprites/routers/router_3_front.png",
+			"back": "res://assets/object_sprites/routers/router_3_back.png",
+			"left": "res://assets/object_sprites/routers/router_3_left.png",
+			"right": "res://assets/object_sprites/routers/router_3_right.png"
 		}
 	}
 ]
