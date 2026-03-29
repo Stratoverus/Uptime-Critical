@@ -9,9 +9,9 @@
 [ext_resource type="Script" uid="uid://diecpo4k8f3yl" path="res://scripts/interaction/breaker.gd" id="11_5410t"]
 [ext_resource type="Texture2D" uid="uid://dx6uve4e1wwmi" path="res://assets/placeholders/ai_breaker.png" id="12_hbkad"]
 [ext_resource type="PackedScene" uid="uid://iopwhmejcr8b" path="res://addons/RadialMenu/RadialMenu.tscn" id="13_2ikki"]
-[ext_resource type="Script" path="res://scenes/maps/testMap/canvas_layer.gd" id="14_px3av"]
+[ext_resource type="Script" uid="uid://cmyg1t6hm4rac" path="res://scenes/maps/testMap/canvas_layer.gd" id="14_px3av"]
 [ext_resource type="Theme" uid="uid://cgovku5fdfya3" path="res://assets/themes/ui_theme.tres" id="15_sg8gq"]
-[ext_resource type="Script" path="res://scenes/maps/testMap/traffic_bar.gd" id="16_04i22"]
+[ext_resource type="Script" uid="uid://dl75p1j0weo4e" path="res://scenes/maps/testMap/traffic_bar.gd" id="16_04i22"]
 [ext_resource type="Script" uid="uid://cj5a2dvcp17um" path="res://scripts/UI/buy_menu.gd" id="17_amrog"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5ivrf"]
@@ -256,6 +256,9 @@ horizontal_alignment = 1
 [node name="UnitGrid" type="GridContainer" parent="BuyMenu/Panel/MainVBox" unique_id=1130119268]
 layout_mode = 2
 size_flags_horizontal = 4
+
+[node name="UnitsTab" type="Control" parent="BuyMenu/Panel/MainVBox/UnitGrid" unique_id=803503461]
+layout_mode = 2
 
 [connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/DDoSButton" to="CanvasLayer" method="_on_ddos_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/Control/MarginContainer/HUDContainer/TestingControls/UpgradeButton" to="CanvasLayer" method="_on_upgrade_button_pressed"]

@@ -1,10 +1,10 @@
 extends InteractableObject
 
 var sprites = {
-	"front": preload("res://assets/object_sprites/breaker_front.png"),
-	"right": preload("res://assets/object_sprites/breaker_right.png"),
-	"back": preload("res://assets/object_sprites/breaker_back.png"),
-	"left": preload("res://assets/object_sprites/breaker_left.png")
+	"front": preload("res://assets/object_sprites/breaker/breaker_front.png"),
+	"right": preload("res://assets/object_sprites/breaker/breaker_right.png"),
+	"back": preload("res://assets/object_sprites/breaker/breaker_back.png"),
+	"left": preload("res://assets/object_sprites/breaker/breaker_left.png")
 }
 
 func _ready() -> void:
