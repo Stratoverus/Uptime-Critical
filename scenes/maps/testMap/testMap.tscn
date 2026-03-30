@@ -18,6 +18,7 @@
 [ext_resource type="Script" uid="uid://cj5a2dvcp17um" path="res://scripts/UI/buy_menu.gd" id="16_0dew7"]
 [ext_resource type="Script" uid="uid://d1re1xcsywghq" path="res://scripts/placed_units/placed_units.gd" id="17_6jtrr"]
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="17_hvsy2"]
+[ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="18_debug"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bwda7"]
 size = Vector2(150, 204)
@@ -93,6 +94,8 @@ position = Vector2(961.00006, 539)
 
 [node name="ThermalSystem" parent="." unique_id=1983885184 instance=ExtResource("17_hvsy2")]
 simulation_section_id = &"test_map_main"
+
+[node name="PerfProbeOverlay" parent="." instance=ExtResource("18_debug")]
 
 [node name="ServerRack" type="Area2D" parent="." unique_id=609418582]
 position = Vector2(1367, 515)
