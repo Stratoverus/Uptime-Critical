@@ -6,21 +6,10 @@ var current_interactable = null
 var debug_spawned_servers: Array[Node2D] = []
 var debug_stress_servers: Array[Node2D] = []
 var stress_preset_index: int = 0
-var perf_elapsed: float = 0.0
-var perf_frames: int = 0
-var perf_label: Label = null
-var probe_label: Label = null
-var perf_recent_fps_samples: PackedFloat32Array = PackedFloat32Array()
-var perf_second_frame_ms_samples: PackedFloat32Array = PackedFloat32Array()
-var perf_slow_frames: int = 0
-var perf_frame_time_threshold_ms: float = 15.0
-var perf_log_each_slow_frame: bool = false
-var perf_log_detailed_slow_frames: bool = true
 @export var clear_persisted_placed_structures_on_startup: bool = true
 @export var draw_airflow_debug_gizmos: bool = false
 @export var airflow_debug_arrow_length: float = 56.0
 @export var airflow_debug_arrow_width: float = 2.0
-@export var show_cursor_probe_readout: bool = true
 var placement_rotation_radians: float = 0.0
 var placement_level: int = 1
 var placement_attempts: int = 0
@@ -72,8 +61,6 @@ const SERVER_LEVEL_3_SCENE := preload("res://scenes/server/server_level_3.tscn")
 const COOLING_LEVEL_1_SCENE_PATH: String = "res://scenes/cooler/cooling_level_1.tscn"
 const COOLING_LEVEL_2_SCENE_PATH: String = "res://scenes/cooler/cooling_level_2.tscn"
 const COOLING_LEVEL_3_SCENE_PATH: String = "res://scenes/cooler/cooling_level_3.tscn"
-const PERF_LOW_WINDOW_SECONDS: float = 10.0
-const PERF_LOW_MAX_SAMPLES: int = 900
 const STRESS_SERVER_HEAT_MULTIPLIER: float = 3.5  # Exaggerate heat for better visibility in testing
 const PLACEMENT_ROTATION_STEP: float = PI * 0.5
 const PREVIEW_VALID_COLOR: Color = Color(0.55, 1.0, 0.55, 0.6)
@@ -85,129 +72,18 @@ func _ready() -> void:
 
 	radial_menu.item_selected.connect(_on_menu_item_selected)
 	ensure_debug_actions()
-	setup_perf_label()
 	setup_airflow_gizmo_layer()
 	clear_persisted_placed_structures_if_needed()
 	load_debug_placed_structures()
 	print_testing_help()
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	update_placement_preview()
-	update_cursor_probe_readout()
-	perf_elapsed += delta
-	perf_frames += 1
-
-	var frame_ms_value: float = delta * 1000.0
-	if frame_ms_value > perf_frame_time_threshold_ms:
-		perf_slow_frames += 1
-		if perf_log_each_slow_frame or perf_log_detailed_slow_frames:
-			var summary := "[SlowFrame] ms=%.2f threshold=%.1f" % [frame_ms_value, perf_frame_time_threshold_ms]
-			if perf_log_detailed_slow_frames and thermal_system != null and thermal_system.has_method("get_frame_cost_snapshot"):
-				var snapshot: Dictionary = thermal_system.call("get_frame_cost_snapshot")
-				summary += " | thermal(sim=%.2f upload=%.2f overlay=%.2f refresh=%.2f steps=%d processed=%d ratio=%.2f)" % [
-					float(snapshot.get("sim_ms", 0.0)),
-					float(snapshot.get("upload_ms", 0.0)),
-					float(snapshot.get("overlay_ms", 0.0)),
-					float(snapshot.get("source_refresh_ms", 0.0)),
-					int(snapshot.get("sim_steps", 0)),
-					int(snapshot.get("processed_per_step", 0)),
-					float(snapshot.get("processing_ratio", 0.0))
-				]
-			print(summary)
-
-	var inst_fps: float = 1.0 / max(delta, 0.0001)
-	perf_recent_fps_samples.append(inst_fps)
-	perf_second_frame_ms_samples.append(delta * 1000.0)
-	trim_perf_low_samples()
-
-	if perf_elapsed >= 1.0:
-		var avg_fps: float = float(perf_frames) / max(perf_elapsed, 0.001)
-		var frame_ms: float = 1000.0 / max(avg_fps, 0.001)
-		var one_percent_low: float = compute_one_percent_low_fps()
-		var p99_ms: float = compute_percentile_ms(perf_second_frame_ms_samples, 99.0)
-		var max_ms: float = compute_max_ms(perf_second_frame_ms_samples)
-		var summary: String = "FPS: %s | 1%% low: %s | ms: %s | p99_ms: %s | max_ms: %s | heat_vision: %s | heat_sources: %d | stress: %d" % [
-			String.num(avg_fps, 1),
-			String.num(one_percent_low, 1),
-			String.num(frame_ms, 2),
-			String.num(p99_ms, 2),
-			String.num(max_ms, 2),
-			"ON" if is_heat_vision_enabled() else "OFF",
-			count_heat_sources(),
-			debug_stress_servers.size()
-		]
-		var source_type_counts: Dictionary = count_heat_sources_by_type()
-		summary += " | placed(s/c): %d/%d | place_ok: %d | place_blocked: %d | rot: %ddeg | placing: %s" % [
-			int(source_type_counts.get("server", 0)),
-			int(source_type_counts.get("cooler", 0)),
-			placement_successes,
-			placement_blocked_overlaps,
-			int(round(rad_to_deg(placement_rotation_radians))),
-			"ON" if placement_active else "OFF"
-		]
-		summary += " | level: %d" % [placement_level]
-
-		var slow_pct: float = (100.0 * float(perf_slow_frames)) / max(float(perf_frames), 1.0)
-		summary += " | slow_frames: %d (%.1f%%)" % [perf_slow_frames, slow_pct]
-
-		if perf_label != null:
-			perf_label.text = summary
-
-		print("[Perf] ", summary)
-		perf_elapsed = 0.0
-		perf_frames = 0
-		perf_slow_frames = 0
-		perf_second_frame_ms_samples.clear()
 
 	if draw_airflow_debug_gizmos:
 		refresh_airflow_gizmo_overlay()
 	else:
 		clear_airflow_gizmo_overlay()
-
-func trim_perf_low_samples() -> void:
-	var estimated_window_samples: int = int(ceil(PERF_LOW_WINDOW_SECONDS * 120.0))
-	var max_samples: int = min(max(estimated_window_samples, 120), PERF_LOW_MAX_SAMPLES)
-	if perf_recent_fps_samples.size() <= max_samples:
-		return
-
-	var drop_count: int = perf_recent_fps_samples.size() - max_samples
-	perf_recent_fps_samples = perf_recent_fps_samples.slice(drop_count, perf_recent_fps_samples.size())
-
-func compute_one_percent_low_fps() -> float:
-	if perf_recent_fps_samples.is_empty():
-		return 0.0
-
-	var sorted_samples: PackedFloat32Array = perf_recent_fps_samples.duplicate()
-	sorted_samples.sort()
-	var index: int = int(floor(float(sorted_samples.size() - 1) * 0.01))
-	index = clamp(index, 0, sorted_samples.size() - 1)
-	return sorted_samples[index]
-
-func compute_percentile_ms(samples: PackedFloat32Array, percentile: float) -> float:
-	if samples.is_empty():
-		return 0.0
-	var sorted_samples: PackedFloat32Array = samples.duplicate()
-	sorted_samples.sort()
-	var t: float = clamp(percentile / 100.0, 0.0, 1.0)
-	var index: int = int(floor(float(sorted_samples.size() - 1) * t))
-	index = clamp(index, 0, sorted_samples.size() - 1)
-	return sorted_samples[index]
-
-func compute_max_ms(samples: PackedFloat32Array) -> float:
-	if samples.is_empty():
-		return 0.0
-	var max_value: float = 0.0
-	for sample in samples:
-		max_value = max(max_value, sample)
-	return max_value
-
-func is_heat_vision_enabled() -> bool:
-	if thermal_system == null:
-		return false
-	var enabled_variant: Variant = thermal_system.get("heat_view_enabled")
-	if enabled_variant == null:
-		return false
-	return bool(enabled_variant)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if placement_active and event is InputEventMouseButton and event.pressed:
@@ -260,77 +136,6 @@ func ensure_debug_actions() -> void:
 	ensure_action_with_key(DEBUG_SET_LEVEL_2_ACTION_NAME, DEBUG_SET_LEVEL_2_KEY)
 	ensure_action_with_key(DEBUG_SET_LEVEL_3_ACTION_NAME, DEBUG_SET_LEVEL_3_KEY)
 	ensure_action_with_key(DEBUG_CYCLE_MIXED_PRESET_ACTION_NAME, DEBUG_CYCLE_MIXED_PRESET_KEY)
-
-func setup_perf_label() -> void:
-	var hud_root := get_node_or_null("CanvasLayer/Control") as Control
-	if hud_root == null:
-		return
-
-	perf_label = Label.new()
-	perf_label.name = "PerfLabel"
-	perf_label.text = "FPS: --"
-	perf_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	perf_label.offset_left = 16.0
-	perf_label.offset_top = 18.0
-	perf_label.offset_right = -16.0
-	perf_label.offset_bottom = 46.0
-	perf_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	perf_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hud_root.add_child(perf_label)
-
-	probe_label = Label.new()
-	probe_label.name = "ProbeLabel"
-	probe_label.text = "Probe: --"
-	probe_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	probe_label.offset_left = 16.0
-	probe_label.offset_top = 50.0
-	probe_label.offset_right = 640.0
-	probe_label.offset_bottom = 78.0
-	probe_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	probe_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hud_root.add_child(probe_label)
-
-func update_cursor_probe_readout() -> void:
-	if probe_label == null:
-		return
-
-	if not show_cursor_probe_readout:
-		probe_label.text = "Probe: disabled"
-		return
-
-	if thermal_system == null or not thermal_system.has_method("get_probe_at_world_position"):
-		probe_label.text = "Probe: thermal probe unavailable"
-		return
-
-	var world_pos: Vector2 = get_global_mouse_position()
-	var probe_variant: Variant = thermal_system.call("get_probe_at_world_position", world_pos)
-	if not (probe_variant is Dictionary):
-		probe_label.text = "Probe: no data"
-		return
-
-	var probe: Dictionary = probe_variant
-	var heat_value: float = float(probe.get("heat", 0.0))
-	var temperature_celsius: float = float(probe.get("temperature_celsius", heat_value))
-	if not probe.has("temperature_celsius") and thermal_system.has_method("heat_to_celsius"):
-		temperature_celsius = float(thermal_system.call("heat_to_celsius", heat_value))
-	var airflow_strength: float = float(probe.get("airflow_strength", 0.0))
-	var airflow_angle_degrees: float = float(probe.get("airflow_angle_degrees", 0.0))
-	var airflow_vector: Vector2 = probe.get("airflow", Vector2.ZERO)
-	var cell_pos: Vector2 = probe.get("cell_position", Vector2.ZERO)
-	var direction_text: String = "--"
-	if airflow_strength > 0.00001:
-		direction_text = "%.1f deg" % airflow_angle_degrees
-
-	probe_label.text = "Probe cell(%.1f, %.1f) | temp: %.1f C | heat: %.2f | flow: %.5f cells/s | vec:(%.4f, %.4f) | dir: %s" % [
-		cell_pos.x,
-		cell_pos.y,
-		temperature_celsius,
-		heat_value,
-		airflow_strength,
-		airflow_vector.x,
-		airflow_vector.y,
-		direction_text
-	]
 
 func ensure_action_with_key(action_name: StringName, action_key: Key) -> void:
 	if not InputMap.has_action(action_name):

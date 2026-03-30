@@ -2,6 +2,8 @@
 
 [ext_resource type="Texture2D" uid="uid://k3xv0mxedef4" path="res://assets/godot_spritesheet/spritesheet_16x16.png" id="1_7qk8w"]
 [ext_resource type="Texture2D" uid="uid://bw7bfhk3xm7yl" path="res://assets/Tech Dungeon Roguelite - Asset Pack (DEMO)/tileset x1.png" id="2_jq4t3"]
+[ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="3_thermal"]
+[ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="4_debug"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ur46b"]
 texture = ExtResource("1_7qk8w")
@@ -554,6 +556,10 @@ polygons = Array[PackedInt32Array]([PackedInt32Array(0, 1, 2, 3), PackedInt32Arr
 outlines = Array[PackedVector2Array]([PackedVector2Array(8, 1, 727, 2, 727, 222, 7, 207), PackedVector2Array(9, 243, 8, 672, 375, 672, 390, 218), PackedVector2Array(386, 668, 396, 218, 731, 225, 728, 669)])
 
 [node name="serverRoom4" type="Node2D" unique_id=548434296]
+
+[node name="ThermalSystem" parent="." instance=ExtResource("3_thermal")]
+
+[node name="PerfProbeOverlay" parent="." instance=ExtResource("4_debug")]
 
 [node name="tileServerRoomMap4" type="TileMap" parent="." unique_id=1501250731]
 tile_set = SubResource("TileSet_dg4vb")
