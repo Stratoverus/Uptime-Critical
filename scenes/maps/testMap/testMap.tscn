@@ -18,7 +18,9 @@
 [ext_resource type="Script" uid="uid://cj5a2dvcp17um" path="res://scripts/UI/buy_menu.gd" id="16_0dew7"]
 [ext_resource type="Script" uid="uid://d1re1xcsywghq" path="res://scripts/placed_units/placed_units.gd" id="17_6jtrr"]
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="17_hvsy2"]
+[ext_resource type="Texture2D" uid="uid://dybth8e8ywwv3" path="res://assets/UI/clock/clockface.png" id="18_a04uf"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="18_debug"]
+[ext_resource type="Texture2D" uid="uid://c6whmyabmipf5" path="res://assets/UI/clock/high-tech-pointer.png" id="19_ylcv7"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bwda7"]
 size = Vector2(150, 204)
@@ -95,7 +97,7 @@ position = Vector2(961.00006, 539)
 [node name="ThermalSystem" parent="." unique_id=1983885184 instance=ExtResource("17_hvsy2")]
 simulation_section_id = &"test_map_main"
 
-[node name="PerfProbeOverlay" parent="." instance=ExtResource("18_debug")]
+[node name="PerfProbeOverlay" parent="." unique_id=1005778594 instance=ExtResource("18_debug")]
 
 [node name="ServerRack" type="Area2D" parent="." unique_id=609418582]
 position = Vector2(1367, 515)
@@ -181,22 +183,6 @@ theme_override_constants/margin_top = 20
 [node name="HUDContainer" type="VBoxContainer" parent="CanvasLayer/Control/MarginContainer" unique_id=1490416738]
 layout_mode = 2
 theme_override_constants/separation = 10
-
-[node name="StatsBar" type="HBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=1785240479]
-layout_mode = 2
-theme_override_constants/separation = 15
-
-[node name="Day" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/StatsBar" unique_id=2053421957]
-layout_mode = 2
-theme = ExtResource("3_8ysvq")
-theme_type_variation = &"TooltipLabel"
-text = "Day 1"
-
-[node name="Time" type="Label" parent="CanvasLayer/Control/MarginContainer/HUDContainer/StatsBar" unique_id=569562684]
-layout_mode = 2
-theme = ExtResource("3_8ysvq")
-theme_type_variation = &"TooltipLabel"
-text = "10:30 AM"
 
 [node name="TrafficContainer" type="VBoxContainer" parent="CanvasLayer/Control/MarginContainer/HUDContainer" unique_id=1921954562]
 layout_mode = 2
@@ -320,6 +306,30 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_6jtrr")
 text = "Viral Video"
+
+[node name="ClockContainer" type="MarginContainer" parent="CanvasLayer/Control" unique_id=1582541731]
+custom_minimum_size = Vector2(180, 180)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -180.0
+offset_bottom = 180.0
+grow_horizontal = 0
+mouse_filter = 2
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+
+[node name="ClockBase" type="TextureRect" parent="CanvasLayer/Control/ClockContainer" unique_id=144245637]
+layout_mode = 2
+texture = ExtResource("18_a04uf")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Pointer" type="Sprite2D" parent="CanvasLayer/Control/ClockContainer" unique_id=201724241]
+position = Vector2(80, 100)
+scale = Vector2(0.14, 0.14)
+texture = ExtResource("19_ylcv7")
 
 [node name="BuyMenu" type="CanvasLayer" parent="." unique_id=1222855576]
 script = ExtResource("16_0dew7")
