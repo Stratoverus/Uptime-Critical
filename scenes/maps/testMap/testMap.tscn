@@ -13,8 +13,8 @@
 [ext_resource type="Texture2D" uid="uid://dx6uve4e1wwmi" path="res://assets/placeholders/ai_breaker.png" id="10_6jtrr"]
 [ext_resource type="PackedScene" uid="uid://iopwhmejcr8b" path="res://addons/RadialMenu/RadialMenu.tscn" id="12_ycy7d"]
 [ext_resource type="PackedScene" uid="uid://bndfyhrgoen0t" path="res://scenes/ui/hud.tscn" id="15_6jtrr"]
-[ext_resource type="Script" uid="uid://cj5a2dvcp17um" path="res://scripts/UI/buy_menu.gd" id="16_0dew7"]
 [ext_resource type="Script" uid="uid://d1re1xcsywghq" path="res://scripts/placed_units/placed_units.gd" id="17_6jtrr"]
+[ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="17_bwda7"]
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="17_hvsy2"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="18_debug"]
 
@@ -29,9 +29,6 @@ size = Vector2(102, 120)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_a04uf"]
 size = Vector2(98, 133)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0dew7"]
-bg_color = Color(0.6, 0.6, 0.6, 0)
 
 [node name="TestMap" type="Node2D" unique_id=1954177505]
 script = ExtResource("1_ycy7d")
@@ -111,45 +108,11 @@ icon_scale = 0.08
 
 [node name="CanvasLayer" parent="." unique_id=1602473946 instance=ExtResource("15_6jtrr")]
 
-[node name="BuyMenu" type="CanvasLayer" parent="." unique_id=1222855576]
-script = ExtResource("16_0dew7")
-
-[node name="Panel" type="PanelContainer" parent="BuyMenu" unique_id=1116638510]
-custom_minimum_size = Vector2(200, 300)
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
-anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -150.0
-offset_bottom = 150.0
-grow_horizontal = 0
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_0dew7")
-
-[node name="MainVBox" type="VBoxContainer" parent="BuyMenu/Panel" unique_id=1514181974]
-layout_mode = 2
-
-[node name="TitleLabel" type="Label" parent="BuyMenu/Panel/MainVBox" unique_id=1186750359]
-layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.043137256, 0.02745098, 1)
-text = "Buy Menu"
-horizontal_alignment = 1
-
-[node name="DevMoneyButton" type="Button" parent="BuyMenu/Panel/MainVBox" unique_id=1624180305]
-layout_mode = 2
-text = "Dev +$100"
-
-[node name="UnitGrid" type="GridContainer" parent="BuyMenu/Panel/MainVBox" unique_id=1513841036]
-layout_mode = 2
-
-[node name="UnitsTab" type="Control" parent="BuyMenu/Panel/MainVBox/UnitGrid" unique_id=1837145032]
-layout_mode = 2
-
 [node name="PlacedUnits" type="Node2D" parent="." unique_id=1365032951]
 script = ExtResource("17_6jtrr")
 
 [node name="PlacementPreview" type="Node2D" parent="." unique_id=1408599993]
 
 [node name="Area2D" type="Area2D" parent="." unique_id=1119569488]
+
+[node name="BuyMenu" parent="." unique_id=193852030 instance=ExtResource("17_bwda7")]

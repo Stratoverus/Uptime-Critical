@@ -1,10 +1,11 @@
 [gd_scene format=3 uid="uid://b4ovio8i2bt6o"]
 
 [ext_resource type="Texture2D" uid="uid://bw7bfhk3xm7yl" path="res://assets/Tech Dungeon Roguelite - Asset Pack (DEMO)/tileset x1.png" id="1_22vh5"]
-[ext_resource type="Texture2D" path="res://assets/placeholders/datacenter_tileset.png" id="2_1pvcb"]
+[ext_resource type="Texture2D" uid="uid://djssu66lvsqm2" path="res://assets/placeholders/datacenter_tileset.png" id="2_1pvcb"]
 [ext_resource type="Texture2D" uid="uid://k3xv0mxedef4" path="res://assets/godot_spritesheet/spritesheet_16x16.png" id="3_1pvcb"]
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="4_thermal"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="5_debug"]
+[ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="6_mh0is"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_gqykb"]
 texture = ExtResource("1_22vh5")
@@ -786,9 +787,9 @@ outlines = Array[PackedVector2Array]([PackedVector2Array(8, 2, 229, 2, 240, 400,
 
 [node name="serverRoom3" type="Node2D" unique_id=1517502279]
 
-[node name="ThermalSystem" parent="." instance=ExtResource("4_thermal")]
+[node name="ThermalSystem" parent="." unique_id=1471718189 instance=ExtResource("4_thermal")]
 
-[node name="PerfProbeOverlay" parent="." instance=ExtResource("5_debug")]
+[node name="PerfProbeOverlay" parent="." unique_id=83810077 instance=ExtResource("5_debug")]
 
 [node name="TileMap" type="TileMap" parent="." unique_id=1443478243]
 tile_set = SubResource("TileSet_mh0is")
@@ -800,3 +801,5 @@ layer_1/tile_data = PackedInt32Array(-131072, 262144, 0, -65536, 262144, 1, -131
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=59490228]
 navigation_polygon = SubResource("NavigationPolygon_g13ac")
+
+[node name="BuyMenu" parent="." unique_id=625389401 instance=ExtResource("6_mh0is")]

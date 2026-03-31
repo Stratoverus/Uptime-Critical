@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bw7bfhk3xm7yl" path="res://assets/Tech Dungeon Roguelite - Asset Pack (DEMO)/tileset x1.png" id="2_jq4t3"]
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="3_thermal"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="4_debug"]
+[ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="5_mxp2w"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ur46b"]
 texture = ExtResource("1_7qk8w")
@@ -557,9 +558,9 @@ outlines = Array[PackedVector2Array]([PackedVector2Array(8, 1, 727, 2, 727, 222,
 
 [node name="serverRoom4" type="Node2D" unique_id=548434296]
 
-[node name="ThermalSystem" parent="." instance=ExtResource("3_thermal")]
+[node name="ThermalSystem" parent="." unique_id=601961925 instance=ExtResource("3_thermal")]
 
-[node name="PerfProbeOverlay" parent="." instance=ExtResource("4_debug")]
+[node name="PerfProbeOverlay" parent="." unique_id=1208074637 instance=ExtResource("4_debug")]
 
 [node name="tileServerRoomMap4" type="TileMap" parent="." unique_id=1501250731]
 tile_set = SubResource("TileSet_dg4vb")
@@ -571,3 +572,5 @@ layer_1/tile_data = PackedInt32Array(-131028, 786434, 20, -65492, 786434, 21, -1
 
 [node name="NavigationRegion2D" type="NavigationRegion2D" parent="." unique_id=180316464]
 navigation_polygon = SubResource("NavigationPolygon_xsu51")
+
+[node name="BuyMenu" parent="." unique_id=625389401 instance=ExtResource("5_mxp2w")]

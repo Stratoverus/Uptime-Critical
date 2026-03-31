@@ -43,17 +43,18 @@ func _on_menu_item_selected(id, _position) -> void:
 		current_interactable = null
 
 func get_action_icon(action_name: String) -> Texture2D:
-	match action_name:
-		"Turn Off":
-			return load("res://assets/UI/icons/turn_off.svg")
-		"Turn On":
-			return load("res://assets/UI/icons/turn_on.svg")
-		"Reboot":
-			return load("res://assets/UI/icons/reboot.svg")
-		"Inspect":
-			return load("res://assets/UI/icons/inspect.svg")
-		_:
-			return null
+	if action_name == "Turn Off":
+		return load("res://assets/UI/icons/turn_off.svg")
+	elif action_name == "Turn On":
+		return load("res://assets/UI/icons/turn_on.svg")
+	elif action_name == "Reboot":
+		return load("res://assets/UI/icons/reboot.svg")
+	elif action_name == "Inspect":
+		return load("res://assets/UI/icons/inspect.svg")
+	elif action_name.begins_with("Upgrade"):
+		return load("res://assets/UI/icons/upgrade.svg")
+	else:
+		return null
 
 func _on_buy_menu_unit_selected(unit_data) -> void:
 	selected_unit_to_place = unit_data
