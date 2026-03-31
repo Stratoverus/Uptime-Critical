@@ -86,6 +86,7 @@ func inspect() -> void:
 	pass
 
 func upgrade() -> void:
+	# print("Upgrading")
 	if level >= 3:
 		print("Already max level")
 		return

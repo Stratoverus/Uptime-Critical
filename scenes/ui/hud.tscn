@@ -54,7 +54,7 @@ corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
 
-[node name="CanvasLayer" type="CanvasLayer" unique_id=1602473946]
+[node name="CanvasLayer" type="CanvasLayer" unique_id=1602473946 groups=["hud"]]
 script = ExtResource("1_136eg")
 
 [node name="Control" type="Control" parent="." unique_id=1376421738]

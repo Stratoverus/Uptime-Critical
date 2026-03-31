@@ -6,7 +6,6 @@ signal interaction_requested(interactable)
 @export var object_name: String = "Interactable"
 @export var interaction_range: float = 150.0
 @export var actions: Array[String] = []
-@export var auto_step_range: float = 300.0
 
 @onready var sprite: Sprite2D = $Sprite2D
 
@@ -18,17 +17,8 @@ func _ready() -> void:
 
 func _input_event(_viewport, event, _shape_idx) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		var distance := get_distance_to_player()
-		print(object_name, " distance to player = ", distance)
-
-		if is_player_in_range():
-			print("In range:", object_name)
-			interaction_requested.emit(self)
-		elif is_player_in_auto_step_range():
-			print("Auto-step toward:", object_name)
-			_auto_step_player_and_interact()
-		else:
-			print("Too far away from:", object_name)
+		print("Clicked:", object_name)
+		interaction_requested.emit(self)
 
 func get_actions() -> Array[String]:
 	return actions
@@ -55,25 +45,3 @@ func get_distance_to_player() -> float:
 
 func is_player_in_range() -> bool:
 	return get_distance_to_player() <= interaction_range
-
-func is_player_in_auto_step_range() -> bool:
-	var distance := get_distance_to_player()
-	return distance > interaction_range and distance <= auto_step_range
-
-func _auto_step_player_and_interact() -> void:
-	var player := get_player()
-	if player == null:
-		print("No player found")
-		return
-
-	var direction := (global_position - player.global_position).normalized()
-	var target_position := global_position - direction * (interaction_range - 10.0)
-
-	var tween := create_tween()
-	tween.set_trans(Tween.TRANS_SINE)
-	tween.set_ease(Tween.EASE_OUT)
-	tween.tween_property(player, "global_position", target_position, 0.25)
-	await tween.finished
-
-	print("Player moved to:", player.global_position)
-	interaction_requested.emit(self)
