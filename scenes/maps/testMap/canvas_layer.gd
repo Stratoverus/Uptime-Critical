@@ -7,8 +7,6 @@ extends CanvasLayer
 @export var traffic_growth_rate: float = 0.01
 
 
-@onready var clock_label = $Control/MarginContainer/HUDContainer/StatsBar/Time
-@onready var day_label = $Control/MarginContainer/HUDContainer/StatsBar/Day
 @onready var traffic_bar = $Control/MarginContainer/HUDContainer/TrafficContainer/TrafficBar
 @onready var rps_label = $Control/MarginContainer/HUDContainer/TrafficContainer/HBoxContainer/RPSLabel
 @onready var ddos_rps_label = $Control/MarginContainer/HUDContainer/TrafficContainer/HBoxContainer/DDoSLabel
@@ -18,6 +16,7 @@ extends CanvasLayer
 @onready var income_label = $Control/MarginContainer/HUDContainer/MoneyContainer/IncomeLabel
 @onready var temp_label = $Control/MarginContainer/HUDContainer/TempContainer/Temp
 @onready var speed_button = $Control/MarginContainer/HUDContainer/TestingControls/SpeedButton
+@onready var clock_pointer = $Control/ClockContainer/Pointer
 
 # Event Definitions
 const EVENTS = {
@@ -59,7 +58,7 @@ var last_roll_hour = -1
 
 # Game State Variables
 var time = 360.0
-var time_scale = 1.0
+var time_scale = 12.0 # Min/Sec
 var current_day = int(time / 1440) + 1
 var servers_active = true
 var event_active = false
@@ -107,8 +106,11 @@ func _process(delta: float):
 	time += delta * time_scale
 	current_day = (int(time / 1440) + 1)
 	var total_minutes_today = fmod(time, 1440.0)
+	var day_progress = total_minutes_today / 1440.0
+
+	clock_pointer.rotation = (day_progress * TAU) - (PI / 2.0)
+
 	var hours_24 = int(total_minutes_today / 60)
-	var minutes = int(total_minutes_today) % 60
 
 	# --- 1. HOURLY TICK ---
 	# We check this every time the hour changes
@@ -121,11 +123,8 @@ func _process(delta: float):
 		end_active_event()
 	
 	# Update Labels
-	var period = "AM" if hours_24 < 12 else "PM"
 	var display_hours = hours_24 % 12
 	if display_hours == 0: display_hours = 12
-	day_label.text = "Day %d" % current_day
-	clock_label.text = "%d:%02d %s" % [display_hours, minutes, period]
 
 	# ============================================
 	# 2. TRAFFIC LOGIC (Asymmetric 16/8 Cycle)
@@ -356,11 +355,11 @@ func _on_upgrade_button_pressed() -> void:
 	traffic_bar.max_value = traffic_bar.max_value * 1.5
 
 func _on_speed_button_pressed() -> void:
-	if time_scale == 1.0:
-		time_scale = 100.0
+	if time_scale == 12.0:
+		time_scale = 1200.0
 		speed_button.text = "Speed x100: ON"
 	else:
-		time_scale = 1.0 
+		time_scale = 12.0 
 		speed_button.text = "Speed x100: OFF"
 
 func _on_ddos_button_pressed() -> void:
