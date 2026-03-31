@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://b1pe0uxcy2i2s"]
+
+[ext_resource type="Script" uid="uid://cj5a2dvcp17um" path="res://scripts/UI/buy_menu.gd" id="1_gwp7j"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0dew7"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+
+[node name="CanvasLayer" type="CanvasLayer" unique_id=625389401]
+script = ExtResource("1_gwp7j")
+
+[node name="Panel" type="PanelContainer" parent="." unique_id=193852030]
+custom_minimum_size = Vector2(200, 300)
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_bottom = 150.0
+grow_horizontal = 0
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_0dew7")
+
+[node name="MainVBox" type="VBoxContainer" parent="Panel" unique_id=216870326]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="Panel/MainVBox" unique_id=538898412]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0.043137256, 0.02745098, 1)
+text = "Buy Menu"
+horizontal_alignment = 1
+
+[node name="DevMoneyButton" type="Button" parent="Panel/MainVBox" unique_id=738706784]
+layout_mode = 2
+text = "Dev +$100"
+
+[node name="UnitGrid" type="GridContainer" parent="Panel/MainVBox" unique_id=1325204484]
+layout_mode = 2
+
+[node name="UnitsTab" type="Control" parent="Panel/MainVBox/UnitGrid" unique_id=468885035]
+layout_mode = 2
