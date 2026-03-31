@@ -18,7 +18,7 @@ func update_display(current_val: float, servers_active: bool):
 	if servers_active:
 		if max_value < 1000:
 			$TrafficLabel.text = "%d / %d Mbps" % [int(value), int(max_value)]
-		elif max_value > 1000 && max_value < 1000000:
+		elif max_value >= 1000 && max_value < 1000000:
 			$TrafficLabel.text = "%.2f / %.2f Gbps" % [value/1000.0, max_value/1000.0]
 		else:
 			$TrafficLabel.text = "%.2f / %.2f Tbps" % [value/1000000.0, max_value/1000000.0]

@@ -176,7 +176,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_p47bc"]
-size = Vector2(24, 33)
+size = Vector2(24, 17)
 
 [node name="Player" type="Node2D" unique_id=1391588806]
 scale = Vector2(3, 3)
@@ -189,9 +189,8 @@ sprite_frames = SubResource("SpriteFrames_iqsei")
 animation = &"walkDown"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D" unique_id=313094349]
-position = Vector2(0, 0.5)
+position = Vector2(0, 8.5)
 shape = SubResource("RectangleShape2D_p47bc")
 
 [node name="Camera2D" type="Camera2D" parent="CharacterBody2D" unique_id=369653670]
 process_callback = 0
-position_smoothing_enabled = false
