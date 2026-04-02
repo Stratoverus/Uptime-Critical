@@ -5,17 +5,21 @@ extends Node2D
 @onready var placed_units = $PlacedUnits
 @onready var placement_preview = $PlacementPreview
 @onready var hud = $CanvasLayer
+@onready var player = get_tree().get_first_node_in_group("player")
 
+var pending_action: String = ""
 var current_interactable = null
 var selected_unit_to_place = null
 var preview_area: Area2D = null
 var preview_sprite: Sprite2D = null
 var preview_collision: CollisionShape2D = null
-
+var menu_opened_in_range: bool = false
 var facing_order = ["front", "right", "back", "left"]
 var current_facing_index := 0
 
 func _ready() -> void:
+	print("radial_menu =", radial_menu)
+
 	for node in get_tree().get_nodes_in_group("interactable"):
 		node.interaction_requested.connect(_on_interaction_requested)
 
@@ -25,6 +29,8 @@ func _ready() -> void:
 
 func _on_interaction_requested(interactable) -> void:
 	current_interactable = interactable
+	pending_action = ""
+	menu_opened_in_range = interactable.is_player_in_range()
 
 	var items = []
 	for action in interactable.get_actions():
@@ -38,9 +44,23 @@ func _on_interaction_requested(interactable) -> void:
 	radial_menu.open_menu(get_viewport().get_mouse_position())
 
 func _on_menu_item_selected(id, _position) -> void:
-	if current_interactable:
-		current_interactable.perform_action(id)
-		current_interactable = null
+	if current_interactable == null:
+		return
+
+	pending_action = id
+	print("Selected action:", id)
+
+	if current_interactable.is_player_in_range():
+		print("Already in range")
+		_perform_pending_action()
+	else:
+		var current_player = get_player()
+		print("Player found:", current_player)
+		if current_player != null and current_player.has_method("move_to_interactable"):
+			print("Calling move_to_interactable")
+			current_player.move_to_interactable(current_interactable)
+		else:
+			print("Player missing move_to_interactable")
 
 func get_action_icon(action_name: String) -> Texture2D:
 	if action_name == "Turn Off":
@@ -106,10 +126,24 @@ func _physics_process(_delta: float) -> void:
 	if preview_area != null:
 		preview_area.global_position = get_global_mouse_position()
 
-		if can_place_at_current_position():
-			preview_sprite.modulate = Color(1, 1, 1, 0.5)
-		else:
-			preview_sprite.modulate = Color(1, 0.3, 0.3, 0.5)
+		if preview_sprite != null:
+			if can_place_at_current_position():
+				preview_sprite.modulate = Color(1, 1, 1, 0.5)
+			else:
+				preview_sprite.modulate = Color(1, 0.3, 0.3, 0.5)
+
+	if current_interactable != null and pending_action != "":
+		var current_player = get_player()
+		if current_interactable.is_player_in_range():
+			if current_player != null and "auto_moving" in current_player:
+				current_player.auto_moving = false
+			_perform_pending_action()
+
+	if current_interactable != null and radial_menu.visible and pending_action == "":
+		if menu_opened_in_range and not current_interactable.is_player_in_range():
+			radial_menu.hide()
+			current_interactable = null
+			menu_opened_in_range = false
 
 func _unhandled_input(event: InputEvent) -> void:
 	if selected_unit_to_place == null or preview_area == null:
@@ -247,3 +281,18 @@ func _on_add_dev_money_requested(amount: float) -> void:
 	hud.revenue += amount
 	hud.cash_label.text = "$%.2f" % hud.revenue
 	print("Dev money added:", amount)
+
+func _perform_pending_action() -> void:
+	if current_interactable == null or pending_action == "":
+		return
+
+	current_interactable.perform_action(pending_action)
+	pending_action = ""
+	menu_opened_in_range = false
+	radial_menu.hide()
+	current_interactable = null
+
+func get_player():
+	if player == null:
+		player = get_tree().get_first_node_in_group("player")
+	return player
