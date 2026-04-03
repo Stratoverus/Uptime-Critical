@@ -4,6 +4,12 @@ extends CharacterBody2D
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
+var move_target: Vector2 = Vector2.ZERO
+var moving_to_target: bool = false
+var target_interactable = null
+var auto_move_target: Vector2 = Vector2.ZERO
+var auto_moving: bool = false
+
 const MOVE_ACTIONS := {
 	"move_left": KEY_A,
 	"move_right": KEY_D,
@@ -18,7 +24,23 @@ func _ready() -> void:
 
 func _physics_process(_delta: float) -> void:
 	var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
-	velocity = direction * move_speed
+
+	if direction != Vector2.ZERO:
+		auto_moving = false
+		velocity = direction * move_speed
+	else:
+		if auto_moving:
+			var auto_direction := auto_move_target - global_position
+
+			if auto_direction.length() < 8.0:
+				auto_moving = false
+				velocity = Vector2.ZERO
+			else:
+				direction = auto_direction.normalized()
+				velocity = direction * move_speed
+		else:
+			velocity = Vector2.ZERO
+
 	move_and_slide()
 	_update_animation(direction)
 
@@ -58,3 +80,11 @@ func _action_has_key(action_name: String, key_code: Key) -> bool:
 			return true
 
 	return false
+
+func move_to_interactable(interactable) -> void:
+	var direction: Vector2 = (global_position - interactable.global_position).normalized()
+	if direction == Vector2.ZERO:
+		direction = Vector2.DOWN
+
+	auto_move_target = interactable.global_position + direction * (interactable.interaction_range - 10.0)
+	auto_moving = true
