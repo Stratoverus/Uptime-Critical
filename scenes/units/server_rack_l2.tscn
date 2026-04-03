@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://djstjccpqlfhh"]
+
+[ext_resource type="Script" uid="uid://bypsyjhf0o4a4" path="res://scripts/interaction/server_rack.gd" id="1_mwunb"]
+[ext_resource type="Texture2D" uid="uid://bk01gksnp2tje" path="res://assets/object_sprites/server_rack_2_front.png" id="2_h4au7"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_14spt"]
+size = Vector2(100, 100)
+
+[node name="ServerRackL2" type="Area2D" unique_id=144986347]
+script = ExtResource("1_mwunb")
+level = 2
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=535800224]
+texture = ExtResource("2_h4au7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=132464401]
+shape = SubResource("RectangleShape2D_14spt")
+
+[node name="ElectricalNodeLeft" type="Node2D" parent="."]
+position = Vector2(-36, -16)
+
+[node name="ElectricalNodeRight" type="Node2D" parent="."]
+position = Vector2(36, -16)

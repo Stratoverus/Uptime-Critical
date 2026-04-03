@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://bovcxnea8iabx"]
+
+[ext_resource type="Script" uid="uid://b4wqubjhokd5q" path="res://scripts/interaction/router.gd" id="1_h8xor"]
+[ext_resource type="Texture2D" uid="uid://b6w1wg31efdck" path="res://assets/object_sprites/router_3_front.png" id="2_65ls5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i7c1b"]
+size = Vector2(100, 100)
+
+[node name="RouterL3" type="Area2D" unique_id=1854695840]
+script = ExtResource("1_h8xor")
+level = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=2020078242]
+texture = ExtResource("2_65ls5")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1257790068]
+shape = SubResource("RectangleShape2D_i7c1b")

@@ -1,0 +1,65 @@
+# Godot Spritesheet Metadata
+# Frame size: 16x16px
+# Sheet size: 64x160px
+# Columns (left to right): front | back | side_left | side_right
+
+# --- breaker (row 0) ---
+breaker_front = Rect2(0, 0, 16, 16)
+breaker_back = Rect2(16, 0, 16, 16)
+breaker_side_left = Rect2(32, 0, 16, 16)
+breaker_side_right = Rect2(48, 0, 16, 16)
+
+# --- cooling_rack_1 (row 1) ---
+cooling_rack_1_front = Rect2(0, 16, 16, 16)
+cooling_rack_1_back = Rect2(16, 16, 16, 16)
+cooling_rack_1_side_left = Rect2(32, 16, 16, 16)
+cooling_rack_1_side_right = Rect2(48, 16, 16, 16)
+
+# --- cooling_rack_2 (row 2) ---
+cooling_rack_2_front = Rect2(0, 32, 16, 16)
+cooling_rack_2_back = Rect2(16, 32, 16, 16)
+cooling_rack_2_side_left = Rect2(32, 32, 16, 16)
+cooling_rack_2_side_right = Rect2(48, 32, 16, 16)
+
+# --- cooling_rack_3 (row 3) ---
+cooling_rack_3_front = Rect2(0, 48, 16, 16)
+cooling_rack_3_back = Rect2(16, 48, 16, 16)
+cooling_rack_3_side_left = Rect2(32, 48, 16, 16)
+cooling_rack_3_side_right = Rect2(48, 48, 16, 16)
+
+# --- router_1 (row 4) ---
+router_1_front = Rect2(0, 64, 16, 16)
+router_1_back = Rect2(16, 64, 16, 16)
+router_1_side_left = Rect2(32, 64, 16, 16)
+router_1_side_right = Rect2(48, 64, 16, 16)
+
+# --- router_2 (row 5) ---
+router_2_front = Rect2(0, 80, 16, 16)
+router_2_back = Rect2(16, 80, 16, 16)
+router_2_side_left = Rect2(32, 80, 16, 16)
+router_2_side_right = Rect2(48, 80, 16, 16)
+
+# --- router_3 (row 6) ---
+router_3_front = Rect2(0, 96, 16, 16)
+router_3_back = Rect2(16, 96, 16, 16)
+router_3_side_left = Rect2(32, 96, 16, 16)
+router_3_side_right = Rect2(48, 96, 16, 16)
+
+# --- server_rack_1 (row 7) ---
+server_rack_1_front = Rect2(0, 112, 16, 16)
+server_rack_1_back = Rect2(16, 112, 16, 16)
+server_rack_1_side_left = Rect2(32, 112, 16, 16)
+server_rack_1_side_right = Rect2(48, 112, 16, 16)
+
+# --- server_rack_2 (row 8) ---
+server_rack_2_front = Rect2(0, 128, 16, 16)
+server_rack_2_back = Rect2(16, 128, 16, 16)
+server_rack_2_side_left = Rect2(32, 128, 16, 16)
+server_rack_2_side_right = Rect2(48, 128, 16, 16)
+
+# --- server_rack_3 (row 9) ---
+server_rack_3_front = Rect2(0, 144, 16, 16)
+server_rack_3_back = Rect2(16, 144, 16, 16)
+server_rack_3_side_left = Rect2(32, 144, 16, 16)
+server_rack_3_side_right = Rect2(48, 144, 16, 16)
+

@@ -32,5 +32,5 @@ func _draw() -> void:
 	for y in tiles_y:
 		for x in tiles_x:
 			var color := light_color if (x + y) % 2 == 0 else dark_color
-			var position := origin + Vector2(x * tile_size, y * tile_size)
-			draw_rect(Rect2(position, Vector2(tile_size, tile_size)), color, true)
+			var tile_position := origin + Vector2(x * tile_size, y * tile_size)
+			draw_rect(Rect2(tile_position, Vector2(tile_size, tile_size)), color, true)

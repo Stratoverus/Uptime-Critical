@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://daa5hllwcj8m2"]
+
+[ext_resource type="Script" uid="uid://c5m3hc4ck6g41" path="res://scripts/interaction/cooling_rack.gd" id="1_b2a1l"]
+[ext_resource type="Texture2D" uid="uid://bbop2cbyln0vi" path="res://assets/object_sprites/cooling_rack_3_front.png" id="2_2d1q7"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jccjp"]
+size = Vector2(100, 100)
+
+[node name="CoolingUnitL3" type="Area2D" unique_id=435731832]
+script = ExtResource("1_b2a1l")
+level = 3
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1874063331]
+texture = ExtResource("2_2d1q7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2102899190]
+shape = SubResource("RectangleShape2D_jccjp")
+
+[node name="ElectricalNodeLeft" type="Node2D" parent="."]
+position = Vector2(-36, -16)
+
+[node name="ElectricalNodeRight" type="Node2D" parent="."]
+position = Vector2(36, -16)
