@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="6_thermal"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="7_debug"]
 [ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="8_fbxn4"]
+[ext_resource type="PackedScene" uid="uid://bndfyhrgoen0t" path="res://scenes/ui/hud.tscn" id="9_36due"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_6idqr"]
 texture = ExtResource("1_ssetc")
@@ -913,3 +914,5 @@ shape = SubResource("RectangleShape2D_ij12g")
 position = Vector2(120, 325)
 
 [node name="CanvasLayer" parent="." unique_id=625389401 instance=ExtResource("8_fbxn4")]
+
+[node name="HUD" parent="." unique_id=1602473946 instance=ExtResource("9_36due")]

@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="4_thermal"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="5_debug"]
 [ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="6_mh0is"]
+[ext_resource type="PackedScene" uid="uid://bndfyhrgoen0t" path="res://scenes/ui/hud.tscn" id="7_g13ac"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_gqykb"]
 texture = ExtResource("1_22vh5")
@@ -803,3 +804,5 @@ layer_1/tile_data = PackedInt32Array(-131072, 262144, 0, -65536, 262144, 1, -131
 navigation_polygon = SubResource("NavigationPolygon_g13ac")
 
 [node name="BuyMenu" parent="." unique_id=625389401 instance=ExtResource("6_mh0is")]
+
+[node name="HUD" parent="." unique_id=1602473946 instance=ExtResource("7_g13ac")]

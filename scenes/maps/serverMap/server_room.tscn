@@ -3,6 +3,7 @@
 [ext_resource type="TileSet" uid="uid://bantebqwyr5c1" path="res://assets/Tilesets/serverTileSetSize3.tres" id="3_10x5o"]
 [ext_resource type="PackedScene" uid="uid://cn6x5ssw581m4" path="res://scenes/player/player.tscn" id="3_q4j5m"]
 [ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="5_wj644"]
+[ext_resource type="PackedScene" uid="uid://bndfyhrgoen0t" path="res://scenes/ui/hud.tscn" id="6_hsg4r"]
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="6_thermal"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="7_debug"]
 
@@ -25,3 +26,5 @@ tile_map_data = PackedByteArray("AAAAAAEAAAAiAAEAAAABAAEAAAAiAAEAAAACAAEAAAAiAAE
 tile_set = ExtResource("3_10x5o")
 
 [node name="BuyMenu" parent="." unique_id=625389401 instance=ExtResource("5_wj644")]
+
+[node name="HUD" parent="." unique_id=1602473946 instance=ExtResource("6_hsg4r")]
