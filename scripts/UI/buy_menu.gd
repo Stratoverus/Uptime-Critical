@@ -9,6 +9,12 @@ signal add_dev_money_requested(amount)
 
 var selected_button: Button = null
 
+var cable_items = [
+	{ "name": "Cat5", "color": Color.BLACK, "cost": 1 },
+	{ "name": "Cat6", "color": Color.GREEN, "cost": 2 },
+	{ "name": "Fiber", "color": Color.ORANGE, "cost": 5 }
+]
+
 var unit_data = [
 	{
 		"id": "server_rack_l1",
@@ -229,6 +235,36 @@ func build_unit_list() -> void:
 
 		unit_grid.add_child(button)
 
+func populate_menu(items: Array, is_cable: bool) -> void:
+	for child in unit_grid.get_children():
+		child.queue_free()
+
+	for item in items:
+		var button = Button.new()
+
+		if is_cable:
+			button.text = "%s  |  $%s/ft" % [item["name"], item["cost"]]
+			style_menu_button(button, item["color"])
+			button.set_meta("cable_data", item)
+			button.pressed.connect(_on_cable_pressed.bind(button))
+		else:
+			button.text = "%s  |  $%s" % [item["name"], item["cost"]]
+
+			if item["name"].contains("Server Rack"):
+				style_menu_button(button, Color(0.101960786, 0.6, 0.6, 1))
+			elif item["name"].contains("Cooling Unit"):
+				style_menu_button(button, Color(0.23609412, 0.6139884, 0.35257745, 1))
+			else:
+				style_menu_button(button, Color(0.6455514, 1.8289685e-06, 3.3691526e-07, 1))
+
+			button.set_meta("unit_data", item)
+			button.pressed.connect(_on_unit_pressed.bind(button))
+
+		button.custom_minimum_size = Vector2(220, 44)
+		button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+
+		unit_grid.add_child(button)
+
 func _on_unit_pressed(button: Button) -> void:
 	var unit = button.get_meta("unit_data")
 
@@ -244,3 +280,25 @@ func _on_unit_pressed(button: Button) -> void:
 
 func _on_dev_money_button_pressed() -> void:
 	add_dev_money_requested.emit(100)
+
+func set_menu_mode(is_cable: bool):
+	if is_cable:
+		title_label.text = "Cable Mode"
+		populate_menu(cable_items, true)
+	else:
+		title_label.text = "Buy Menu"
+		populate_menu(unit_data, false)
+
+func _on_cable_pressed(button: Button) -> void:
+	var cable = button.get_meta("cable_data")
+
+	if selected_button != null:
+		selected_button.modulate = Color(1, 1, 1, 1)
+
+	selected_button = button
+	selected_button.modulate = Color(0.7, 1.0, 0.7, 1.0)
+
+	print("Selected cable:", cable["name"], " Cost per ft:", cable["cost"])
+
+	# we'll use this later for placement
+	emit_signal("unit_selected", cable)

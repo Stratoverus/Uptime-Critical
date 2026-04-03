@@ -3,6 +3,16 @@ extends InteractableObject
 @export var level: int = 1
 
 var current_facing: String = "front"
+var is_connected_to_network: bool = false
+var cable_mode_highlight_on: bool = false
+var connected_segments: Array = []
+var network_node_type := "router"
+# set below to 8 
+var port_limits = {
+	1: 8,
+	2: 12,
+	3: 16
+}
 
 var sprites_by_level = {
 	1: {
@@ -42,6 +52,7 @@ func update_actions() -> void:
 		]
 
 func _ready() -> void:
+	add_to_group("network_nodes")
 	object_name = "Router L" + str(level)
 	update_actions()
 	interaction_range = 150.0
@@ -100,3 +111,35 @@ func upgrade() -> void:
 		set_facing(current_facing)
 	else:
 		print("Not enough money to upgrade")
+
+func set_network_connected_state(connected: bool) -> void:
+	is_connected_to_network = connected
+	_update_cable_mode_visual()
+
+func set_cable_mode_highlight(enabled: bool) -> void:
+	cable_mode_highlight_on = enabled
+	_update_cable_mode_visual()
+
+func _update_cable_mode_visual() -> void:
+	if not sprite:
+		return
+
+	if not cable_mode_highlight_on:
+		sprite.modulate = Color(1, 1, 1, 1)
+		return
+
+	# Simple highlight only (no connection logic)
+	sprite.modulate = Color(1.1, 1.1, 0.8, 1.0)
+
+func add_connection(segment) -> void:
+	if not connected_segments.has(segment):
+		connected_segments.append(segment)
+
+func remove_connection(segment) -> void:
+	connected_segments.erase(segment)
+
+func has_free_port() -> bool:
+	return connected_segments.size() < get_port_limit()
+
+func get_port_limit() -> int:
+	return port_limits.get(level, 8)

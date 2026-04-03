@@ -1,11 +1,14 @@
 extends Node2D
 
+signal cable_mode_changed(is_enabled)
+
 @onready var radial_menu = $UI/RadialMenu
 @onready var buy_menu = $BuyMenu
 @onready var placed_units = $PlacedUnits
 @onready var placement_preview = $PlacementPreview
 @onready var hud = $CanvasLayer
 @onready var player = get_tree().get_first_node_in_group("player")
+@onready var cable_mode_button = $BuyMenu/Panel/MainVBox/CableModeButton
 
 var pending_action: String = ""
 var current_interactable = null
@@ -16,6 +19,14 @@ var preview_collision: CollisionShape2D = null
 var menu_opened_in_range: bool = false
 var facing_order = ["front", "right", "back", "left"]
 var current_facing_index := 0
+var is_cable_mode := false
+var selected_cable_type = null
+var cable_start_point = null
+var cable_placement_active := false
+var last_cable_click_time := 0
+var placed_cable_segments: Array = []
+var cable_preview_line: Line2D = null
+var cable_preview_label: Label = null
 
 func _ready() -> void:
 	print("radial_menu =", radial_menu)
@@ -27,7 +38,16 @@ func _ready() -> void:
 	buy_menu.unit_selected.connect(_on_buy_menu_unit_selected)
 	buy_menu.add_dev_money_requested.connect(_on_add_dev_money_requested)
 
+	if cable_mode_button:
+		cable_mode_button.pressed.connect(_on_cable_mode_button_pressed)
+
 func _on_interaction_requested(interactable) -> void:
+	if is_cable_mode:
+		if radial_menu.visible:
+			radial_menu.hide()
+		print("Ignoring normal interaction because cable mode is active")
+		return
+
 	current_interactable = interactable
 	pending_action = ""
 	menu_opened_in_range = interactable.is_player_in_range()
@@ -77,6 +97,21 @@ func get_action_icon(action_name: String) -> Texture2D:
 		return null
 
 func _on_buy_menu_unit_selected(unit_data) -> void:
+	if is_cable_mode:
+		selected_cable_type = unit_data
+		selected_unit_to_place = null
+		clear_placement_preview()
+		cable_start_point = null
+		cable_placement_active = true
+		clear_cable_preview()
+
+		print("Ready to place cable:", unit_data["name"])
+		return
+
+	selected_cable_type = null
+	cable_placement_active = false
+	cable_start_point = null
+
 	selected_unit_to_place = unit_data
 	current_facing_index = 0
 	create_placement_preview()
@@ -131,6 +166,7 @@ func _physics_process(_delta: float) -> void:
 				preview_sprite.modulate = Color(1, 1, 1, 0.5)
 			else:
 				preview_sprite.modulate = Color(1, 0.3, 0.3, 0.5)
+	update_cable_preview()
 
 	if current_interactable != null and pending_action != "":
 		var current_player = get_player()
@@ -146,6 +182,10 @@ func _physics_process(_delta: float) -> void:
 			menu_opened_in_range = false
 
 func _unhandled_input(event: InputEvent) -> void:
+	if is_cable_mode:
+		_handle_cable_mode_input(event)
+		return
+
 	if selected_unit_to_place == null or preview_area == null:
 		return
 
@@ -187,6 +227,10 @@ func place_selected_unit() -> void:
 
 	var cost = selected_unit_to_place["cost"]
 
+	if is_cable_mode:
+		print("Cannot place units in cable mode")
+		return
+
 	if not hud.can_afford(cost):
 		print("Not enough money")
 		return
@@ -202,7 +246,6 @@ func place_selected_unit() -> void:
 
 	var new_unit = packed_scene.instantiate()
 
-	# must be an Area2D root for your current placement validation
 	if not (new_unit is Area2D):
 		print("Placed scene root is not Area2D")
 		return
@@ -296,3 +339,358 @@ func get_player():
 	if player == null:
 		player = get_tree().get_first_node_in_group("player")
 	return player
+
+func _on_cable_mode_button_pressed() -> void:
+	set_cable_mode(not is_cable_mode)
+
+func set_cable_mode(enabled: bool) -> void:
+	if is_cable_mode == enabled:
+		return
+
+	is_cable_mode = enabled
+
+	if is_cable_mode:
+		print("Cable mode ON")
+		selected_unit_to_place = null
+		clear_placement_preview()
+		clear_cable_preview()
+	else:
+		print("Cable mode OFF")
+		selected_cable_type = null
+		cable_start_point = null
+		cable_placement_active = false
+		clear_cable_preview()
+
+	if is_cable_mode and radial_menu:
+		radial_menu.hide()
+
+	cable_mode_changed.emit(is_cable_mode)
+	_update_cable_mode_button()
+	update_all_network_node_highlights()
+
+	if buy_menu and buy_menu.has_method("set_menu_mode"):
+		buy_menu.set_menu_mode(is_cable_mode)
+
+	update_cable_visibility()
+
+func _update_cable_mode_button() -> void:
+	if not cable_mode_button:
+		return
+
+	if is_cable_mode:
+		cable_mode_button.text = "Exit Cable Mode"
+	else:
+		cable_mode_button.text = "Cable Mode"
+
+func update_all_network_node_highlights() -> void:
+	for node in get_tree().get_nodes_in_group("network_nodes"):
+		if node.has_method("set_cable_mode_highlight"):
+			node.set_cable_mode_highlight(is_cable_mode)
+
+
+
+func _handle_cable_mode_input(event: InputEvent) -> void:
+	if not cable_placement_active:
+		return
+
+	if event is InputEventMouseButton and event.pressed:
+		var now = Time.get_ticks_msec()
+		if now - last_cable_click_time < 120:
+			return
+		last_cable_click_time = now
+
+		if event.button_index == MOUSE_BUTTON_LEFT:
+			var mouse_pos = get_global_mouse_position()
+			var clicked_node = get_clicked_network_node(mouse_pos)
+
+			if clicked_node != null:
+				_handle_cable_node_click(clicked_node)
+			else:
+				_handle_cable_empty_click(mouse_pos)
+
+		elif event.button_index == MOUSE_BUTTON_RIGHT:
+			print("Cable placement cancelled")
+			selected_cable_type = null
+			cable_start_point = null
+			cable_placement_active = false
+			clear_cable_preview()
+
+func get_clicked_network_node(mouse_position: Vector2):
+	var space_state = get_world_2d().direct_space_state
+
+	var query = PhysicsPointQueryParameters2D.new()
+	query.position = mouse_position
+	query.collide_with_areas = true
+	query.collide_with_bodies = true
+
+	var results = space_state.intersect_point(query, 16)
+
+	for result in results:
+		var collider = result.collider
+		var network_node = find_network_node_from_collider(collider)
+		if network_node != null:
+			return network_node
+
+	return null
+
+func _handle_cable_node_click(node) -> void:
+	if cable_start_point == null:
+		cable_start_point = node
+		print("Cable start set to node:", get_network_point_name(node))
+		return
+
+	if node == cable_start_point:
+		print("Same cable point clicked again, ignoring:", get_network_point_name(node))
+		return
+
+	var success = create_cable_segment(cable_start_point, node)
+	if success:
+		cable_start_point = node
+
+func _handle_cable_empty_click(mouse_position: Vector2) -> void:
+	if cable_start_point == null:
+		print("Click a router/server first to start a cable run")
+		return
+
+	if cable_start_point.global_position.distance_to(mouse_position) < 20.0:
+		print("Anchor too close to current cable point, ignoring")
+		return
+
+	var anchor = create_cable_anchor(mouse_position)
+	var success = create_cable_segment(cable_start_point, anchor)
+
+	if success:
+		cable_start_point = anchor
+	else:
+		anchor.queue_free()
+
+func find_network_node_from_collider(node):
+	var current = node
+
+	while current != null:
+		if current.is_in_group("network_nodes"):
+			return current
+		current = current.get_parent()
+
+	return null
+
+# "res://scenes/units/cable_anchor.tscn"
+
+func create_cable_anchor(position: Vector2):
+	var scene = preload("res://scenes/units/cable_anchor.tscn")
+	var anchor = scene.instantiate()
+
+	get_tree().current_scene.add_child(anchor)
+	anchor.global_position = position
+	anchor.name = "CableAnchor_%d" % Time.get_ticks_msec()
+	anchor.object_name = "Cable Anchor"
+
+	update_all_network_node_highlights()
+
+	print("Placed cable anchor at:", position)
+
+	return anchor
+
+func get_network_point_name(node) -> String:
+	if node == null:
+		return "Unknown"
+
+	var object_name_value = node.get("object_name")
+	if object_name_value != null and str(object_name_value) != "":
+		return str(object_name_value)
+
+	return str(node.name)
+
+func create_cable_segment(start_node, end_node) -> bool:
+	if selected_cable_type == null:
+		return false
+
+	if not can_accept_new_connection(start_node):
+		print(get_network_point_name(start_node), " has no free ports")
+		return false
+
+	if not can_accept_new_connection(end_node):
+		print(get_network_point_name(end_node), " has no free ports")
+		return false
+
+	var scene = preload("res://scenes/units/cable_segment.tscn")
+	var segment = scene.instantiate()
+
+	get_tree().current_scene.add_child(segment)
+	segment.setup(start_node, end_node, selected_cable_type)
+
+	if segment.length < 5.0:
+		print("Cable segment too short, ignoring")
+		segment.queue_free()
+		return false
+
+	var game = get_tree().get_first_node_in_group("hud")
+
+	if game and game.has_method("can_afford"):
+		if game.can_afford(segment.total_cost):
+			game.spend_money(segment.total_cost)
+		else:
+			print("Not enough money for cable")
+			segment.queue_free()
+			return false
+
+	placed_cable_segments.append(segment)
+
+	if start_node.has_method("add_connection"):
+		start_node.add_connection(segment)
+
+	if end_node.has_method("add_connection"):
+		end_node.add_connection(segment)
+
+	# print(
+	# 	"Created segment from",
+	# 	get_network_point_name(start_node),
+	# 	"to",
+	# 	get_network_point_name(end_node),
+	# 	"| length:",
+	# 	int(segment.length),
+	# 	"| cost:",
+	# 	int(segment.total_cost)
+	# )
+
+	# print(get_network_point_name(start_node), " connections: ", start_node.connected_segments.size())
+	# print(get_network_point_name(end_node), " connections: ", end_node.connected_segments.size())
+
+	if start_node.get("network_node_type") == "router":
+		print(
+			get_network_point_name(start_node),
+			" ports used: ",
+			start_node.connected_segments.size(),
+			"/",
+			start_node.get_port_limit()
+		)
+
+	if end_node.get("network_node_type") == "router":
+		print(get_network_point_name(end_node), " ports used: ", end_node.connected_segments.size(), "/", end_node.port_limit)
+
+	debug_check_all_servers()
+	update_all_server_network_status()
+	return true
+
+func update_cable_visibility() -> void:
+	for cable in get_tree().get_nodes_in_group("cable_segments"):
+		cable.visible = is_cable_mode
+
+func ensure_cable_preview_exists() -> void:
+	if cable_preview_line == null:
+		cable_preview_line = Line2D.new()
+		cable_preview_line.width = 4.0
+		cable_preview_line.visible = false
+		get_tree().current_scene.add_child(cable_preview_line)
+
+	if cable_preview_label == null:
+		cable_preview_label = Label.new()
+		cable_preview_label.visible = false
+		cable_preview_label.z_index = 100
+		get_tree().current_scene.add_child(cable_preview_label)
+
+func clear_cable_preview() -> void:
+	if cable_preview_line:
+		cable_preview_line.visible = false
+		cable_preview_line.clear_points()
+
+	if cable_preview_label:
+		cable_preview_label.visible = false
+		cable_preview_label.text = ""
+
+func update_cable_preview() -> void:
+	if not is_cable_mode:
+		clear_cable_preview()
+		return
+
+	if not cable_placement_active:
+		clear_cable_preview()
+		return
+
+	if cable_start_point == null:
+		clear_cable_preview()
+		return
+
+	if selected_cable_type == null:
+		clear_cable_preview()
+		return
+
+	ensure_cable_preview_exists()
+
+	var start_pos = cable_start_point.global_position
+	var end_pos = get_global_mouse_position()
+
+	cable_preview_line.clear_points()
+	cable_preview_line.add_point(start_pos)
+	cable_preview_line.add_point(end_pos)
+	cable_preview_line.default_color = selected_cable_type.get("color", Color.WHITE)
+	cable_preview_line.visible = true
+
+	var preview_length = start_pos.distance_to(end_pos)
+	var preview_cost = preview_length * selected_cable_type.get("cost", 0)
+
+	cable_preview_label.text = "$" + str(int(preview_cost))
+	cable_preview_label.position = (start_pos + end_pos) * 0.5
+	cable_preview_label.visible = true
+
+func can_reach_router(start_node) -> bool:
+	if start_node == null:
+		return false
+
+	var visited = {}
+	var queue = [start_node]
+
+	while queue.size() > 0:
+		var current = queue.pop_front()
+
+		if current == null:
+			continue
+
+		if visited.has(current):
+			continue
+
+		visited[current] = true
+
+		var node_type = current.get("network_node_type")
+		if node_type == "router":
+			return true
+
+		var segments = current.get("connected_segments")
+		if segments == null:
+			continue
+
+		for segment in segments:
+			if segment == null:
+				continue
+
+			var next_point = segment.get_other_point(current)
+			if next_point != null and not visited.has(next_point):
+				queue.append(next_point)
+
+	return false
+
+func debug_check_all_servers() -> void:
+	for node in get_tree().get_nodes_in_group("network_nodes"):
+		if node.get("network_node_type") == "server":
+			var connected = can_reach_router(node)
+			print(get_network_point_name(node), " router reachable: ", connected)
+
+func update_all_server_network_status() -> void:
+	for node in get_tree().get_nodes_in_group("network_nodes"):
+		if node.get("network_node_type") == "server":
+			var connected = can_reach_router(node)
+			node.update_network_status(connected)
+
+func can_accept_new_connection(node) -> bool:
+	if node == null:
+		return false
+
+	var node_type = node.get("network_node_type")
+
+	if node_type == "router":
+		if node.has_method("has_free_port"):
+			return node.has_free_port()
+		return false
+
+	# Servers and anchors can accept connections for now
+	return true

@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://kewjdp470xk2"]
+
+[ext_resource type="Script" uid="uid://bp62nldltt1ik" path="res://scripts/interaction/cable_anchor.gd" id="1_i5j6q"]
+[ext_resource type="Texture2D" uid="uid://de70lo6u3r46s" path="res://assets/object_sprites/node/node.png" id="2_v13xp"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_42cnh"]
+radius = 16.0
+
+[node name="CableAnchor" type="Area2D" unique_id=156882107]
+script = ExtResource("1_i5j6q")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=694209115]
+texture = ExtResource("2_v13xp")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1541943606]
+shape = SubResource("CircleShape2D_42cnh")

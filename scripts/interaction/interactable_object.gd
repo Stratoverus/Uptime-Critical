@@ -27,11 +27,21 @@ func perform_action(action_name: String) -> void:
 	print(object_name, " performed action: ", action_name)
 
 func _on_mouse_entered() -> void:
-	if sprite:
-		sprite.modulate = Color(1.3, 1.3, 1.3, 1.0)
+	if not sprite:
+		return
+
+	if has_method("_update_cable_mode_visual"):
+		call("_update_cable_mode_visual")
+
+	sprite.modulate = sprite.modulate * Color(1.15, 1.15, 1.15, 1.0)
 
 func _on_mouse_exited() -> void:
-	if sprite:
+	if not sprite:
+		return
+
+	if has_method("_update_cable_mode_visual"):
+		call("_update_cable_mode_visual")
+	else:
 		sprite.modulate = Color(1, 1, 1, 1)
 
 func get_player() -> Node2D:
