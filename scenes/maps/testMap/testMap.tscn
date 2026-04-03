@@ -17,6 +17,7 @@
 [ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="17_bwda7"]
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="17_hvsy2"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="18_debug"]
+[ext_resource type="PackedScene" path="res://scenes/systems/electrical_overlay.tscn" id="19_electrical"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bwda7"]
 size = Vector2(150, 204)
@@ -43,6 +44,7 @@ position = Vector2(961.00006, 539)
 simulation_section_id = &"test_map_main"
 
 [node name="PerfProbeOverlay" parent="." unique_id=1005778594 instance=ExtResource("18_debug")]
+[node name="ElectricalOverlay" parent="." instance=ExtResource("19_electrical")]
 
 [node name="ServerRack" type="Area2D" parent="." unique_id=609418582]
 position = Vector2(1367, 515)
@@ -58,6 +60,12 @@ region_rect = Rect2(0, 0, 32, 32)
 position = Vector2(3, 4)
 shape = SubResource("RectangleShape2D_bwda7")
 
+[node name="ElectricalNodeLeft" type="Node2D" parent="ServerRack"]
+position = Vector2(-36, -16)
+
+[node name="ElectricalNodeRight" type="Node2D" parent="ServerRack"]
+position = Vector2(36, -16)
+
 [node name="CoolingRack" type="Area2D" parent="." unique_id=371192697]
 position = Vector2(1033, 881)
 script = ExtResource("5_ycy7d")
@@ -68,6 +76,12 @@ texture = ExtResource("6_xv6yo")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CoolingRack" unique_id=1109763423]
 position = Vector2(0, -1)
 shape = SubResource("RectangleShape2D_gpwly")
+
+[node name="ElectricalNodeLeft" type="Node2D" parent="CoolingRack"]
+position = Vector2(-36, -16)
+
+[node name="ElectricalNodeRight" type="Node2D" parent="CoolingRack"]
+position = Vector2(36, -16)
 
 [node name="Router" type="Area2D" parent="." unique_id=1254323557]
 position = Vector2(362, 542)

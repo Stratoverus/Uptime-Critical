@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://cn6x5ssw581m4" path="res://scenes/player/player.tscn" id="5_6idqr"]
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="6_thermal"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="7_debug"]
+[ext_resource type="PackedScene" path="res://scenes/systems/electrical_overlay.tscn" id="8_electrical"]
 [ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="8_fbxn4"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_6idqr"]
@@ -830,6 +831,7 @@ size = Vector2(20, 17)
 [node name="ThermalSystem" parent="." unique_id=996204713 instance=ExtResource("6_thermal")]
 
 [node name="PerfProbeOverlay" parent="." unique_id=482304038 instance=ExtResource("7_debug")]
+[node name="ElectricalOverlay" parent="." instance=ExtResource("8_electrical")]
 
 [node name="tileServerRoomMap2" type="TileMap" parent="." unique_id=654324927]
 tile_set = SubResource("TileSet_36due")

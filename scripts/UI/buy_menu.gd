@@ -203,6 +203,20 @@ func _ready() -> void:
 	style_dev_button(dev_money_button)
 	build_unit_list()
 	dev_money_button.pressed.connect(_on_dev_money_button_pressed)
+	call_deferred("_ensure_dev_money_fallback_connection")
+
+func _ensure_dev_money_fallback_connection() -> void:
+	# If a map script already connected this signal, do not add a fallback handler.
+	if not add_dev_money_requested.get_connections().is_empty():
+		return
+
+	var root_parent := get_parent()
+	if root_parent == null:
+		return
+
+	var hud_layer := root_parent.get_node_or_null("CanvasLayer")
+	if hud_layer != null and hud_layer.has_method("add_money"):
+		add_dev_money_requested.connect(Callable(hud_layer, "add_money"))
 
 func build_unit_list() -> void:
 	for child in unit_grid.get_children():

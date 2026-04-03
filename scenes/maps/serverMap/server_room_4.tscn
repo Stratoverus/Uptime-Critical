@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bw7bfhk3xm7yl" path="res://assets/Tech Dungeon Roguelite - Asset Pack (DEMO)/tileset x1.png" id="2_jq4t3"]
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="3_thermal"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="4_debug"]
+[ext_resource type="PackedScene" path="res://scenes/systems/electrical_overlay.tscn" id="5_electrical"]
 [ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="5_mxp2w"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ur46b"]
@@ -561,6 +562,7 @@ outlines = Array[PackedVector2Array]([PackedVector2Array(8, 1, 727, 2, 727, 222,
 [node name="ThermalSystem" parent="." unique_id=601961925 instance=ExtResource("3_thermal")]
 
 [node name="PerfProbeOverlay" parent="." unique_id=1208074637 instance=ExtResource("4_debug")]
+[node name="ElectricalOverlay" parent="." instance=ExtResource("5_electrical")]
 
 [node name="tileServerRoomMap4" type="TileMap" parent="." unique_id=1501250731]
 tile_set = SubResource("TileSet_dg4vb")

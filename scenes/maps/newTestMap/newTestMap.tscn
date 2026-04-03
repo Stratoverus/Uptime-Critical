@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://dl75p1j0weo4e" path="res://scenes/maps/testMap/traffic_bar.gd" id="16_04i22"]
 [ext_resource type="Script" uid="uid://cj5a2dvcp17um" path="res://scripts/UI/buy_menu.gd" id="17_amrog"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="18_debug"]
+[ext_resource type="PackedScene" path="res://scenes/systems/electrical_overlay.tscn" id="19_electrical"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5ivrf"]
 size = Vector2(102, 120)
@@ -73,6 +74,7 @@ clear_saved_thermal_state_on_startup = true
 simulation_size_from_viewport = false
 
 [node name="PerfProbeOverlay" parent="." instance=ExtResource("18_debug")]
+[node name="ElectricalOverlay" parent="." instance=ExtResource("19_electrical")]
 
 [node name="Router" type="Area2D" parent="." unique_id=1254323557]
 position = Vector2(362, 542)

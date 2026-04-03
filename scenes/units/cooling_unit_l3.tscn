@@ -15,3 +15,9 @@ texture = ExtResource("2_2d1q7")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2102899190]
 shape = SubResource("RectangleShape2D_jccjp")
+
+[node name="ElectricalNodeLeft" type="Node2D" parent="."]
+position = Vector2(-36, -16)
+
+[node name="ElectricalNodeRight" type="Node2D" parent="."]
+position = Vector2(36, -16)

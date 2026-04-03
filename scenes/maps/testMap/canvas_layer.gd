@@ -98,6 +98,11 @@ func _ready():
 	# Record where the label starts so we can always return to center
 	temp_home_x = temp_label.position.x
 
+func add_money(amount: float) -> void:
+	revenue += amount
+	if is_instance_valid(cash_label):
+		cash_label.text = "$%.2f" % revenue
+
 func _process(delta: float):
 	if not is_instance_valid(traffic_bar): return
 	# ============================================

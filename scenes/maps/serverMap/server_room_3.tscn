@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://k3xv0mxedef4" path="res://assets/godot_spritesheet/spritesheet_16x16.png" id="3_1pvcb"]
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="4_thermal"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="5_debug"]
+[ext_resource type="PackedScene" path="res://scenes/systems/electrical_overlay.tscn" id="6_electrical"]
 [ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="6_mh0is"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_gqykb"]
@@ -790,6 +791,7 @@ outlines = Array[PackedVector2Array]([PackedVector2Array(8, 2, 229, 2, 240, 400,
 [node name="ThermalSystem" parent="." unique_id=1471718189 instance=ExtResource("4_thermal")]
 
 [node name="PerfProbeOverlay" parent="." unique_id=83810077 instance=ExtResource("5_debug")]
+[node name="ElectricalOverlay" parent="." instance=ExtResource("6_electrical")]
 
 [node name="TileMap" type="TileMap" parent="." unique_id=1443478243]
 tile_set = SubResource("TileSet_mh0is")

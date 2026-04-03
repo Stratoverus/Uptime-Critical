@@ -1,9 +1,10 @@
-[gd_resource type="Theme" load_steps=5 format=3 uid="uid://6txfgg00boom"]
+[gd_resource type="Theme" format=3 uid="uid://6txfgg00boom"]
 
-[ext_resource type="Texture2D" path="res://addons/RadialMenu/icons/InterpLinear.svg" id="1"]
-[ext_resource type="Texture2D" path="res://addons/RadialMenu/icons/Close.svg" id="2_ljymm"]
-[ext_resource type="FontFile" path="res://addons/RadialMenu/NotoSans-Regular.ttf" id="2_m081s"]
-[ext_resource type="Texture2D" path="res://addons/RadialMenu/icons/Favorites.svg" id="3_l0rex"]
+[ext_resource type="Texture2D" uid="uid://bkwjoawy5wbth" path="res://addons/RadialMenu/icons/InterpLinear.svg" id="1"]
+[ext_resource type="Texture2D" uid="uid://cybv0qos6moka" path="res://addons/RadialMenu/icons/Close.svg" id="2_ljymm"]
+[ext_resource type="FontFile" uid="uid://daf222oejkm2t" path="res://addons/RadialMenu/NotoSans-Regular.ttf" id="2_m081s"]
+[ext_resource type="Texture2D" uid="uid://bdwcwn1hpu0c" path="res://addons/RadialMenu/icons/Favorites.svg" id="3_l0rex"]
+
 [resource]
 default_font_size = 24
 RadialMenu/colors/Background = Color(0.12549, 0.12549, 0.12549, 0.901961)

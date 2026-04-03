@@ -8,6 +8,9 @@ extends InteractableObject
 @export var cooling_capacity: float = 0.0
 @export var level: int = 1
 
+@onready var electrical_node_left: Node2D = $ElectricalNodeLeft
+@onready var electrical_node_right: Node2D = $ElectricalNodeRight
+
 var current_facing: String = "front"
 
 var sprites_by_level = {
@@ -51,12 +54,21 @@ func _ready() -> void:
 	object_name = "Server Rack L" + str(level)
 	update_actions()
 	interaction_range = 150.0
+	add_to_group("electrical_connectable")
 	super._ready()
 	add_to_group("heat_sources")
 	notify_thermal_system_placed()
 
 func _exit_tree() -> void:
 	notify_thermal_system_removed()
+
+func get_electrical_nodes() -> Array[Node2D]:
+	var nodes: Array[Node2D] = []
+	if is_instance_valid(electrical_node_left):
+		nodes.append(electrical_node_left)
+	if is_instance_valid(electrical_node_right):
+		nodes.append(electrical_node_right)
+	return nodes
 
 func get_heat_value() -> float:
 	return base_heat
