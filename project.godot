@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 SceneTransition="*uid://cpd5odj12w7ey"
 SaveManager="*res://autoload/save_manager.gd"
+GameManager="*uid://2g1iukun18el"
 
 [display]
 

@@ -1,7 +1,7 @@
 extends CanvasLayer
 
 signal unit_selected(unit_data)
-signal add_dev_money_requested(amount)
+
 
 @onready var title_label = $Panel/MainVBox/TitleLabel
 @onready var unit_grid = $Panel/MainVBox/UnitGrid
@@ -243,4 +243,4 @@ func _on_unit_pressed(button: Button) -> void:
 	unit_selected.emit(unit)
 
 func _on_dev_money_button_pressed() -> void:
-	add_dev_money_requested.emit(100)
+	GameManager.revenue += 100
