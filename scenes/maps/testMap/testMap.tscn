@@ -3,32 +3,12 @@
 [ext_resource type="PackedScene" uid="uid://cn6x5ssw581m4" path="res://scenes/player/player.tscn" id="1_cxwue"]
 [ext_resource type="Script" uid="uid://dum5m5apspkau" path="res://scripts/test_map_main.gd" id="1_ycy7d"]
 [ext_resource type="Script" uid="uid://cjyk1d6lpn01e" path="res://scripts/maps/checkerboard_floor.gd" id="2_uuq7d"]
-[ext_resource type="Script" uid="uid://bypsyjhf0o4a4" path="res://scripts/interaction/server_rack.gd" id="3_e4dex"]
-[ext_resource type="Texture2D" uid="uid://dchw0142nlbsj" path="res://assets/placeholders/ai_server.png" id="4_jm4fq"]
-[ext_resource type="Script" uid="uid://c5m3hc4ck6g41" path="res://scripts/interaction/cooling_rack.gd" id="5_ycy7d"]
-[ext_resource type="Texture2D" uid="uid://bx723gw7uleot" path="res://assets/placeholders/ai_cooling.png" id="6_xv6yo"]
-[ext_resource type="Script" uid="uid://b4wqubjhokd5q" path="res://scripts/interaction/router.gd" id="7_xm7c4"]
-[ext_resource type="Texture2D" uid="uid://8e6uqoqurdnk" path="res://assets/placeholders/ai_router.png" id="8_3fo2i"]
-[ext_resource type="Script" uid="uid://diecpo4k8f3yl" path="res://scripts/interaction/breaker.gd" id="9_0dew7"]
-[ext_resource type="Texture2D" uid="uid://dx6uve4e1wwmi" path="res://assets/placeholders/ai_breaker.png" id="10_6jtrr"]
 [ext_resource type="PackedScene" uid="uid://iopwhmejcr8b" path="res://addons/RadialMenu/RadialMenu.tscn" id="12_ycy7d"]
 [ext_resource type="PackedScene" uid="uid://bndfyhrgoen0t" path="res://scenes/ui/hud.tscn" id="15_6jtrr"]
 [ext_resource type="Script" uid="uid://d1re1xcsywghq" path="res://scripts/placed_units/placed_units.gd" id="17_6jtrr"]
 [ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="17_bwda7"]
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="17_hvsy2"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="18_debug"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_bwda7"]
-size = Vector2(150, 204)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_gpwly"]
-size = Vector2(96, 130)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_5ivrf"]
-size = Vector2(102, 120)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_a04uf"]
-size = Vector2(98, 133)
 
 [node name="TestMap" type="Node2D" unique_id=1954177505]
 script = ExtResource("1_ycy7d")
@@ -43,54 +23,6 @@ position = Vector2(961.00006, 539)
 simulation_section_id = &"test_map_main"
 
 [node name="PerfProbeOverlay" parent="." unique_id=1005778594 instance=ExtResource("18_debug")]
-
-[node name="ServerRack" type="Area2D" parent="." unique_id=609418582]
-position = Vector2(1367, 515)
-script = ExtResource("3_e4dex")
-
-[node name="Sprite2D" type="Sprite2D" parent="ServerRack" unique_id=913661745]
-position = Vector2(2, 8)
-scale = Vector2(1.5567019, 1.3187497)
-texture = ExtResource("4_jm4fq")
-region_rect = Rect2(0, 0, 32, 32)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ServerRack" unique_id=1393399191]
-position = Vector2(3, 4)
-shape = SubResource("RectangleShape2D_bwda7")
-
-[node name="CoolingRack" type="Area2D" parent="." unique_id=371192697]
-position = Vector2(1033, 881)
-script = ExtResource("5_ycy7d")
-
-[node name="Sprite2D" type="Sprite2D" parent="CoolingRack" unique_id=1541262594]
-texture = ExtResource("6_xv6yo")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CoolingRack" unique_id=1109763423]
-position = Vector2(0, -1)
-shape = SubResource("RectangleShape2D_gpwly")
-
-[node name="Router" type="Area2D" parent="." unique_id=1254323557]
-position = Vector2(362, 542)
-script = ExtResource("7_xm7c4")
-
-[node name="Sprite2D" type="Sprite2D" parent="Router" unique_id=2129226520]
-position = Vector2(-3, -1)
-texture = ExtResource("8_3fo2i")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Router" unique_id=268936232]
-position = Vector2(-2, -5)
-shape = SubResource("RectangleShape2D_5ivrf")
-
-[node name="Breaker" type="Area2D" parent="." unique_id=1439469915]
-position = Vector2(884, 213)
-script = ExtResource("9_0dew7")
-
-[node name="Sprite2D" type="Sprite2D" parent="Breaker" unique_id=877670270]
-texture = ExtResource("10_6jtrr")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Breaker" unique_id=571687929]
-position = Vector2(-2, -0.5)
-shape = SubResource("RectangleShape2D_a04uf")
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=398686787]
 

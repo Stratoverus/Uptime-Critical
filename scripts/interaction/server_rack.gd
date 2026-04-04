@@ -9,6 +9,11 @@ extends InteractableObject
 @export var level: int = 1
 
 var current_facing: String = "front"
+var is_connected_to_network: bool = false
+var cable_mode_highlight_on: bool = false
+var connected_segments: Array = []
+var network_node_type := "server"
+var is_network_online := false
 
 var sprites_by_level = {
 	1: {
@@ -48,6 +53,7 @@ func update_actions() -> void:
 		]
 
 func _ready() -> void:
+	add_to_group("network_nodes")
 	object_name = "Server Rack L" + str(level)
 	update_actions()
 	interaction_range = 150.0
@@ -146,3 +152,44 @@ func notify_thermal_system_removed() -> void:
 	var thermal_system := get_thermal_system()
 	if thermal_system != null and thermal_system.has_method("notify_structure_removed"):
 		thermal_system.call("notify_structure_removed", self)
+
+func set_network_connected_state(connected: bool) -> void:
+	is_connected_to_network = connected
+	_update_cable_mode_visual()
+
+func set_cable_mode_highlight(enabled: bool) -> void:
+	cable_mode_highlight_on = enabled
+	_update_cable_mode_visual()
+
+func _update_cable_mode_visual() -> void:
+	if not sprite:
+		return
+
+	if not cable_mode_highlight_on:
+		sprite.modulate = Color(1, 1, 1, 1)
+		return
+
+	# highlight
+	sprite.modulate = Color(1.1, 1.1, 0.8, 1.0)
+
+func add_connection(segment) -> void:
+	if not connected_segments.has(segment):
+		connected_segments.append(segment)
+
+func remove_connection(segment) -> void:
+	connected_segments.erase(segment)
+
+func update_network_status(is_connected: bool) -> void:
+	is_network_online = is_connected
+	_update_network_visual()
+
+func _update_network_visual() -> void:
+	if not sprite:
+		return
+
+	if is_network_online:
+		# green - online
+		sprite.modulate = Color(0.7, 1.0, 0.7, 1.0)
+	else:
+		# red - offline
+		sprite.modulate = Color(1.0, 0.6, 0.6, 1.0)

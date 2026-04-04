@@ -5,6 +5,70 @@
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0dew7"]
 bg_color = Color(0.6, 0.6, 0.6, 0)
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_3inbt"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.73333335, 0.58431375, 0, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ub4y5"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.7882353, 0.63529414, 0.15294118, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hyxqa"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.9019608, 0.7647059, 0.2901961, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b106m"]
+content_margin_left = 10.0
+content_margin_top = 5.0
+content_margin_right = 10.0
+content_margin_bottom = 5.0
+bg_color = Color(0.65882355, 0.5176471, 0.12156863, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
 [node name="CanvasLayer" type="CanvasLayer" unique_id=625389401]
 script = ExtResource("1_gwp7j")
 
@@ -25,9 +89,17 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_0dew7")
 [node name="MainVBox" type="VBoxContainer" parent="Panel" unique_id=216870326]
 layout_mode = 2
 
+[node name="CableModeButton" type="Button" parent="Panel/MainVBox" unique_id=499354490]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_3inbt")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ub4y5")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hyxqa")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_b106m")
+text = "Cable Placement Mode"
+
 [node name="TitleLabel" type="Label" parent="Panel/MainVBox" unique_id=538898412]
 layout_mode = 2
-theme_override_colors/font_color = Color(0, 0.043137256, 0.02745098, 1)
+theme_override_colors/font_color = Color(0.94212544, 0.8298394, 0.8782319, 1)
 text = "Buy Menu"
 horizontal_alignment = 1
 
