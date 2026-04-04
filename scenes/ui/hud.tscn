@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bndfyhrgoen0t"]
 
-[ext_resource type="Script" uid="uid://cmyg1t6hm4rac" path="res://scenes/maps/testMap/canvas_layer.gd" id="1_136eg"]
-[ext_resource type="Script" uid="uid://dl75p1j0weo4e" path="res://scenes/maps/testMap/traffic_bar.gd" id="2_oj5la"]
+[ext_resource type="Script" path="res://scripts/UI/hud.gd" id="1_136eg"]
+[ext_resource type="Script" path="res://scripts/UI/traffic_bar.gd" id="2_oj5la"]
 [ext_resource type="Theme" uid="uid://cgovku5fdfya3" path="res://assets/themes/ui_theme.tres" id="3_gss2c"]
 [ext_resource type="Texture2D" uid="uid://dybth8e8ywwv3" path="res://assets/UI/clock/clockface.png" id="4_h022r"]
 [ext_resource type="Texture2D" uid="uid://c6whmyabmipf5" path="res://assets/UI/clock/high-tech-pointer.png" id="5_4jqwt"]

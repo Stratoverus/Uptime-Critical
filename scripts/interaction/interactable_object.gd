@@ -17,14 +17,17 @@ func _ready() -> void:
 
 func _input_event(_viewport, event, _shape_idx) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		print("Clicked:", object_name)
+		var ignore_until := int(get_meta("ignore_interaction_until", 0))
+		if Time.get_ticks_msec() < ignore_until:
+			return
+
 		interaction_requested.emit(self)
 
 func get_actions() -> Array[String]:
 	return actions
 
-func perform_action(action_name: String) -> void:
-	print(object_name, " performed action: ", action_name)
+func perform_action(_action_name: String) -> void:
+	pass
 
 func _on_mouse_entered() -> void:
 	if not sprite:

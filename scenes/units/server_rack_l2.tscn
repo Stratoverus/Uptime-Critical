@@ -9,6 +9,8 @@ size = Vector2(100, 100)
 [node name="ServerRackL2" type="Area2D" unique_id=144986347]
 script = ExtResource("1_mwunb")
 level = 2
+base_heat = 18.0
+heat_radius = 280.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=535800224]
 texture = ExtResource("2_h4au7")

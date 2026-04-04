@@ -97,19 +97,16 @@ func set_facing(direction: String) -> void:
 		if sprites.has(direction):
 			sprite.texture = sprites[direction]
 		else:
-			print("Missing direction:", direction)
+			push_warning("Missing direction: %s" % direction)
 	else:
-		print("Missing level:", level)
+		push_warning("Missing level: %s" % level)
 
 func perform_action(action_name: String) -> void:
 	if action_name == "Turn Off":
-		print("Turning off server rack L", level)
 		turn_off()
 	elif action_name == "Turn On":
-		print("Turning on server rack L", level)
 		turn_on()
 	elif action_name.begins_with("Upgrade"):
-		print("Upgrading server rack L", level)
 		upgrade()
 	else:
 		super.perform_action(action_name)
@@ -122,7 +119,6 @@ func turn_on() -> void:
 
 func upgrade() -> void:
 	if level >= 3:
-		print("Already max level")
 		return
 
 	var cost = upgrade_costs.get(level, 0)
@@ -135,10 +131,6 @@ func upgrade() -> void:
 		object_name = "Server Rack L" + str(level)
 		update_actions()
 		set_facing(current_facing)
-
-		print("Upgraded to level", level)
-	else:
-		print("Not enough money to upgrade")
 
 func get_thermal_system() -> Node:
 	return get_tree().get_first_node_in_group("thermal_system")
@@ -179,8 +171,8 @@ func add_connection(segment) -> void:
 func remove_connection(segment) -> void:
 	connected_segments.erase(segment)
 
-func update_network_status(is_connected: bool) -> void:
-	is_network_online = is_connected
+func update_network_status(connected: bool) -> void:
+	is_network_online = connected
 	_update_network_visual()
 
 func _update_network_visual() -> void:

@@ -17,9 +17,9 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-SceneTransition="*uid://cpd5odj12w7ey"
+SceneTransition="*res://scenes/ui/transitions/SceneTransition.tscn"
 SaveManager="*res://autoload/save_manager.gd"
-GameManager="*uid://2g1iukun18el"
+GameManager="*res://autoload/GameManager.gd"
 
 [display]
 

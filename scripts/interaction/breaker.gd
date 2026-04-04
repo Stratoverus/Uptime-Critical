@@ -21,12 +21,9 @@ func perform_action(action_name: String) -> void:
 	match action_name:
 		"Turn Off":
 			turn_off()
-			print("Breaker turned off")
 		"Turn On":
 			turn_on()
-			print("Breaker turned on")
 		"Reboot":
-			print("Rebooting breaker")
 			reboot()
 
 func turn_off() -> void:

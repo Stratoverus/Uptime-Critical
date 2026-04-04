@@ -1,6 +1,6 @@
 [gd_scene format=4 uid="uid://dabkeypj3l5q5"]
 
-[ext_resource type="Script" uid="uid://dum5m5apspkau" path="res://scripts/test_map_main.gd" id="1_oi4u0"]
+[ext_resource type="Script" path="res://scripts/maps/server_room_controller.gd" id="1_oi4u0"]
 [ext_resource type="TileSet" uid="uid://bantebqwyr5c1" path="res://assets/Tilesets/serverTileSetSize3.tres" id="3_10x5o"]
 [ext_resource type="PackedScene" uid="uid://cn6x5ssw581m4" path="res://scenes/player/player.tscn" id="3_q4j5m"]
 [ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="5_wj644"]
@@ -42,8 +42,6 @@ width = 100
 center_radius = 80
 selector_position = 2
 icon_scale = 0.08
-
-[node name="CanvasLayer" parent="." unique_id=1602473946 instance=ExtResource("6_hsg4r")]
 
 [node name="PlacedUnits" type="Node2D" parent="." unique_id=436288710]
 script = ExtResource("9_jk1q2")
