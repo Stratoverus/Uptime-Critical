@@ -51,3 +51,5 @@ script = ExtResource("9_jk1q2")
 [node name="PlacementPreview" type="Node2D" parent="." unique_id=1825598448]
 
 [node name="BuyMenu" parent="." unique_id=625389401 instance=ExtResource("5_wj644")]
+
+[node name="HUD" parent="." unique_id=1602473946 instance=ExtResource("6_hsg4r")]

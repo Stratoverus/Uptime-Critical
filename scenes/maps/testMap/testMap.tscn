@@ -38,8 +38,6 @@ center_radius = 80
 selector_position = 2
 icon_scale = 0.08
 
-[node name="CanvasLayer" parent="." unique_id=1602473946 instance=ExtResource("15_6jtrr")]
-
 [node name="PlacedUnits" type="Node2D" parent="." unique_id=1365032951]
 script = ExtResource("17_6jtrr")
 
@@ -48,3 +46,5 @@ script = ExtResource("17_6jtrr")
 [node name="Area2D" type="Area2D" parent="." unique_id=1119569488]
 
 [node name="BuyMenu" parent="." unique_id=193852030 instance=ExtResource("17_bwda7")]
+
+[node name="CanvasLayer" parent="." unique_id=1602473946 instance=ExtResource("15_6jtrr")]

@@ -36,7 +36,7 @@ func _ready() -> void:
 
 	radial_menu.item_selected.connect(_on_menu_item_selected)
 	buy_menu.unit_selected.connect(_on_buy_menu_unit_selected)
-	buy_menu.add_dev_money_requested.connect(_on_add_dev_money_requested)
+
 
 	if cable_mode_button:
 		cable_mode_button.pressed.connect(_on_cable_mode_button_pressed)
