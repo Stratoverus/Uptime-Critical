@@ -13,9 +13,6 @@ func _process(_delta: float) -> void:
 func _on_continue_button_pressed() -> void:
 	print("Continue pressed - Save system not implemented yet!")
 
-# func _on_new_game_button_pressed() -> void:
-# 	SceneTransition.change_scene("res://scenes/maps/testMap/testMap.tscn")
-
 func _on_new_game_button_pressed() -> void:
 	SceneTransition.change_scene("res://scenes/maps/serverMap/server_room.tscn")
 

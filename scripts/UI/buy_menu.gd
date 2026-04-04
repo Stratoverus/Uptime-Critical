@@ -146,7 +146,6 @@ var unit_data = [
 
 func style_menu_button(button: Button, color: Color) -> void:
 	if button == null:
-		print("style_menu_button got null button")
 		return
 
 	var normal = StyleBoxFlat.new()
@@ -195,12 +194,6 @@ func style_dev_button(button: Button) -> void:
 	style_menu_button(button, Color("16a34a"))
 
 func _ready() -> void:
-	print(get_node_or_null("Panel/MainVBox"))
-	print(get_node_or_null("Panel/MainVBox/UnitGrid"))
-	print("title_label:", title_label)
-	print("unit_grid:", unit_grid)
-	print("dev_money_button:", dev_money_button)
-
 	if title_label == null or unit_grid == null or dev_money_button == null:
 		push_error("BuyMenu node path mismatch")
 		return
@@ -274,8 +267,6 @@ func _on_unit_pressed(button: Button) -> void:
 	selected_button = button
 	selected_button.modulate = Color(0.7, 1.0, 0.7, 1.0)
 
-	print("Selected unit:", unit["id"], " Cost:", unit["cost"])
-
 	unit_selected.emit(unit)
 
 func _on_dev_money_button_pressed() -> void:
@@ -297,8 +288,6 @@ func _on_cable_pressed(button: Button) -> void:
 
 	selected_button = button
 	selected_button.modulate = Color(0.7, 1.0, 0.7, 1.0)
-
-	print("Selected cable:", cable["name"], " Cost per ft:", cable["cost"])
 
 	# we'll use this later for placement
 	emit_signal("unit_selected", cable)

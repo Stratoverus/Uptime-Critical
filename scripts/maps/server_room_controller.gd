@@ -6,7 +6,7 @@ signal cable_mode_changed(is_enabled)
 @onready var buy_menu = $BuyMenu
 @onready var placed_units = $PlacedUnits
 @onready var placement_preview = $PlacementPreview
-@onready var hud = $CanvasLayer
+@onready var hud = $HUD
 @onready var player = get_tree().get_first_node_in_group("player")
 @onready var cable_mode_button = $BuyMenu/Panel/MainVBox/CableModeButton
 
@@ -30,8 +30,6 @@ var cable_preview_line: Line2D = null
 var cable_preview_label: Label = null
 
 func _ready() -> void:
-	print("radial_menu =", radial_menu)
-
 	for node in get_tree().get_nodes_in_group("interactable"):
 		node.interaction_requested.connect(_on_interaction_requested)
 
@@ -46,7 +44,6 @@ func _on_interaction_requested(interactable) -> void:
 	if is_cable_mode:
 		if radial_menu.visible:
 			radial_menu.hide()
-		print("Ignoring normal interaction because cable mode is active")
 		return
 
 	current_interactable = interactable
@@ -69,19 +66,13 @@ func _on_menu_item_selected(id, _position) -> void:
 		return
 
 	pending_action = id
-	print("Selected action:", id)
 
 	if current_interactable.is_player_in_range():
-		print("Already in range")
 		_perform_pending_action()
 	else:
 		var current_player = get_player()
-		print("Player found:", current_player)
 		if current_player != null and current_player.has_method("move_to_interactable"):
-			print("Calling move_to_interactable")
 			current_player.move_to_interactable(current_interactable)
-		else:
-			print("Player missing move_to_interactable")
 
 func get_action_icon(action_name: String) -> Texture2D:
 	if action_name == "Turn Off":
@@ -105,8 +96,6 @@ func _on_buy_menu_unit_selected(unit_data) -> void:
 		cable_start_point = null
 		cable_placement_active = true
 		clear_cable_preview()
-
-		print("Ready to place cable:", unit_data["name"])
 		return
 
 	selected_cable_type = null
@@ -116,8 +105,6 @@ func _on_buy_menu_unit_selected(unit_data) -> void:
 	selected_unit_to_place = unit_data
 	current_facing_index = 0
 	create_placement_preview()
-
-	print("Ready to place:", unit_data["name"])
 
 func create_placement_preview() -> void:
 	clear_placement_preview()
@@ -203,14 +190,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		update_preview_texture()
 
 	elif event is InputEventMouseButton and event.pressed:
-		print("mouse button detected: ", event.button_index)
-
 		if event.button_index == MOUSE_BUTTON_LEFT:
-			print("left click trying to place")
 			place_selected_unit()
 
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			print("right click cancel")
 			cancel_placement()
 
 func update_preview_texture() -> void:
@@ -220,8 +203,6 @@ func update_preview_texture() -> void:
 	var facing = get_current_facing()
 	preview_sprite.texture = load(selected_unit_to_place["sprites"][facing])
 
-	print("Facing:", facing)
-
 func place_selected_unit() -> void:
 	if selected_unit_to_place == null:
 		return
@@ -229,30 +210,27 @@ func place_selected_unit() -> void:
 	var cost = selected_unit_to_place["cost"]
 
 	if is_cable_mode:
-		print("Cannot place units in cable mode")
 		return
 
 	if GameManager == null:
-		print("GameManager not found")
+		push_error("GameManager not found")
 		return
 
 	if not GameManager.can_afford(cost):
-		print("Not enough money")
 		return
 
 	if not can_place_at_current_position():
-		print("Cannot place here")
 		return
 
 	var packed_scene = load(selected_unit_to_place["scene_path"])
 	if packed_scene == null:
-		print("FAILED TO LOAD SCENE: ", selected_unit_to_place["scene_path"])
+		push_error("FAILED TO LOAD SCENE: %s" % selected_unit_to_place["scene_path"])
 		return
 
 	var new_unit = packed_scene.instantiate()
 
 	if not (new_unit is Area2D):
-		print("Placed scene root is not Area2D")
+		push_error("Placed scene root is not Area2D")
 		return
 
 	new_unit.name = selected_unit_to_place["id"]
@@ -264,6 +242,7 @@ func place_selected_unit() -> void:
 
 	placed_units.add_child(new_unit)
 	new_unit.global_position = get_global_mouse_position()
+	new_unit.set_meta("ignore_interaction_until", Time.get_ticks_msec() + 150)
 
 	var facing = get_current_facing()
 
@@ -282,14 +261,11 @@ func place_selected_unit() -> void:
 
 	GameManager.spend_money(cost)
 
-	print("Placed:", selected_unit_to_place["name"], " facing ", facing)
-
 	cancel_placement()
 
 func cancel_placement() -> void:
 	selected_unit_to_place = null
 	clear_placement_preview()
-	print("Placement cancelled")
 
 func can_place_at_current_position() -> bool:
 	if preview_area == null or preview_collision == null:
@@ -297,7 +273,6 @@ func can_place_at_current_position() -> bool:
 
 	var shape = preview_collision.shape
 	if shape == null:
-		print("preview collision has no shape")
 		return false
 
 	var query = PhysicsShapeQueryParameters2D.new()
@@ -310,15 +285,11 @@ func can_place_at_current_position() -> bool:
 	var space_state = get_world_2d().direct_space_state
 	var results = space_state.intersect_shape(query)
 
-	print("query hit count: ", results.size())
-
 	for hit in results:
 		var collider = hit["collider"]
 
 		if collider == preview_area:
 			continue
-
-		print("hit collider: ", collider.name)
 
 		if collider.is_in_group("placed_unit") or collider.is_in_group("blocked_placement"):
 			return false
@@ -327,11 +298,10 @@ func can_place_at_current_position() -> bool:
 
 func _on_add_dev_money_requested(amount: float) -> void:
 	if GameManager == null:
-		print("GameManager not found")
+		push_error("GameManager not found")
 		return
 
 	GameManager.add_money(amount)
-	print("Dev money added:", amount)
 
 func _perform_pending_action() -> void:
 	if current_interactable == null or pending_action == "":
@@ -358,12 +328,10 @@ func set_cable_mode(enabled: bool) -> void:
 	is_cable_mode = enabled
 
 	if is_cable_mode:
-		print("Cable mode ON")
 		selected_unit_to_place = null
 		clear_placement_preview()
 		clear_cable_preview()
 	else:
-		print("Cable mode OFF")
 		selected_cable_type = null
 		cable_start_point = null
 		cable_placement_active = false
@@ -417,7 +385,6 @@ func _handle_cable_mode_input(event: InputEvent) -> void:
 				_handle_cable_empty_click(mouse_pos)
 
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
-			print("Cable placement cancelled")
 			selected_cable_type = null
 			cable_start_point = null
 			cable_placement_active = false
@@ -444,11 +411,9 @@ func get_clicked_network_node(mouse_position: Vector2):
 func _handle_cable_node_click(node) -> void:
 	if cable_start_point == null:
 		cable_start_point = node
-		print("Cable start set to node:", get_network_point_name(node))
 		return
 
 	if node == cable_start_point:
-		print("Same cable point clicked again, ignoring:", get_network_point_name(node))
 		return
 
 	var success = create_cable_segment(cable_start_point, node)
@@ -457,11 +422,9 @@ func _handle_cable_node_click(node) -> void:
 
 func _handle_cable_empty_click(mouse_position: Vector2) -> void:
 	if cable_start_point == null:
-		print("Click a router/server first to start a cable run")
 		return
 
 	if cable_start_point.global_position.distance_to(mouse_position) < 20.0:
-		print("Anchor too close to current cable point, ignoring")
 		return
 
 	var anchor = create_cable_anchor(mouse_position)
@@ -484,18 +447,16 @@ func find_network_node_from_collider(node):
 
 # "res://scenes/units/cable_anchor.tscn"
 
-func create_cable_anchor(position: Vector2):
+func create_cable_anchor(anchor_position: Vector2):
 	var scene = preload("res://scenes/units/cable_anchor.tscn")
 	var anchor = scene.instantiate()
 
 	get_tree().current_scene.add_child(anchor)
-	anchor.global_position = position
+	anchor.global_position = anchor_position
 	anchor.name = "CableAnchor_%d" % Time.get_ticks_msec()
 	anchor.object_name = "Cable Anchor"
 
 	update_all_network_node_highlights()
-
-	print("Placed cable anchor at:", position)
 
 	return anchor
 
@@ -514,11 +475,9 @@ func create_cable_segment(start_node, end_node) -> bool:
 		return false
 
 	if not can_accept_new_connection(start_node):
-		print(get_network_point_name(start_node), " has no free ports")
 		return false
 
 	if not can_accept_new_connection(end_node):
-		print(get_network_point_name(end_node), " has no free ports")
 		return false
 
 	var scene = preload("res://scenes/units/cable_segment.tscn")
@@ -528,19 +487,17 @@ func create_cable_segment(start_node, end_node) -> bool:
 	segment.setup(start_node, end_node, selected_cable_type)
 
 	if segment.length < 5.0:
-		print("Cable segment too short, ignoring")
 		segment.queue_free()
 		return false
 
 	if GameManager == null:
-		print("GameManager not found")
+		push_error("GameManager not found")
 		segment.queue_free()
 		return false
 
 	if GameManager.can_afford(segment.total_cost):
 		GameManager.spend_money(segment.total_cost)
 	else:
-		print("Not enough money for cable")
 		segment.queue_free()
 		return false
 

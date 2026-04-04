@@ -8,6 +8,10 @@ size = Vector2(100, 100)
 
 [node name="CoolingUnitL1" type="Area2D" unique_id=950834827]
 script = ExtResource("1_h48kw")
+base_heat = 0.0
+heat_radius = 260.0
+airflow_rate = 1.35
+cooling_capacity = 40.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1373607331]
 texture = ExtResource("2_gqles")
