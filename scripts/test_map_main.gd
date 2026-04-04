@@ -10,6 +10,7 @@ signal cable_mode_changed(is_enabled)
 @onready var player = get_tree().get_first_node_in_group("player")
 @onready var cable_mode_button = $BuyMenu/Panel/MainVBox/CableModeButton
 
+
 var pending_action: String = ""
 var current_interactable = null
 var selected_unit_to_place = null
@@ -231,7 +232,11 @@ func place_selected_unit() -> void:
 		print("Cannot place units in cable mode")
 		return
 
-	if not hud.can_afford(cost):
+	if GameManager == null:
+		print("GameManager not found")
+		return
+
+	if not GameManager.can_afford(cost):
 		print("Not enough money")
 		return
 
@@ -275,7 +280,7 @@ func place_selected_unit() -> void:
 	new_unit.set_meta("cost", selected_unit_to_place["cost"])
 	new_unit.set_meta("facing", facing)
 
-	hud.spend_money(cost)
+	GameManager.spend_money(cost)
 
 	print("Placed:", selected_unit_to_place["name"], " facing ", facing)
 
@@ -321,8 +326,11 @@ func can_place_at_current_position() -> bool:
 	return true
 
 func _on_add_dev_money_requested(amount: float) -> void:
-	hud.revenue += amount
-	hud.cash_label.text = "$%.2f" % hud.revenue
+	if GameManager == null:
+		print("GameManager not found")
+		return
+
+	GameManager.add_money(amount)
 	print("Dev money added:", amount)
 
 func _perform_pending_action() -> void:
@@ -524,15 +532,17 @@ func create_cable_segment(start_node, end_node) -> bool:
 		segment.queue_free()
 		return false
 
-	var game = get_tree().get_first_node_in_group("hud")
+	if GameManager == null:
+		print("GameManager not found")
+		segment.queue_free()
+		return false
 
-	if game and game.has_method("can_afford"):
-		if game.can_afford(segment.total_cost):
-			game.spend_money(segment.total_cost)
-		else:
-			print("Not enough money for cable")
-			segment.queue_free()
-			return false
+	if GameManager.can_afford(segment.total_cost):
+		GameManager.spend_money(segment.total_cost)
+	else:
+		print("Not enough money for cable")
+		segment.queue_free()
+		return false
 
 	placed_cable_segments.append(segment)
 

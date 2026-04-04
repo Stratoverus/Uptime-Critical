@@ -6,6 +6,8 @@ extends Node
 @export var max_rps_ratio: float = 0.12
 @export var traffic_growth_rate: float = 0.01
 
+signal money_changed(new_amount)
+
 # Event Definitions
 const EVENTS = {
 	"black_friday": {
@@ -172,6 +174,7 @@ func _process(delta: float) -> void:
 
 	# Update Global Cash
 	revenue += income_rate * delta
+	money_changed.emit(revenue)
 	
 
 
@@ -249,3 +252,21 @@ func speed_time():
 		time_scale = 1200.0
 	else:
 		time_scale = 12.0 
+
+func can_afford(amount: float) -> bool:
+	return revenue >= amount
+
+func spend_money(amount: float) -> bool:
+	if not can_afford(amount):
+		return false
+
+	revenue -= amount
+	money_changed.emit(revenue)
+	return true
+
+func add_money(amount: float) -> void:
+	revenue += amount
+	money_changed.emit(revenue)
+
+func get_money() -> float:
+	return revenue
