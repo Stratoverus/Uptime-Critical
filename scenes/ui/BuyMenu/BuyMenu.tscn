@@ -76,12 +76,12 @@ script = ExtResource("1_gwp7j")
 custom_minimum_size = Vector2(200, 300)
 anchors_preset = 6
 anchor_left = 1.0
-anchor_top = 0.5
+anchor_top = 0.0
 anchor_right = 1.0
-anchor_bottom = 0.5
+anchor_bottom = 0.0
 offset_left = -200.0
-offset_top = -150.0
-offset_bottom = 150.0
+offset_top = 280.0
+offset_bottom = 580.0
 grow_horizontal = 0
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_0dew7")
@@ -95,7 +95,23 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_3inbt")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ub4y5")
 theme_override_styles/hover = SubResource("StyleBoxFlat_hyxqa")
 theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_b106m")
-text = "Cable Placement Mode"
+text = "Toggle Network Overlay (N)"
+
+[node name="ElectricalOverlayButton" type="Button" parent="Panel/MainVBox"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_3inbt")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ub4y5")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hyxqa")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_b106m")
+text = "Toggle Electrical Overlay (J)"
+
+[node name="HeatOverlayButton" type="Button" parent="Panel/MainVBox"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_3inbt")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ub4y5")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hyxqa")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_b106m")
+text = "Toggle Heat Overlay (H)"
 
 [node name="TitleLabel" type="Label" parent="Panel/MainVBox" unique_id=538898412]
 layout_mode = 2

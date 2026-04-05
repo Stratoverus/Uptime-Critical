@@ -5,6 +5,7 @@ extends Node
 @export var min_rps_ratio: float = 0.08
 @export var max_rps_ratio: float = 0.12
 @export var traffic_growth_rate: float = 0.01
+@export var starting_money: float = 2500.0
 
 signal money_changed(new_amount)
 
@@ -45,6 +46,7 @@ var event_expiry_time: float = -1.0
 var applied_demand_bonus: float = 0.0
 var applied_ddos_bonus: float = 0.0
 var last_roll_hour = -1
+var current_map_scene_path: String = "res://scenes/maps/serverMap/server_room.tscn"
 
 # Game State Variables
 var time = 360.0
@@ -71,13 +73,49 @@ var total_active_traffic = 0
 var legit_rps: float = 0.0
 var ddos_rps: float = 0.0
 var jitter = 0
+var save_dirty_mark_accumulator: float = 0.0
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	reset_runtime_state()
+	if SaveManager != null and SaveManager.has_method("load_game_state"):
+		var loaded_game_state: Variant = SaveManager.load_game_state()
+		if loaded_game_state is Dictionary and not (loaded_game_state as Dictionary).is_empty():
+			import_runtime_state(loaded_game_state)
+	money_changed.emit(revenue)
+
+func reset_runtime_state(map_scene_path: String = "") -> void:
+	time = 360.0
+	time_scale = 12.0
+	current_day = int(time / 1440) + 1
+	servers_active = true
+	total_minutes_today = time
+
+	market_demand = 60.0
+	organic_growth_rate = 0.01
 	max_load = starting_traffic_capacity_mbps
 	current_load = max_load * clamp(starting_load_ratio, 0.08, 0.12)
+	ddos_load = 0.0
 	target_ratio = min_rps_ratio
 	current_display_ratio = min_rps_ratio
+	total_active_traffic = 0
+	legit_rps = 0.0
+	ddos_rps = 0.0
+	jitter = 0
+
+	revenue = starting_money
+	income_rate = 0.0
+
+	active_event_id = ""
+	event_expiry_time = -1.0
+	applied_demand_bonus = 0.0
+	applied_ddos_bonus = 0.0
+	last_roll_hour = -1
+	if not map_scene_path.is_empty():
+		current_map_scene_path = map_scene_path
+
+	save_dirty_mark_accumulator = 0.0
+	money_changed.emit(revenue)
 
 
 
@@ -175,6 +213,12 @@ func _process(delta: float) -> void:
 	# Update Global Cash
 	revenue += income_rate * delta
 	money_changed.emit(revenue)
+
+	save_dirty_mark_accumulator += delta
+	if save_dirty_mark_accumulator >= 1.0:
+		save_dirty_mark_accumulator = 0.0
+		if SaveManager != null and SaveManager.has_method("mark_runtime_dirty"):
+			SaveManager.mark_runtime_dirty()
 	
 
 
@@ -270,3 +314,58 @@ func add_money(amount: float) -> void:
 
 func get_money() -> float:
 	return revenue
+
+func export_runtime_state() -> Dictionary:
+	return {
+		"time": time,
+		"time_scale": time_scale,
+		"current_day": current_day,
+		"servers_active": servers_active,
+		"total_minutes_today": total_minutes_today,
+		"market_demand": market_demand,
+		"organic_growth_rate": organic_growth_rate,
+		"max_load": max_load,
+		"current_load": current_load,
+		"ddos_load": ddos_load,
+		"target_ratio": target_ratio,
+		"current_display_ratio": current_display_ratio,
+		"total_active_traffic": total_active_traffic,
+		"legit_rps": legit_rps,
+		"ddos_rps": ddos_rps,
+		"jitter": jitter,
+		"revenue": revenue,
+		"income_rate": income_rate,
+		"active_event_id": active_event_id,
+		"event_expiry_time": event_expiry_time,
+		"applied_demand_bonus": applied_demand_bonus,
+		"applied_ddos_bonus": applied_ddos_bonus,
+		"last_roll_hour": last_roll_hour,
+		"current_map_scene_path": current_map_scene_path
+	}
+
+func import_runtime_state(state: Dictionary) -> void:
+	time = float(state.get("time", time))
+	time_scale = float(state.get("time_scale", time_scale))
+	current_day = int(state.get("current_day", current_day))
+	servers_active = bool(state.get("servers_active", servers_active))
+	total_minutes_today = float(state.get("total_minutes_today", total_minutes_today))
+	market_demand = float(state.get("market_demand", market_demand))
+	organic_growth_rate = float(state.get("organic_growth_rate", organic_growth_rate))
+	max_load = float(state.get("max_load", max_load))
+	current_load = float(state.get("current_load", current_load))
+	ddos_load = float(state.get("ddos_load", ddos_load))
+	target_ratio = float(state.get("target_ratio", target_ratio))
+	current_display_ratio = float(state.get("current_display_ratio", current_display_ratio))
+	total_active_traffic = int(state.get("total_active_traffic", total_active_traffic))
+	legit_rps = float(state.get("legit_rps", legit_rps))
+	ddos_rps = float(state.get("ddos_rps", ddos_rps))
+	jitter = float(state.get("jitter", jitter))
+	revenue = float(state.get("revenue", revenue))
+	income_rate = float(state.get("income_rate", income_rate))
+	active_event_id = String(state.get("active_event_id", active_event_id))
+	event_expiry_time = float(state.get("event_expiry_time", event_expiry_time))
+	applied_demand_bonus = float(state.get("applied_demand_bonus", applied_demand_bonus))
+	applied_ddos_bonus = float(state.get("applied_ddos_bonus", applied_ddos_bonus))
+	last_roll_hour = int(state.get("last_roll_hour", last_roll_hour))
+	current_map_scene_path = String(state.get("current_map_scene_path", current_map_scene_path))
+	money_changed.emit(revenue)

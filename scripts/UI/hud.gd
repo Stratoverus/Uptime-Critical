@@ -8,6 +8,9 @@ extends CanvasLayer
 @onready var cash_label = $Control/MarginContainer/HUDContainer/MoneyContainer/RevenueLabel
 @onready var income_label = $Control/MarginContainer/HUDContainer/MoneyContainer/IncomeLabel
 @onready var speed_button = $Control/MarginContainer/HUDContainer/TestingControls/SpeedButton
+@onready var network_overlay_button = get_node_or_null("Control/MarginContainer/HUDContainer/TestingControls/OverlayButtons/NetworkOverlayButton")
+@onready var electrical_overlay_button = get_node_or_null("Control/MarginContainer/HUDContainer/TestingControls/OverlayButtons/ElectricalOverlayButton")
+@onready var heat_overlay_button = get_node_or_null("Control/MarginContainer/HUDContainer/TestingControls/OverlayButtons/HeatOverlayButton")
 @onready var clock_pointer = $Control/TimeContainer/VBoxContainer/ClockContainer/Pointer
 @onready var day_label = $Control/TimeContainer/VBoxContainer/DayLabel
 
@@ -25,6 +28,7 @@ func _ready():
 	await get_tree().process_frame
 	if traffic_bar != null:
 		traffic_bar.max_value = max(GameManager.max_load, 1.0)
+		_update_overlay_buttons()
 
 func _process(delta: float):
 	if not is_instance_valid(traffic_bar):
@@ -66,6 +70,8 @@ func _process(delta: float):
 	else:
 		income_label.modulate = Color.RED
 
+	_update_overlay_buttons()
+
 func calculate_sla_multiplier(current_temp: float) -> float:
 	var threshold = 70.0
 	if current_temp <= threshold:
@@ -88,6 +94,41 @@ func _on_speed_button_pressed() -> void:
 	GameManager.speed_time()
 	speed_button.text = "Speed 100x: ON" if GameManager.time_scale == 1200.0 else "Speed 100x: OFF"
 
+func _on_electrical_overlay_button_pressed() -> void:
+	var overlay = get_tree().get_first_node_in_group("electrical_overlay")
+	if overlay == null:
+		return
+
+	if overlay.has_method("toggle_overlay"):
+		overlay.toggle_overlay()
+	elif overlay.has_method("set_overlay_visible"):
+		overlay.set_overlay_visible(not overlay.visible)
+
+	_update_overlay_buttons()
+
+func _on_network_overlay_button_pressed() -> void:
+	var overlay = get_tree().current_scene.get_node_or_null("NetworkOverlay/Control")
+	if overlay == null:
+		return
+
+	if overlay.has_method("toggle_overlay"):
+		overlay.toggle_overlay()
+	elif overlay.has_method("set_overlay_visible"):
+		overlay.set_overlay_visible(not overlay.visible)
+
+	_update_overlay_buttons()
+
+func _on_heat_overlay_button_pressed() -> void:
+	var thermal_system = get_tree().get_first_node_in_group("thermal_system")
+	if thermal_system == null:
+		return
+
+	var currently_enabled: bool = bool(thermal_system.get("heat_view_enabled"))
+	if thermal_system.has_method("set_heat_view_enabled"):
+		thermal_system.set_heat_view_enabled(not currently_enabled)
+
+	_update_overlay_buttons()
+
 func _on_ddos_button_pressed() -> void:
 	GameManager.end_active_event()
 	GameManager.start_event("botnet_attack")
@@ -99,3 +140,41 @@ func _on_black_friday_pressed() -> void:
 func _on_viral_video_pressed() -> void:
 	GameManager.end_active_event()
 	GameManager.start_event("viral_video")
+
+func _update_overlay_buttons() -> void:
+	_update_network_overlay_button()
+	_update_electrical_overlay_button()
+	_update_heat_overlay_button()
+
+func _update_network_overlay_button() -> void:
+	if network_overlay_button == null:
+		return
+
+	var overlay = get_tree().current_scene.get_node_or_null("NetworkOverlay/Control")
+	var overlay_visible: bool = overlay != null and overlay.visible
+	if overlay_visible:
+		network_overlay_button.text = "Hide Network Overlay (N)"
+	else:
+		network_overlay_button.text = "Toggle Network Overlay (N)"
+
+func _update_electrical_overlay_button() -> void:
+	if electrical_overlay_button == null:
+		return
+
+	var overlay = get_tree().get_first_node_in_group("electrical_overlay")
+	var overlay_visible: bool = overlay != null and overlay.visible
+	if overlay_visible:
+		electrical_overlay_button.text = "Hide Electrical Overlay (J)"
+	else:
+		electrical_overlay_button.text = "Toggle Electrical Overlay (J)"
+
+func _update_heat_overlay_button() -> void:
+	if heat_overlay_button == null:
+		return
+
+	var thermal_system = get_tree().get_first_node_in_group("thermal_system")
+	var heat_enabled: bool = thermal_system != null and bool(thermal_system.get("heat_view_enabled"))
+	if heat_enabled:
+		heat_overlay_button.text = "Hide Heat Overlay (H)"
+	else:
+		heat_overlay_button.text = "Toggle Heat Overlay (H)"

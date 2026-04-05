@@ -3,6 +3,19 @@
 [ext_resource type="Script" uid="uid://b7ec2hiqwhed4" path="res://scenes/ui/MainMenu/main_menu.gd" id="1_c38wu"]
 [ext_resource type="Theme" uid="uid://cgovku5fdfya3" path="res://assets/themes/ui_theme.tres" id="1_lwpty"]
 [ext_resource type="Texture2D" uid="uid://cuvwpxnmph0av" path="res://assets/UI/Computer Screen BG.jpg" id="2_lwpty"]
+[ext_resource type="Shader" uid="uid://cfnn2dibqqsjo" path="res://assets/shaders/main_menu_crt.gdshader" id="3_v7pwa"]
+[ext_resource type="AudioStream" uid="uid://ceqy8ycfp2xqo" path="res://music/vasilyatsevich-brain-implant-cyberpunk-sci-fi-trailer-action-intro-330416.mp3" id="4_epepa"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rqcfe"]
+shader = ExtResource("3_v7pwa")
+shader_parameter/tint_color = Color(0.3, 1, 0.52, 1)
+shader_parameter/static_strength = 0.010000000475
+shader_parameter/scanline_strength = 0.10400000494
+shader_parameter/distortion_strength = 0.0010000000475
+shader_parameter/top_wobble_multiplier = 0.02400000114
+shader_parameter/top_wobble_ramp_height = 0.35
+shader_parameter/vignette_strength = 0.3810000180975
+shader_parameter/flicker_strength = 0.030000001425
 
 [node name="Control" type="Control" unique_id=424135402]
 layout_mode = 3
@@ -15,6 +28,7 @@ theme = ExtResource("1_lwpty")
 script = ExtResource("1_c38wu")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=2101294145]
+material = SubResource("ShaderMaterial_rqcfe")
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -62,7 +76,243 @@ text = "Settings"
 layout_mode = 2
 text = "Exit Game"
 
+[node name="SettingsPanel" type="PanelContainer" parent="CenterContainer/VBoxContainer" unique_id=1109240994]
+visible = false
+custom_minimum_size = Vector2(940, 0)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="CenterContainer/VBoxContainer/SettingsPanel" unique_id=698801759]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="SettingsVBox" type="VBoxContainer" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer" unique_id=1777304286]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="SettingsTitle" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox" unique_id=1330472032]
+layout_mode = 2
+theme_override_font_sizes/font_size = 58
+text = "Settings"
+
+[node name="AudioHeader" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox" unique_id=1919026872]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Audio"
+
+[node name="MasterRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox" unique_id=336368908]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="MasterLabel" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/MasterRow" unique_id=237956246]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+text = "Master Volume"
+
+[node name="MasterSlider" type="HSlider" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/MasterRow" unique_id=49369195]
+layout_mode = 2
+size_flags_horizontal = 3
+value = 30.0
+
+[node name="MasterValue" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/MasterRow" unique_id=974471544]
+custom_minimum_size = Vector2(84, 0)
+layout_mode = 2
+text = "30%"
+horizontal_alignment = 2
+
+[node name="MusicRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox" unique_id=666690339]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="MusicLabel" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/MusicRow" unique_id=1026901113]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+text = "Music Volume"
+
+[node name="MusicSlider" type="HSlider" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/MusicRow" unique_id=1226781856]
+layout_mode = 2
+size_flags_horizontal = 3
+value = 30.0
+
+[node name="MusicValue" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/MusicRow" unique_id=1612404794]
+custom_minimum_size = Vector2(84, 0)
+layout_mode = 2
+text = "30%"
+horizontal_alignment = 2
+
+[node name="SfxRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox" unique_id=2103681454]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="SfxLabel" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/SfxRow" unique_id=250964715]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+text = "SFX Volume"
+
+[node name="SfxSlider" type="HSlider" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/SfxRow" unique_id=1784901415]
+layout_mode = 2
+size_flags_horizontal = 3
+value = 30.0
+
+[node name="SfxValue" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/SfxRow" unique_id=1823841138]
+custom_minimum_size = Vector2(84, 0)
+layout_mode = 2
+text = "30%"
+horizontal_alignment = 2
+
+[node name="DisplayHeader" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox" unique_id=102682400]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Display"
+
+[node name="FullscreenRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox" unique_id=682461771]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="FullscreenLabel" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/FullscreenRow" unique_id=1811359313]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Fullscreen"
+
+[node name="FullscreenToggleButton" type="Button" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/FullscreenRow" unique_id=335412781]
+custom_minimum_size = Vector2(180, 50)
+layout_mode = 2
+toggle_mode = true
+text = "Enabled"
+
+[node name="VsyncRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox" unique_id=1508192801]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="VsyncLabel" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/VsyncRow" unique_id=99110910]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "VSync"
+
+[node name="VsyncToggleButton" type="Button" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/VsyncRow" unique_id=723820357]
+custom_minimum_size = Vector2(180, 50)
+layout_mode = 2
+toggle_mode = true
+text = "Enabled"
+
+[node name="FpsRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox" unique_id=620767387]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="FpsLabelText" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/FpsRow" unique_id=1175258465]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Show FPS"
+
+[node name="FpsToggleButton" type="Button" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/FpsRow" unique_id=1288284301]
+custom_minimum_size = Vector2(180, 50)
+layout_mode = 2
+toggle_mode = true
+button_pressed = true
+text = "Disabled"
+
+[node name="SettingsStatusLabel" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox" unique_id=221401087]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.44705883, 0.83137256, 0.48235294, 1)
+text = "Saved"
+
+[node name="BottomButtons" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox" unique_id=569664083]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SaveSettingsButton" type="Button" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/BottomButtons" unique_id=316605680]
+custom_minimum_size = Vector2(240, 58)
+layout_mode = 2
+disabled = true
+text = "Save Settings"
+
+[node name="SettingsBackButton" type="Button" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/BottomButtons" unique_id=206662890]
+layout_mode = 2
+text = "Back"
+
+[node name="MainMenuMusic" type="AudioStreamPlayer" parent="." unique_id=944914707]
+stream = ExtResource("4_epepa")
+autoplay = true
+bus = &"Music"
+
+[node name="FpsLabel" type="Label" parent="." unique_id=674381270]
+visible = false
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -200.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 68.0
+grow_horizontal = 0
+text = "FPS: 0"
+horizontal_alignment = 2
+
+[node name="MapSelectPopup" type="PopupPanel" parent="." unique_id=158879521]
+initial_position = 1
+size = Vector2i(840, 620)
+
+[node name="PopupBackground" type="ColorRect" parent="MapSelectPopup" unique_id=1218017222]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 836.0
+offset_bottom = 616.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.0470588, 0.0588235, 0.0705882, 0.97)
+
+[node name="MarginContainer" type="MarginContainer" parent="MapSelectPopup" unique_id=1078606027]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 836.0
+offset_bottom = 616.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="PopupVBox" type="VBoxContainer" parent="MapSelectPopup/MarginContainer" unique_id=2141479173]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="MapSelectTitle" type="Label" parent="MapSelectPopup/MarginContainer/PopupVBox" unique_id=2003880498]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Select A Map"
+
+[node name="MapScroll" type="ScrollContainer" parent="MapSelectPopup/MarginContainer/PopupVBox" unique_id=1813178320]
+custom_minimum_size = Vector2(0, 420)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MapList" type="VBoxContainer" parent="MapSelectPopup/MarginContainer/PopupVBox/MapScroll" unique_id=638697051]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="CloseMapPopupButton" type="Button" parent="MapSelectPopup/MarginContainer/PopupVBox" unique_id=275350463]
+layout_mode = 2
+text = "Back"
+
 [connection signal="pressed" from="CenterContainer/VBoxContainer/VBoxContainer2/ContinueButton" to="." method="_on_continue_button_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/VBoxContainer2/NewGameButton" to="." method="_on_new_game_button_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/VBoxContainer2/SettingsButton" to="." method="_on_settings_button_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/VBoxContainer2/ExitButton" to="." method="_on_exit_button_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/BottomButtons/SettingsBackButton" to="." method="_on_settings_back_button_pressed"]
+[connection signal="pressed" from="MapSelectPopup/MarginContainer/PopupVBox/CloseMapPopupButton" to="." method="_on_close_map_popup_button_pressed"]

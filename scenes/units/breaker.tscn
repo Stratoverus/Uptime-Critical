@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/interaction/breaker.gd" id="1_breaker_script"]
+[ext_resource type="Texture2D" path="res://assets/object_sprites/breaker/breaker_front.png" id="2_breaker_texture"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_breaker"]
+size = Vector2(100, 100)
+
+[node name="Breaker" type="Area2D"]
+script = ExtResource("1_breaker_script")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_breaker_texture")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_breaker")
