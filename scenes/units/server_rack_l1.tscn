@@ -2,13 +2,15 @@
 
 [ext_resource type="Script" uid="uid://bypsyjhf0o4a4" path="res://scripts/interaction/server_rack.gd" id="1_mefap"]
 [ext_resource type="Texture2D" uid="uid://5gygs0dclcbk" path="res://assets/object_sprites/servers/server_rack_1_front.png" id="2_mju2r"]
-[ext_resource type="PackedScene" path="res://scenes/vfx/power_status_light.tscn" id="3_ymhdb"]
+[ext_resource type="PackedScene" uid="uid://dspiifi7718rv" path="res://scenes/vfx/power_status_light.tscn" id="3_ymhdb"]
+[ext_resource type="PackedScene" uid="uid://dpus22sr8lcxi" path="res://scenes/vfx/traffic_status_light.tscn" id="4_t9m2r"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_rnq3t"]
 size = Vector2(100, 100)
 
 [node name="ServerRackL1" type="Area2D" unique_id=559956324]
 script = ExtResource("1_mefap")
+build_time_sec = 2.0
 base_heat = 18.0
 heat_radius = 300.0
 
@@ -20,3 +22,6 @@ shape = SubResource("RectangleShape2D_rnq3t")
 
 [node name="PowerStatusLight" parent="." unique_id=269797542 instance=ExtResource("3_ymhdb")]
 position = Vector2(-34, 0)
+
+[node name="TrafficStatusLight" parent="." unique_id=1825359500 instance=ExtResource("4_t9m2r")]
+position = Vector2(33, 24)

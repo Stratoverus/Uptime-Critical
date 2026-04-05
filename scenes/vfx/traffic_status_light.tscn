@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://dpus22sr8lcxi"]
+
+[ext_resource type="Script" uid="uid://dyuxamaiua74j" path="res://scripts/vfx/traffic_status_light.gd" id="1_traffic"]
+
+[node name="TrafficStatusLight" type="Node2D" unique_id=2027947942]
+script = ExtResource("1_traffic")
+light_color = Color(1, 0.22, 0.18, 1)
+default_sprite_size_px = 20
+
+[node name="LightSprite" type="Sprite2D" parent="." unique_id=84783036]
+z_index = 8

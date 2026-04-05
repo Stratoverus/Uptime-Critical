@@ -54,6 +54,10 @@ var fps_counter_label: Label = null
 var show_fps_counter: bool = false
 
 const SETTINGS_CONFIG_PATH: String = "user://settings.cfg"
+const BUILD_REVEAL_SHADER_PATH: String = "res://assets/shaders/build_reveal.gdshader"
+const DEFAULT_BUILD_TIME_SEC: float = 2.0
+const UNPOWERED_DIM_MODULATE: Color = Color(0.45, 0.45, 0.45, 1.0)
+const BUILD_SETTLE_DIM_SEC: float = 1.0
 
 const PREVIEW_VALID_COLOR: Color = Color(1.0, 1.0, 1.0, 0.5)
 const PREVIEW_BLOCKED_COLOR: Color = Color(1.0, 0.25, 0.25, 0.65)
@@ -391,6 +395,7 @@ func place_selected_unit(keep_placing: bool = false) -> void:
 	new_unit.set_meta("cost", selected_unit_to_place["cost"])
 	new_unit.set_meta("facing", facing)
 	new_unit.set_meta("scene_path", selected_unit_to_place.get("scene_path", ""))
+	_play_build_reveal_animation(new_unit)
 
 	GameManager.spend_money(cost)
 	_mark_save_dirty()
@@ -402,6 +407,116 @@ func place_selected_unit(keep_placing: bool = false) -> void:
 		return
 
 	cancel_placement()
+
+func _resolve_build_time_seconds(new_unit: Node) -> float:
+	if new_unit == null:
+		return DEFAULT_BUILD_TIME_SEC
+
+	var interactable := new_unit as InteractableObject
+	if interactable != null:
+		return max(interactable.build_time_sec, 0.05)
+
+	var scene_build_time: Variant = new_unit.get("build_time_sec")
+	if scene_build_time != null:
+		return max(float(scene_build_time), 0.05)
+
+	return DEFAULT_BUILD_TIME_SEC
+
+func _play_build_reveal_animation(new_unit: Node) -> void:
+	if new_unit == null:
+		return
+
+	var build_time_sec := _resolve_build_time_seconds(new_unit)
+	new_unit.set_meta("build_time_sec", build_time_sec)
+
+	var ignore_until_ms := int(new_unit.get_meta("ignore_interaction_until", 0))
+	var build_complete_ms := Time.get_ticks_msec() + int(round(build_time_sec * 1000.0))
+	new_unit.set_meta("ignore_interaction_until", max(ignore_until_ms, build_complete_ms))
+
+	var unit_sprite := new_unit.get_node_or_null("Sprite2D") as Sprite2D
+	if unit_sprite == null:
+		return
+
+	var reveal_shader := load(BUILD_REVEAL_SHADER_PATH) as Shader
+	if reveal_shader == null:
+		return
+
+	var reveal_material := ShaderMaterial.new()
+	reveal_material.shader = reveal_shader
+	reveal_material.set_shader_parameter("reveal_progress", 0.0)
+	unit_sprite.material = reveal_material
+
+	var reveal_tween := create_tween()
+	reveal_tween.set_trans(Tween.TRANS_SINE)
+	reveal_tween.set_ease(Tween.EASE_OUT)
+	reveal_tween.tween_property(reveal_material, "shader_parameter/reveal_progress", 1.0, build_time_sec)
+	reveal_tween.finished.connect(func() -> void:
+		if is_instance_valid(unit_sprite) and unit_sprite.material == reveal_material:
+			unit_sprite.material = null
+		_play_post_build_visual_settle(new_unit, unit_sprite)
+	)
+
+func _play_post_build_visual_settle(new_unit: Node, unit_sprite: Sprite2D) -> void:
+	if new_unit == null or unit_sprite == null or not is_instance_valid(unit_sprite):
+		return
+
+	var target_modulate := _resolve_unit_visual_target_modulate(new_unit)
+	var current_modulate: Color = unit_sprite.modulate
+
+	var current_luma: float = (current_modulate.r + current_modulate.g + current_modulate.b) / 3.0
+	var target_luma: float = (target_modulate.r + target_modulate.g + target_modulate.b) / 3.0
+	# If target is dark (unpowered), force a visible bright-to-dim settle every time build completes.
+	if target_luma < 0.95:
+		unit_sprite.modulate = Color(1.0, 1.0, 1.0, 1.0)
+		var forced_settle_duration: float = BUILD_SETTLE_DIM_SEC
+		if new_unit.has_method("set_sprite_modulate"):
+			new_unit.call("set_sprite_modulate", target_modulate, forced_settle_duration)
+		else:
+			var settle_tween := create_tween()
+			settle_tween.set_trans(Tween.TRANS_SINE)
+			settle_tween.set_ease(Tween.EASE_OUT)
+			settle_tween.tween_property(unit_sprite, "modulate", target_modulate, forced_settle_duration)
+			settle_tween.finished.connect(func() -> void:
+				if new_unit != null and new_unit.has_method("_apply_visual_state"):
+					new_unit.call("_apply_visual_state")
+			)
+		return
+
+	if target_modulate == current_modulate:
+		return
+
+	if target_luma >= current_luma:
+		if new_unit.has_method("_apply_visual_state"):
+			new_unit.call("_apply_visual_state")
+		return
+
+	var settle_duration: float = BUILD_SETTLE_DIM_SEC
+	if new_unit.has_method("set_sprite_modulate"):
+		new_unit.call("set_sprite_modulate", target_modulate, settle_duration)
+	else:
+		var settle_tween := create_tween()
+		settle_tween.set_trans(Tween.TRANS_SINE)
+		settle_tween.set_ease(Tween.EASE_OUT)
+		settle_tween.tween_property(unit_sprite, "modulate", target_modulate, settle_duration)
+		settle_tween.finished.connect(func() -> void:
+			if new_unit != null and new_unit.has_method("_apply_visual_state"):
+				new_unit.call("_apply_visual_state")
+		)
+
+func _resolve_unit_visual_target_modulate(new_unit: Node) -> Color:
+	if new_unit == null:
+		return Color(1.0, 1.0, 1.0, 1.0)
+
+	if new_unit.has_method("_is_active"):
+		var is_active: bool = bool(new_unit.call("_is_active"))
+		if is_active:
+			return Color(1.0, 1.0, 1.0, 1.0)
+		return UNPOWERED_DIM_MODULATE
+
+	if new_unit.get("is_powered") is bool and not bool(new_unit.get("is_powered")):
+		return UNPOWERED_DIM_MODULATE
+
+	return Color(1.0, 1.0, 1.0, 1.0)
 
 func cancel_placement() -> void:
 	selected_unit_to_place = null

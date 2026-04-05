@@ -8,6 +8,7 @@ const WiringGraph = preload("res://scripts/systems/wiring/wiring_graph.gd")
 @export var connectable_group: StringName = &"electrical_connectable"
 @export var anchor_group: StringName = &"electrical_anchors"
 @export var connector_snap_distance: float = 24.0
+@export var anchor_min_distance_from_nodes: float = 20.0
 @export var connector_radius: float = 7.0
 @export var wire_width: float = 4.0
 @export var wire_glow_width: float = 10.0
@@ -22,6 +23,8 @@ const WiringGraph = preload("res://scripts/systems/wiring/wiring_graph.gd")
 @export var connector_outline_color: Color = Color(0.02, 0.04, 0.06, 0.95)
 @export var connector_active_fill_color: Color = Color(1.0, 0.88, 0.40, 1.0)
 @export var connector_active_outline_color: Color = Color(0.20, 0.14, 0.02, 0.95)
+@export var connector_icon_color: Color = Color(0.10, 0.10, 0.10, 0.95)
+@export var connector_icon_size: int = 14
 @export var status_message_duration: float = 1.4
 
 var connectors: Array[Dictionary] = []
@@ -143,6 +146,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func set_overlay_visible(overlay_visible: bool) -> void:
+	if overlay_visible:
+		_deactivate_other_overlays()
+
 	if overlay_fade_tween != null and overlay_fade_tween.is_valid():
 		overlay_fade_tween.kill()
 
@@ -190,6 +196,15 @@ func set_overlay_visible(overlay_visible: bool) -> void:
 	highlighted_connections.clear()
 	update_all_power_states()
 	queue_redraw()
+
+func _deactivate_other_overlays() -> void:
+	for network_overlay in get_tree().get_nodes_in_group("network_overlay"):
+		if network_overlay != null and network_overlay.has_method("set_overlay_visible"):
+			network_overlay.call("set_overlay_visible", false, true)
+
+	for thermal_system in get_tree().get_nodes_in_group("thermal_system"):
+		if thermal_system != null and thermal_system.has_method("set_heat_view_enabled"):
+			thermal_system.call("set_heat_view_enabled", false)
 
 func _on_fade_out_finished() -> void:
 	visible = false
@@ -277,6 +292,10 @@ func cancel_drag() -> void:
 	queue_redraw()
 
 func create_anchor_connector(mouse_position: Vector2) -> Dictionary:
+	if _is_anchor_too_close_to_connector(mouse_position):
+		_show_overlay_status("Cannot place anchor that close to a node.")
+		return {}
+
 	var scene = preload("res://scenes/units/cable_anchor.tscn")
 	var anchor = scene.instantiate()
 	anchor.anchor_group_name = anchor_group
@@ -305,6 +324,10 @@ func add_connection(first_connector: Dictionary, second_connector: Dictionary) -
 	if not _connector_has_capacity(start_node, start_owner):
 		return
 	if not _connector_has_capacity(end_node, end_owner):
+		return
+	if _is_router_electrical_connector(start_owner, start_node) and get_connection_count_for_node(start_node) >= 1:
+		return
+	if _is_router_electrical_connector(end_owner, end_node) and get_connection_count_for_node(end_node) >= 1:
 		return
 
 	connections.append({
@@ -440,6 +463,10 @@ func can_connect_connectors(first_connector: Dictionary, second_connector: Dicti
 		return false
 	if not _connector_has_capacity(end_node, end_owner):
 		return false
+	if _is_router_electrical_connector(start_owner, start_node) and get_connection_count_for_node(start_node) >= 1:
+		return false
+	if _is_router_electrical_connector(end_owner, end_node) and get_connection_count_for_node(end_node) >= 1:
+		return false
 	if would_create_loop(start_node, end_node):
 		return false
 
@@ -480,6 +507,21 @@ func _connector_has_capacity(connector_node: Node2D, owner_node: Node) -> bool:
 		return bool(owner_node.call("can_accept_electrical_connection", connector_node, connection_count))
 
 	return connection_count == 0
+
+func _is_router_electrical_connector(owner_node: Node, connector_node: Node2D) -> bool:
+	if owner_node == null or connector_node == null:
+		return false
+	if not owner_node.is_in_group("network_nodes"):
+		return false
+	if str(owner_node.get("network_node_type")) != "router":
+		return false
+
+	if owner_node.has_method("get_electrical_nodes"):
+		var nodes: Variant = owner_node.call("get_electrical_nodes")
+		if nodes is Array:
+			return (nodes as Array).has(connector_node)
+
+	return false
 
 func would_create_loop(start_node: Node2D, end_node: Node2D) -> bool:
 	if start_node == null or end_node == null:
@@ -541,8 +583,9 @@ func _find_connector_owner(connector_node: Node2D) -> Node:
 
 func update_all_port_label_visibility(should_show: bool) -> void:
 	for node in get_tree().get_nodes_in_group(connectable_group):
+		var is_router_node: bool = node != null and node.is_in_group("network_nodes") and str(node.get("network_node_type")) == "router"
 		if node.has_method("set_port_label_visible"):
-			node.call("set_port_label_visible", should_show)
+			node.call("set_port_label_visible", should_show and not is_router_node)
 
 func update_all_power_states() -> void:
 	var powered_connectors: Dictionary = _get_powered_connectors()
@@ -1034,13 +1077,47 @@ func draw_connector(connector: Dictionary) -> void:
 	if connector_node == null or not is_instance_valid(connector_node):
 		return
 
+	var connector_owner: Node = connector.get("owner", null)
 	var connector_position: Vector2 = connector.get("screen_position", Vector2.ZERO)
 	var is_dragging_start: bool = not dragging_connector.is_empty() and dragging_connector.get("connector", null) == connector_node
 	var fill_color: Color = connector_active_fill_color if is_dragging_start else connector_fill_color
 	var outline_color: Color = connector_active_outline_color if is_dragging_start else connector_outline_color
+	var icon_text := _get_electrical_connector_icon(connector_owner, connector_node)
 
 	draw_circle(connector_position, connector_radius + 2.5, outline_color)
 	draw_circle(connector_position, connector_radius, fill_color)
+	_draw_connector_icon(connector_position, icon_text)
+
+func _is_anchor_too_close_to_connector(mouse_position: Vector2) -> bool:
+	refresh_connectors()
+	for connector in connectors:
+		var connector_position: Vector2 = connector.get("screen_position", Vector2.ZERO)
+		if connector_position.distance_to(mouse_position) < anchor_min_distance_from_nodes:
+			return true
+	return false
+
+func _get_electrical_connector_icon(owner_node: Node, connector_node: Node2D) -> String:
+	if connector_node != null and connector_node.is_in_group(anchor_group):
+		return ""
+
+	if owner_node != null and owner_node.has_method("get_electrical_port_icon"):
+		return str(owner_node.call("get_electrical_port_icon", connector_node))
+
+	return "⚡"
+
+func _draw_connector_icon(screen_position: Vector2, icon_text: String) -> void:
+	if icon_text == "":
+		return
+
+	var icon_font: Font = ThemeDB.fallback_font
+	if icon_font == null:
+		return
+
+	var icon_size_px: int = max(connector_icon_size, 8)
+	var text_size: Vector2 = icon_font.get_string_size(icon_text, HORIZONTAL_ALIGNMENT_LEFT, -1, icon_size_px)
+	var baseline_offset: float = text_size.y * 0.35
+	var draw_position := Vector2(screen_position.x - (text_size.x * 0.5), screen_position.y + baseline_offset)
+	draw_string(icon_font, draw_position, icon_text, HORIZONTAL_ALIGNMENT_LEFT, -1, icon_size_px, connector_icon_color)
 
 func show_overlay_title(title: String) -> void:
 	if overlay_title_label == null:
@@ -1049,7 +1126,12 @@ func show_overlay_title(title: String) -> void:
 		overlay_title_label.z_index = 100
 		overlay_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		overlay_title_label.add_theme_font_size_override("font_size", 24)
+		overlay_title_label.add_to_group("overlay_titles")
 		get_tree().current_scene.add_child(overlay_title_label)
+
+	for title_node in get_tree().get_nodes_in_group("overlay_titles"):
+		if title_node is Label and title_node != overlay_title_label:
+			(title_node as Label).visible = false
 	
 	overlay_title_label.text = title
 	overlay_title_label.position = Vector2(get_viewport_rect().get_center().x - 60, 20)

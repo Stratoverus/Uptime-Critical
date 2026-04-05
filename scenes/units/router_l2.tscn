@@ -1,17 +1,27 @@
 [gd_scene format=3 uid="uid://b4p0pe6gqdy2o"]
 
 [ext_resource type="Script" uid="uid://b4wqubjhokd5q" path="res://scripts/interaction/router.gd" id="1_eb5cv"]
-[ext_resource type="Texture2D" uid="uid://d3lpud8ix2kdt" path="res://assets/object_sprites/router_2_front.png" id="2_1cqke"]
+[ext_resource type="Texture2D" uid="uid://d3lpud8ix2kdt" path="res://assets/object_sprites/routers/router_2_front.png" id="2_1cqke"]
+[ext_resource type="PackedScene" uid="uid://dspiifi7718rv" path="res://scenes/vfx/power_status_light.tscn" id="3_p1g8j"]
+[ext_resource type="PackedScene" uid="uid://dpus22sr8lcxi" path="res://scenes/vfx/traffic_status_light.tscn" id="4_t9m2r"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_m7wdy"]
 size = Vector2(100, 100)
 
 [node name="RouterL2" type="Area2D" unique_id=156382625]
 script = ExtResource("1_eb5cv")
+build_time_sec = 3.0
 level = 2
+network_bandwidth_capacity_units = 6
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1278217980]
 texture = ExtResource("2_1cqke")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=325022459]
 shape = SubResource("RectangleShape2D_m7wdy")
+
+[node name="PowerStatusLight" parent="." unique_id=733497600 instance=ExtResource("3_p1g8j")]
+position = Vector2(-32, 16)
+
+[node name="TrafficStatusLight" parent="." unique_id=1775897720 instance=ExtResource("4_t9m2r")]
+position = Vector2(-14, 16)

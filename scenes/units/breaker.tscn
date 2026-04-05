@@ -8,6 +8,7 @@ size = Vector2(100, 100)
 
 [node name="Breaker" type="Area2D"]
 script = ExtResource("1_breaker_script")
+build_time_sec = 2.0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_breaker_texture")

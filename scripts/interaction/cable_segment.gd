@@ -23,6 +23,7 @@ func setup(a, b, cable_data: Dictionary, start_world_position: Vector2 = Vector2
 	end_point = b
 	cable_type_name = cable_data.get("name", "Cable")
 	cost_per_foot = cable_data.get("cost", 0)
+	z_as_relative = false
 
 	if cable_type_name == "Cat5":
 		width = 4
@@ -32,13 +33,23 @@ func setup(a, b, cable_data: Dictionary, start_world_position: Vector2 = Vector2
 		width = 6
 	default_color = cable_data.get("color", Color(0.45, 0.45, 0.45, 1.0))
 
+	if cable_type_name == "Internet Pipe (Uplink)":
+		# Keep uplink clearly visible above world tiles/walls.
+		z_index = 120
+	else:
+		z_index = 0
+
 	if glow_line != null:
 		var glow_alpha := 0.24
 		if cable_type_name == "Cat6":
 			glow_alpha = 0.28
 		elif cable_type_name == "Fiber":
 			glow_alpha = 0.34
+		elif cable_type_name == "Internet Pipe (Uplink)":
+			glow_alpha = 0.40
 
+		glow_line.z_as_relative = false
+		glow_line.z_index = z_index - 1
 		glow_line.width = width + 6.0
 		glow_line.default_color = Color(default_color.r * 0.52, default_color.g * 0.52, default_color.b * 0.52, glow_alpha)
 		glow_line.closed = false

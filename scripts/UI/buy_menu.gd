@@ -16,7 +16,8 @@ var day_label_node: Control = null
 var cable_items = [
 	{ "name": "Cat5", "color": Color(0.53, 0.53, 0.53, 1.0), "cost": 1 },
 	{ "name": "Cat6", "color": Color(0.36, 0.56, 0.72, 1.0), "cost": 2 },
-	{ "name": "Fiber", "color": Color(0.16, 0.74, 0.66, 1.0), "cost": 5 }
+	{ "name": "Fiber", "color": Color(0.16, 0.74, 0.66, 1.0), "cost": 5 },
+	{ "name": "Internet Pipe (Uplink)", "color": Color(0.94, 0.76, 0.18, 1.0), "cost": 12 }
 ]
 
 var electrical_cable_items = [
