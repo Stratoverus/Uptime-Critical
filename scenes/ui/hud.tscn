@@ -68,8 +68,8 @@ mouse_filter = 2
 
 [node name="MarginContainer" type="MarginContainer" parent="Control" unique_id=1325518787]
 layout_mode = 0
-offset_right = 438.0
-offset_bottom = 248.0
+offset_right = 760.0
+offset_bottom = 300.0
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 20
 

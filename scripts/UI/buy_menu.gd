@@ -6,14 +6,24 @@ signal unit_selected(unit_data)
 @onready var title_label = $Panel/MainVBox/TitleLabel
 @onready var unit_grid = $Panel/MainVBox/UnitGrid
 @onready var dev_money_button = $Panel/MainVBox/DevMoneyButton
+@onready var menu_panel = $Panel
 
 var selected_button: Button = null
+var day_label_node: Control = null
+
+@export var panel_day_label_gap: float = 8.0
 
 var cable_items = [
-	{ "name": "Cat5", "color": Color.BLACK, "cost": 1 },
-	{ "name": "Cat6", "color": Color.GREEN, "cost": 2 },
-	{ "name": "Fiber", "color": Color.ORANGE, "cost": 5 }
+	{ "name": "Cat5", "color": Color(0.53, 0.53, 0.53, 1.0), "cost": 1 },
+	{ "name": "Cat6", "color": Color(0.36, 0.56, 0.72, 1.0), "cost": 2 },
+	{ "name": "Fiber", "color": Color(0.16, 0.74, 0.66, 1.0), "cost": 5 }
 ]
+
+var electrical_cable_items = [
+	{ "name": "Power Cable", "color": Color(0.12, 0.86, 1.0, 0.95), "cost": 2 }
+]
+
+var current_menu_mode: String = "units"
 
 var unit_data = [
 	{
@@ -202,6 +212,10 @@ func _ready() -> void:
 	style_dev_button(dev_money_button)
 	build_unit_list()
 	dev_money_button.pressed.connect(_on_dev_money_button_pressed)
+	_cache_day_label_node()
+	if get_viewport() != null and not get_viewport().size_changed.is_connected(_on_viewport_size_changed):
+		get_viewport().size_changed.connect(_on_viewport_size_changed)
+	call_deferred("_pin_panel_below_day_label")
 
 func build_unit_list() -> void:
 	for child in unit_grid.get_children():
@@ -273,21 +287,119 @@ func _on_dev_money_button_pressed() -> void:
 	GameManager.revenue += 100
 
 func set_menu_mode(is_cable: bool):
-	if is_cable:
-		title_label.text = "Cable Mode"
+	set_menu_mode_by_name("network" if is_cable else "units")
+
+func set_menu_mode_by_name(mode: String) -> void:
+	if mode == current_menu_mode:
+		return
+
+	current_menu_mode = mode
+	selected_button = null
+
+	if mode == "network":
+		title_label.text = "Network Wiring"
 		populate_menu(cable_items, true)
+	elif mode == "electrical":
+		title_label.text = "Electrical Wiring"
+		populate_menu(electrical_cable_items, true)
+		call_deferred("_select_default_cable_item")
 	else:
 		title_label.text = "Buy Menu"
 		populate_menu(unit_data, false)
 
+	call_deferred("_pin_panel_below_day_label")
+
+func _cache_day_label_node() -> void:
+	if day_label_node != null and is_instance_valid(day_label_node):
+		return
+	if get_tree() == null or get_tree().current_scene == null:
+		return
+	day_label_node = get_tree().current_scene.get_node_or_null("HUD/Control/TimeContainer/VBoxContainer/DayLabel") as Control
+
+func _pin_panel_below_day_label() -> void:
+	if menu_panel == null:
+		return
+
+	_cache_day_label_node()
+	if day_label_node == null or not is_instance_valid(day_label_node):
+		return
+
+	var day_rect: Rect2 = day_label_node.get_global_rect()
+	menu_panel.global_position = Vector2(menu_panel.global_position.x, day_rect.position.y + day_rect.size.y + panel_day_label_gap)
+
+func _on_viewport_size_changed() -> void:
+	call_deferred("_pin_panel_below_day_label")
+
+func _select_default_cable_item() -> void:
+	if current_menu_mode != "electrical":
+		return
+
+	for child in unit_grid.get_children():
+		if not (child is Button):
+			continue
+		var button := child as Button
+		if not button.has_meta("cable_data"):
+			continue
+		var cable_data: Variant = button.get_meta("cable_data")
+		if cable_data is Dictionary and str(cable_data.get("name", "")) == "Power Cable":
+			apply_cable_selection_visual(button)
+			return
+
+	if unit_grid.get_child_count() > 0 and unit_grid.get_child(0) is Button:
+		apply_cable_selection_visual(unit_grid.get_child(0) as Button)
+
 func _on_cable_pressed(button: Button) -> void:
 	var cable = button.get_meta("cable_data")
-
-	if selected_button != null:
-		selected_button.modulate = Color(1, 1, 1, 1)
-
-	selected_button = button
-	selected_button.modulate = Color(0.7, 1.0, 0.7, 1.0)
+	apply_cable_selection_visual(button)
 
 	# we'll use this later for placement
 	emit_signal("unit_selected", cable)
+
+func apply_cable_selection_visual(selected: Button) -> void:
+	selected_button = selected
+	for child in unit_grid.get_children():
+		if child is Button:
+			(child as Button).modulate = Color(1, 1, 1, 0.55)
+
+	if selected_button != null:
+		selected_button.modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+func clear_selected_button() -> void:
+	selected_button = null
+	for child in unit_grid.get_children():
+		if child is Button:
+			(child as Button).modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+func set_selected_cable_by_name(cable_name: String) -> void:
+	if cable_name == "":
+		return
+
+	for child in unit_grid.get_children():
+		if not (child is Button):
+			continue
+		var button := child as Button
+		if not button.has_meta("cable_data"):
+			continue
+		var cable_data: Variant = button.get_meta("cable_data")
+		if cable_data is Dictionary and str(cable_data.get("name", "")) == cable_name:
+			apply_cable_selection_visual(button)
+			return
+
+func get_cable_item_by_name(cable_name: String) -> Dictionary:
+	var source_items: Array = []
+	if current_menu_mode == "electrical":
+		source_items = electrical_cable_items
+	else:
+		source_items = cable_items
+
+	for cable in source_items:
+		if str(cable.get("name", "")) == cable_name:
+			return cable.duplicate(true)
+
+	for cable in cable_items:
+		if str(cable.get("name", "")) == cable_name:
+			return cable.duplicate(true)
+	for cable in electrical_cable_items:
+		if str(cable.get("name", "")) == cable_name:
+			return cable.duplicate(true)
+	return {}

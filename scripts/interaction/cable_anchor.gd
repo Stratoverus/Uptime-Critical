@@ -1,5 +1,7 @@
 extends Area2D
 
+@export var anchor_group_name: StringName = &"network_nodes"
+
 var is_connected_to_network := false
 var cable_mode_highlight_on := false
 var object_name := "Cable Anchor"
@@ -9,7 +11,8 @@ var network_node_type := "anchor"
 @onready var sprite = $Sprite2D
 
 func _ready():
-	add_to_group("network_nodes")
+	if anchor_group_name != &"":
+		add_to_group(anchor_group_name)
 	input_pickable = true
 
 func set_cable_mode_highlight(enabled: bool) -> void:

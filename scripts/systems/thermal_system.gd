@@ -157,6 +157,7 @@ var source_processing_ratio_last: float = 1.0
 var thermal_signal_present: bool = false
 var thermal_signal_scan_accumulator: float = 0.0
 var stagger_upload_heat_next: bool = true
+var overlay_title_label: Label = null
 
 const THERMAL_SIGNAL_SCAN_INTERVAL_SECONDS: float = 0.35
 const THERMAL_HEAT_SIGNAL_THRESHOLD: float = 0.01
@@ -450,6 +451,10 @@ func set_heat_view_enabled(enabled: bool) -> void:
 	heat_view_enabled = enabled
 	heat_overlay.visible = enabled
 	world_tint.color = Color(0.55, 0.55, 0.55, 1.0) if enabled else Color(1.0, 1.0, 1.0, 1.0)
+	if enabled:
+		show_overlay_title("Heat Overlay")
+	else:
+		hide_overlay_title()
 
 	var shader_material := heat_overlay.material as ShaderMaterial
 	if shader_material == null:
@@ -485,6 +490,23 @@ func set_heat_view_enabled(enabled: bool) -> void:
 
 	if not enabled:
 		texture_accumulator = 0.0
+
+func show_overlay_title(title: String) -> void:
+	if overlay_title_label == null:
+		overlay_title_label = Label.new()
+		overlay_title_label.name = "OverlayTitle"
+		overlay_title_label.z_index = 100
+		overlay_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		overlay_title_label.add_theme_font_size_override("font_size", 24)
+		get_tree().current_scene.add_child(overlay_title_label)
+
+	overlay_title_label.text = title
+	overlay_title_label.position = Vector2(get_viewport().get_visible_rect().size.x * 0.5 - 70.0, 20.0)
+	overlay_title_label.visible = true
+
+func hide_overlay_title() -> void:
+	if overlay_title_label != null and is_instance_valid(overlay_title_label):
+		overlay_title_label.visible = false
 
 func initialize_heat_field() -> void:
 	viewport_size = get_viewport().get_visible_rect().size

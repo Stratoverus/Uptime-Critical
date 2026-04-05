@@ -4,11 +4,6 @@
 [ext_resource type="Texture2D" uid="uid://bw7bfhk3xm7yl" path="res://assets/Tech Dungeon Roguelite - Asset Pack (DEMO)/tileset x1.png" id="2_t5xg7"]
 [ext_resource type="Texture2D" uid="uid://ry4i0ivl3eu5" path="res://assets/player/julia/Julia-Idle.png" id="3_uwehe"]
 [ext_resource type="Texture2D" uid="uid://ce3wjgbh3fp30" path="res://assets/object_sprites/breaker/breaker_front.png" id="4_uwehe"]
-[ext_resource type="PackedScene" uid="uid://cn6x5ssw581m4" path="res://scenes/player/player.tscn" id="5_6idqr"]
-[ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="6_thermal"]
-[ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="7_debug"]
-[ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="8_fbxn4"]
-[ext_resource type="PackedScene" uid="uid://bndfyhrgoen0t" path="res://scenes/ui/hud.tscn" id="9_36due"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_6idqr"]
 texture = ExtResource("1_ssetc")
@@ -828,10 +823,6 @@ size = Vector2(20, 17)
 
 [node name="serverRoom2" type="Node2D" unique_id=1988192630]
 
-[node name="ThermalSystem" parent="." unique_id=996204713 instance=ExtResource("6_thermal")]
-
-[node name="PerfProbeOverlay" parent="." unique_id=482304038 instance=ExtResource("7_debug")]
-
 [node name="tileServerRoomMap2" type="TileMap" parent="." unique_id=654324927]
 tile_set = SubResource("TileSet_36due")
 format = 2
@@ -909,10 +900,3 @@ texture = ExtResource("4_uwehe")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="BreakerBox6(StaticBody2D)" unique_id=1488434685]
 position = Vector2(129, 229)
 shape = SubResource("RectangleShape2D_ij12g")
-
-[node name="Player" parent="." unique_id=1391588806 instance=ExtResource("5_6idqr")]
-position = Vector2(120, 325)
-
-[node name="CanvasLayer" parent="." unique_id=625389401 instance=ExtResource("8_fbxn4")]
-
-[node name="HUD" parent="." unique_id=1602473946 instance=ExtResource("9_36due")]

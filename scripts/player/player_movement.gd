@@ -23,6 +23,13 @@ func _ready() -> void:
 	animated_sprite.play("idle")
 
 func _physics_process(_delta: float) -> void:
+	if get_tree().paused:
+		auto_moving = false
+		velocity = Vector2.ZERO
+		if animated_sprite != null:
+			animated_sprite.stop()
+		return
+
 	var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 
 	if direction != Vector2.ZERO:

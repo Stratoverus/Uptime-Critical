@@ -8,8 +8,8 @@ signal heat_changed(new_heat: float)
 @export var base_heat: float = 0.0
 @export var heat_per_tps: float = 0.0
 @export var heat_radius: float = 240.0
-@export var back_local_direction: Vector2 = Vector2.RIGHT
-@export var intake_local_direction: Vector2 = Vector2.LEFT
+@export var back_local_direction: Vector2 = Vector2.UP
+@export var intake_local_direction: Vector2 = Vector2.DOWN
 @export var airflow_rate: float = 1.0
 @export var cooling_capacity: float = 0.0
 @export var traffic_per_second: float = 0.0:
@@ -65,13 +65,13 @@ func get_heat_radius() -> float:
 func get_back_direction() -> Vector2:
 	var direction := back_local_direction.normalized().rotated(global_rotation)
 	if direction.length() < 0.001:
-		return Vector2.RIGHT
+		return Vector2.UP
 	return direction
 
 func get_intake_direction() -> Vector2:
 	var direction := intake_local_direction.normalized().rotated(global_rotation)
 	if direction.length() < 0.001:
-		return Vector2.LEFT
+		return Vector2.DOWN
 	return direction
 
 func get_airflow_rate() -> float:

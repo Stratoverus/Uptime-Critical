@@ -1,0 +1,64 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" uid="uid://b1n6rn83r0u5l" path="res://scripts/maps/server_room_controller.gd" id="1_controller"]
+[ext_resource type="Script" path="res://scripts/maps/map_loader.gd" id="1_map_loader"]
+[ext_resource type="PackedScene" uid="uid://dabkeypj3l5q5" path="res://scenes/maps/serverMap/server_room.tscn" id="2_map"]
+[ext_resource type="PackedScene" uid="uid://cn6x5ssw581m4" path="res://scenes/player/player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="4_thermal"]
+[ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="5_debug"]
+[ext_resource type="PackedScene" path="res://scenes/systems/network_overlay.tscn" id="6_network"]
+[ext_resource type="PackedScene" path="res://scenes/systems/electrical_overlay.tscn" id="7_electrical"]
+[ext_resource type="PackedScene" uid="uid://iopwhmejcr8b" path="res://addons/RadialMenu/RadialMenu.tscn" id="8_radial"]
+[ext_resource type="Script" uid="uid://d1re1xcsywghq" path="res://scripts/placed_units/placed_units.gd" id="9_placed_units"]
+[ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="10_buy_menu"]
+[ext_resource type="PackedScene" uid="uid://bndfyhrgoen0t" path="res://scenes/ui/hud.tscn" id="11_hud"]
+[ext_resource type="AudioStream" path="res://music/rockot-futuristic-sci-fi-268233.mp3" id="12_music"]
+
+[node name="ServerRoomLevel" type="Node2D"]
+script = ExtResource("1_controller")
+
+[node name="Map" type="Node2D" parent="."]
+
+[node name="MapLoader" type="Node" parent="."]
+script = ExtResource("1_map_loader")
+fallback_map_scene = ExtResource("2_map")
+
+[node name="Player" parent="." instance=ExtResource("3_player")]
+z_index = 300
+position = Vector2(960, 540)
+
+[node name="ThermalSystem" parent="." instance=ExtResource("4_thermal")]
+
+[node name="PerfProbeOverlay" parent="." instance=ExtResource("5_debug")]
+
+[node name="NetworkOverlay" parent="." instance=ExtResource("6_network")]
+
+[node name="ElectricalOverlay" parent="." instance=ExtResource("7_electrical")]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="RadialMenu" parent="UI" instance=ExtResource("8_radial")]
+visible = false
+custom_minimum_size = Vector2(400, 290.7981)
+offset_right = 400.0
+offset_bottom = 290.7981
+pivot_offset = Vector2(200, 200)
+radius = 200
+width = 100
+center_radius = 80
+selector_position = 2
+icon_scale = 0.08
+
+[node name="PlacedUnits" type="Node2D" parent="."]
+script = ExtResource("9_placed_units")
+
+[node name="PlacementPreview" type="Node2D" parent="."]
+
+[node name="BuyMenu" parent="." instance=ExtResource("10_buy_menu")]
+
+[node name="HUD" parent="." instance=ExtResource("11_hud")]
+
+[node name="GameplayMusic" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("12_music")
+autoplay = true
+bus = &"Music"
