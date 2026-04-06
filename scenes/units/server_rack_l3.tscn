@@ -1,17 +1,20 @@
 [gd_scene format=3 uid="uid://v3xynqippjf3"]
 
 [ext_resource type="Script" uid="uid://bypsyjhf0o4a4" path="res://scripts/interaction/server_rack.gd" id="1_8aj2n"]
-[ext_resource type="Texture2D" uid="uid://ct17423ebvmsx" path="res://assets/object_sprites/server_rack_3_front.png" id="2_f7mt5"]
-[ext_resource type="PackedScene" path="res://scenes/vfx/power_status_light.tscn" id="3_j3m2g"]
+[ext_resource type="Texture2D" uid="uid://ct17423ebvmsx" path="res://assets/object_sprites/servers/server_rack_3_front.png" id="2_f7mt5"]
+[ext_resource type="PackedScene" uid="uid://dspiifi7718rv" path="res://scenes/vfx/power_status_light.tscn" id="3_j3m2g"]
+[ext_resource type="PackedScene" uid="uid://dpus22sr8lcxi" path="res://scenes/vfx/traffic_status_light.tscn" id="4_t9m2r"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lnbjj"]
 size = Vector2(100, 100)
 
 [node name="ServerRackL3" type="Area2D" unique_id=221516462]
 script = ExtResource("1_8aj2n")
-level = 3
+build_time_sec = 4.0
 base_heat = 24.0
 heat_radius = 340.0
+level = 3
+request_capacity_rps = 480.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1441826650]
 texture = ExtResource("2_f7mt5")
@@ -19,5 +22,8 @@ texture = ExtResource("2_f7mt5")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=818224557]
 shape = SubResource("RectangleShape2D_lnbjj")
 
-[node name="PowerStatusLight" parent="." instance=ExtResource("3_j3m2g")]
-position = Vector2(24, -16)
+[node name="PowerStatusLight" parent="." unique_id=1023310232 instance=ExtResource("3_j3m2g")]
+position = Vector2(-33, 0)
+
+[node name="TrafficStatusLight" parent="." unique_id=1007198881 instance=ExtResource("4_t9m2r")]
+position = Vector2(34, 24)

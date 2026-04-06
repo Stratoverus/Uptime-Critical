@@ -1,15 +1,16 @@
 [gd_scene format=3 uid="uid://daa5hllwcj8m2"]
 
 [ext_resource type="Script" uid="uid://c5m3hc4ck6g41" path="res://scripts/interaction/cooling_rack.gd" id="1_b2a1l"]
-[ext_resource type="Texture2D" uid="uid://bbop2cbyln0vi" path="res://assets/object_sprites/cooling_rack_3_front.png" id="2_2d1q7"]
+[ext_resource type="Texture2D" uid="uid://bbop2cbyln0vi" path="res://assets/object_sprites/coolingRacks/cooling_rack_3_front.png" id="2_2d1q7"]
+[ext_resource type="PackedScene" path="res://scenes/vfx/power_status_light.tscn" id="3_p1g8j"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jccjp"]
 size = Vector2(100, 100)
 
 [node name="CoolingUnitL3" type="Area2D" unique_id=435731832]
 script = ExtResource("1_b2a1l")
+build_time_sec = 4.0
 level = 3
-base_heat = 0.0
 heat_radius = 320.0
 airflow_rate = 1.75
 cooling_capacity = 72.0
@@ -19,3 +20,12 @@ texture = ExtResource("2_2d1q7")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=2102899190]
 shape = SubResource("RectangleShape2D_jccjp")
+
+[node name="PowerStatusLight" parent="." unique_id=25506228 instance=ExtResource("3_p1g8j")]
+position = Vector2(-35, -27)
+
+[node name="PowerStatusLight" parent="PowerStatusLight" unique_id=521005542 instance=ExtResource("3_p1g8j")]
+position = Vector2(17, 1)
+
+[node name="PowerStatusLight" parent="PowerStatusLight/PowerStatusLight" unique_id=543254495 instance=ExtResource("3_p1g8j")]
+position = Vector2(17, 1)

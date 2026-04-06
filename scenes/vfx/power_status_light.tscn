@@ -1,9 +1,10 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dspiifi7718rv"]
 
-[ext_resource type="Script" path="res://scripts/vfx/power_status_light.gd" id="1_2q5uu"]
+[ext_resource type="Script" uid="uid://y0k4y03ohv5m" path="res://scripts/vfx/power_status_light.gd" id="1_2q5uu"]
 
-[node name="PowerStatusLight" type="Node2D"]
+[node name="PowerStatusLight" type="Node2D" unique_id=1870803963]
 script = ExtResource("1_2q5uu")
+default_sprite_size_px = 18
 
-[node name="LightSprite" type="Sprite2D" parent="."]
+[node name="LightSprite" type="Sprite2D" parent="." unique_id=255029200]
 z_index = 8

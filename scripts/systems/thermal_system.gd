@@ -158,10 +158,13 @@ var thermal_signal_present: bool = false
 var thermal_signal_scan_accumulator: float = 0.0
 var stagger_upload_heat_next: bool = true
 var overlay_title_label: Label = null
+var map_bounds_resolved: bool = false
+var map_bounds_rescan_accumulator: float = 0.0
 
 const THERMAL_SIGNAL_SCAN_INTERVAL_SECONDS: float = 0.35
 const THERMAL_HEAT_SIGNAL_THRESHOLD: float = 0.01
 const THERMAL_FLOW_SIGNAL_THRESHOLD: float = 0.02
+const MAP_BOUNDS_RESCAN_INTERVAL_SECONDS: float = 0.35
 
 func _ready() -> void:
 	add_to_group("thermal_system")
@@ -318,8 +321,14 @@ func _process(delta: float) -> void:
 	var current_viewport_size: Vector2 = get_viewport().get_visible_rect().size
 	if current_viewport_size != viewport_size:
 		viewport_size = current_viewport_size
-		if simulation_size_from_viewport:
+		if simulation_size_from_viewport and not map_bounds_resolved:
 			simulation_size = viewport_size
+
+	if not map_bounds_resolved:
+		map_bounds_rescan_accumulator += delta
+		if map_bounds_rescan_accumulator >= MAP_BOUNDS_RESCAN_INTERVAL_SECONDS:
+			map_bounds_rescan_accumulator = 0.0
+			setup_simulation_bounds_from_map()
 
 	# Fixed timestep: accumulate delta and run as many fixed steps as fit.
 	# This ensures simulation runs at a consistent 30 Hz regardless of framerate.
@@ -448,6 +457,9 @@ func ensure_action_with_key(action_name: StringName, action_key: Key) -> void:
 	InputMap.action_add_event(action_name, key_event)
 
 func set_heat_view_enabled(enabled: bool) -> void:
+	if enabled:
+		_deactivate_other_overlays()
+
 	heat_view_enabled = enabled
 	heat_overlay.visible = enabled
 	world_tint.color = Color(0.55, 0.55, 0.55, 1.0) if enabled else Color(1.0, 1.0, 1.0, 1.0)
@@ -491,6 +503,15 @@ func set_heat_view_enabled(enabled: bool) -> void:
 	if not enabled:
 		texture_accumulator = 0.0
 
+func _deactivate_other_overlays() -> void:
+	for network_overlay in get_tree().get_nodes_in_group("network_overlay"):
+		if network_overlay != null and network_overlay.has_method("set_overlay_visible"):
+			network_overlay.call("set_overlay_visible", false, true)
+
+	for electrical_overlay in get_tree().get_nodes_in_group("electrical_overlay"):
+		if electrical_overlay != null and electrical_overlay.has_method("set_overlay_visible"):
+			electrical_overlay.call("set_overlay_visible", false)
+
 func show_overlay_title(title: String) -> void:
 	if overlay_title_label == null:
 		overlay_title_label = Label.new()
@@ -498,7 +519,12 @@ func show_overlay_title(title: String) -> void:
 		overlay_title_label.z_index = 100
 		overlay_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		overlay_title_label.add_theme_font_size_override("font_size", 24)
+		overlay_title_label.add_to_group("overlay_titles")
 		get_tree().current_scene.add_child(overlay_title_label)
+
+	for title_node in get_tree().get_nodes_in_group("overlay_titles"):
+		if title_node is Label and title_node != overlay_title_label:
+			(title_node as Label).visible = false
 
 	overlay_title_label.text = title
 	overlay_title_label.position = Vector2(get_viewport().get_visible_rect().size.x * 0.5 - 70.0, 20.0)
@@ -510,7 +536,7 @@ func hide_overlay_title() -> void:
 
 func initialize_heat_field() -> void:
 	viewport_size = get_viewport().get_visible_rect().size
-	if simulation_size_from_viewport:
+	if simulation_size_from_viewport and not map_bounds_resolved:
 		simulation_size = viewport_size
 	var total_cells := HEATMAP_WIDTH * HEATMAP_HEIGHT
 	heat_current.resize(total_cells)
@@ -1600,20 +1626,105 @@ func setup_simulation_bounds_from_map() -> void:
 			floor_node = parent_node.get_node_or_null("CheckerboardFloor")
 
 	if floor_node == null:
+		var map_root: Node = null
+		var parent_node_for_map: Node = get_parent()
+		if parent_node_for_map != null:
+			map_root = parent_node_for_map.get_node_or_null("Map")
+		if map_root == null:
+			map_root = get_tree().current_scene
+
+		var map_bounds: Rect2 = _compute_tilemap_bounds(map_root)
+		if map_bounds.size.x > 0.0 and map_bounds.size.y > 0.0:
+			simulation_origin = map_bounds.position
+			simulation_size = map_bounds.size
+			map_bounds_resolved = true
+			return
+
+		map_bounds_resolved = false
 		return
 
 	var tile_size_variant: Variant = floor_node.get(map_bounds_tile_size_property)
 	var tiles_x_variant: Variant = floor_node.get(map_bounds_tiles_x_property)
 	var tiles_y_variant: Variant = floor_node.get(map_bounds_tiles_y_property)
 	if tile_size_variant == null or tiles_x_variant == null or tiles_y_variant == null:
+		map_bounds_resolved = false
 		return
 
 	var tile_size: float = float(tile_size_variant)
 	var tiles_x: float = float(tiles_x_variant)
 	var tiles_y: float = float(tiles_y_variant)
 	simulation_origin = floor_node.global_position
-	if not simulation_size_from_viewport:
-		simulation_size = Vector2(tile_size * tiles_x, tile_size * tiles_y)
+	simulation_size = Vector2(tile_size * tiles_x, tile_size * tiles_y)
+	map_bounds_resolved = true
+
+func _compute_tilemap_bounds(root: Node) -> Rect2:
+	if root == null:
+		return Rect2()
+
+	var min_corner: Vector2 = Vector2(INF, INF)
+	var max_corner: Vector2 = Vector2(-INF, -INF)
+	var has_bounds: bool = false
+
+	var stack: Array[Node] = [root]
+	while not stack.is_empty():
+		var current: Node = stack.pop_back() as Node
+		if current == null:
+			continue
+
+		if current is TileMapLayer:
+			var layer: TileMapLayer = current as TileMapLayer
+			var layer_rect: Rect2 = _tile_rect_to_global_bounds(layer, layer.get_used_rect())
+			if layer_rect.size != Vector2.ZERO:
+				min_corner.x = min(min(min_corner.x, layer_rect.position.x), layer_rect.end.x)
+				min_corner.y = min(min(min_corner.y, layer_rect.position.y), layer_rect.end.y)
+				max_corner.x = max(max(max_corner.x, layer_rect.position.x), layer_rect.end.x)
+				max_corner.y = max(max(max_corner.y, layer_rect.position.y), layer_rect.end.y)
+				has_bounds = true
+
+		if current is TileMap:
+			var tile_map: TileMap = current as TileMap
+			var map_rect: Rect2 = _tile_rect_to_global_bounds(tile_map, tile_map.get_used_rect())
+			if map_rect.size != Vector2.ZERO:
+				min_corner.x = min(min(min_corner.x, map_rect.position.x), map_rect.end.x)
+				min_corner.y = min(min(min_corner.y, map_rect.position.y), map_rect.end.y)
+				max_corner.x = max(max(max_corner.x, map_rect.position.x), map_rect.end.x)
+				max_corner.y = max(max(max_corner.y, map_rect.position.y), map_rect.end.y)
+				has_bounds = true
+
+		for child: Node in current.get_children():
+			stack.append(child)
+
+	if not has_bounds:
+		return Rect2()
+
+	return Rect2(min_corner, max_corner - min_corner)
+
+func _tile_rect_to_global_bounds(tile_node: Node2D, used_rect: Rect2i) -> Rect2:
+	if used_rect.size == Vector2i.ZERO:
+		return Rect2()
+
+	var tile_size := Vector2(16.0, 16.0)
+	if tile_node is TileMapLayer:
+		var layer: TileMapLayer = tile_node as TileMapLayer
+		if layer.tile_set != null:
+			tile_size = layer.tile_set.tile_size
+	elif tile_node is TileMap:
+		var tile_map: TileMap = tile_node as TileMap
+		if tile_map.tile_set != null:
+			tile_size = tile_map.tile_set.tile_size
+
+	var top_left_cell: Vector2i = used_rect.position
+	var bottom_right_cell: Vector2i = used_rect.position + used_rect.size
+
+	var top_left_local: Vector2 = tile_node.map_to_local(top_left_cell) - (tile_size * 0.5)
+	var bottom_right_local: Vector2 = tile_node.map_to_local(bottom_right_cell) + (tile_size * 0.5)
+
+	var top_left_global: Vector2 = tile_node.to_global(top_left_local)
+	var bottom_right_global: Vector2 = tile_node.to_global(bottom_right_local)
+
+	var rect_position := Vector2(min(top_left_global.x, bottom_right_global.x), min(top_left_global.y, bottom_right_global.y))
+	var rect_size := Vector2(abs(bottom_right_global.x - top_left_global.x), abs(bottom_right_global.y - top_left_global.y))
+	return Rect2(rect_position, rect_size)
 
 func compute_thermal_signal_present() -> bool:
 	for i in range(heat_current.size()):
