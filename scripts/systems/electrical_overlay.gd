@@ -28,6 +28,7 @@ const WiringPlacement = preload("res://scripts/systems/wiring/wiring_placement.g
 @export var connector_icon_size: int = 14
 @export var status_message_duration: float = 1.4
 @export var wire_stats_close_distance: float = 36.0
+@export var wire_world_units_per_foot: float = 32.0
 
 var connectors: Array[Dictionary] = []
 var connections: Array[Dictionary] = []
@@ -50,7 +51,7 @@ var stats_panel_connection: Dictionary = {}
 var default_power_cable := {
 	"name": "Power Cable",
 	"color": Color(0.12, 0.86, 1.0, 0.95),
-	"cost": 2
+	"cost": 0.005
 }
 
 func _ready() -> void:
@@ -126,13 +127,13 @@ func _gui_input(event: InputEvent) -> void:
 func handle_placement_click(mouse_position: Vector2) -> void:
 	var target_connector := find_connector_at_position(mouse_position)
 	if not target_connector.is_empty() and can_connect_connectors(dragging_connector, target_connector):
-		add_connection(dragging_connector, target_connector)
-		var target_node: Node2D = target_connector.get("connector", null)
-		if target_node != null and target_node.is_in_group(anchor_group):
-			dragging_connector = target_connector
-			queue_redraw()
-		else:
-			cancel_drag()
+		if add_connection(dragging_connector, target_connector):
+			var target_node: Node2D = target_connector.get("connector", null)
+			if target_node != null and target_node.is_in_group(anchor_group):
+				dragging_connector = target_connector
+				queue_redraw()
+			else:
+				cancel_drag()
 		return
 
 	if not target_connector.is_empty() and would_create_loop(dragging_connector.get("connector", null), target_connector.get("connector", null)):
@@ -144,9 +145,13 @@ func handle_placement_click(mouse_position: Vector2) -> void:
 		return
 
 	if can_connect_connectors(dragging_connector, anchor_connector):
-		add_connection(dragging_connector, anchor_connector)
-		dragging_connector = anchor_connector
-		queue_redraw()
+		if add_connection(dragging_connector, anchor_connector):
+			dragging_connector = anchor_connector
+			queue_redraw()
+		else:
+			var failed_anchor_owner: Node = anchor_connector.get("owner", null)
+			if failed_anchor_owner != null and is_instance_valid(failed_anchor_owner):
+				failed_anchor_owner.queue_free()
 	else:
 		var anchor_owner: Node = anchor_connector.get("owner", null)
 		if anchor_owner != null and is_instance_valid(anchor_owner):
@@ -325,27 +330,36 @@ func create_anchor_connector(mouse_position: Vector2) -> Dictionary:
 		"screen_position": world_to_screen(anchor.global_position)
 	}
 
-func add_connection(first_connector: Dictionary, second_connector: Dictionary) -> void:
+func add_connection(first_connector: Dictionary, second_connector: Dictionary) -> bool:
 	var start_node: Node2D = first_connector.get("connector", null)
 	var end_node: Node2D = second_connector.get("connector", null)
 	var start_owner: Node = first_connector.get("owner", null)
 	var end_owner: Node = second_connector.get("owner", null)
 	if start_node == null or end_node == null:
-		return
+		return false
 
 	if connection_exists(start_node, end_node):
-		return
+		return false
 	if would_create_loop(start_node, end_node):
-		return
+		return false
 
 	if not _connector_has_capacity(start_node, start_owner):
-		return
+		return false
 	if not _connector_has_capacity(end_node, end_owner):
-		return
+		return false
 	if _is_router_electrical_connector(start_owner, start_node) and get_connection_count_for_node(start_node) >= 1:
-		return
+		return false
 	if _is_router_electrical_connector(end_owner, end_node) and get_connection_count_for_node(end_node) >= 1:
-		return
+		return false
+
+	var connection_cost: float = _calculate_connection_cost(start_node, end_node)
+	if GameManager == null:
+		push_error("GameManager not found")
+		return false
+	if not GameManager.can_afford(connection_cost):
+		_show_overlay_status("Can't afford %s ($%.2f)" % [str(_get_selected_cable_name()), connection_cost])
+		return false
+	GameManager.spend_money(connection_cost)
 
 	connections.append({
 		"start_connector": start_node,
@@ -369,6 +383,27 @@ func add_connection(first_connector: Dictionary, second_connector: Dictionary) -
 	highlighted_connections.clear()
 	update_all_power_states()
 	queue_redraw()
+	return true
+
+func _calculate_connection_cost(start_node: Node2D, end_node: Node2D) -> float:
+	if start_node == null or end_node == null:
+		return 0.0
+	var path_points: PackedVector2Array = WiringPlacement.build_orthogonal_path(start_node.global_position, end_node.global_position)
+	var length_world_units: float = WiringPlacement.calculate_polyline_length(path_points)
+	return _world_units_to_billable_feet(length_world_units) * _get_selected_wire_cost_rate()
+
+func _world_units_to_billable_feet(length_world_units: float) -> float:
+	return length_world_units / max(wire_world_units_per_foot, 0.001)
+
+func _get_selected_wire_cost_rate() -> float:
+	if selected_cable_type.is_empty():
+		return float(default_power_cable.get("cost", 0.0))
+	return float(selected_cable_type.get("cost", default_power_cable.get("cost", 0.0)))
+
+func _get_selected_cable_name() -> String:
+	if selected_cable_type.is_empty():
+		return str(default_power_cable.get("name", "Power Cable"))
+	return str(selected_cable_type.get("name", default_power_cable.get("name", "Power Cable")))
 
 func remove_connection_at_position(screen_position: Vector2) -> bool:
 	var target_connection := find_connection_at_position(screen_position)
@@ -683,6 +718,9 @@ func find_connector_at_position(screen_position: Vector2) -> Dictionary:
 func world_to_screen(world_position: Vector2) -> Vector2:
 	return get_viewport().get_canvas_transform() * world_position
 
+func screen_to_world(screen_position: Vector2) -> Vector2:
+	return get_viewport().get_canvas_transform().affine_inverse() * screen_position
+
 func _draw() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	draw_rect(Rect2(Vector2.ZERO, viewport_size), overlay_tint, true)
@@ -726,6 +764,31 @@ func draw_drag_preview() -> void:
 	draw_polyline(wire_points, wire_glow_color, wire_glow_width, true)
 	draw_polyline(wire_points, wire_color, wire_width, true)
 
+	var preview_cost: float = _calculate_preview_connection_cost(start_connector, drag_mouse_position)
+	var can_afford_preview: bool = GameManager != null and GameManager.can_afford(preview_cost)
+	var preview_text: String = "$%.2f" % preview_cost
+	if not can_afford_preview:
+		preview_text += "  (Can't afford)"
+
+	var preview_font: Font = ThemeDB.fallback_font
+	if preview_font == null:
+		return
+
+	var text_size: Vector2 = preview_font.get_string_size(preview_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
+	var label_pos := ((wire_points[0] + wire_points[wire_points.size() - 1]) * 0.5) + Vector2(10.0, -8.0)
+	var bg_rect := Rect2(label_pos + Vector2(-6.0, -16.0), text_size + Vector2(12.0, 10.0))
+	draw_rect(bg_rect, Color(0.04, 0.07, 0.09, 0.88), true)
+	draw_rect(bg_rect, Color(0.18, 0.86, 1.0, 0.9), false, 1.5)
+	draw_string(preview_font, label_pos, preview_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color(0.80, 1.0, 0.86, 1.0) if can_afford_preview else Color(1.0, 0.45, 0.45, 1.0))
+
+func _calculate_preview_connection_cost(start_connector: Node2D, screen_target: Vector2) -> float:
+	if start_connector == null:
+		return 0.0
+	var target_world_position: Vector2 = screen_to_world(screen_target)
+	var path_points: PackedVector2Array = WiringPlacement.build_orthogonal_path(start_connector.global_position, target_world_position)
+	var length_world_units: float = WiringPlacement.calculate_polyline_length(path_points)
+	return _world_units_to_billable_feet(length_world_units) * _get_selected_wire_cost_rate()
+
 func draw_highlighted_wires() -> void:
 	if highlighted_connections.is_empty():
 		return
@@ -737,27 +800,7 @@ func highlight_wire_route(connection: Dictionary) -> void:
 		return
 
 	selected_connection = connection
-	var start_node = connection.get("start_connector", null)
-	var end_node = connection.get("end_connector", null)
-	if start_node == null or end_node == null:
-		highlighted_connections = [connection]
-		queue_redraw()
-		return
-
-	var route: Array = WiringGraph.collect_anchor_chain_route(
-		connection,
-		start_node,
-		end_node,
-		Callable(self, "_is_anchor_node"),
-		Callable(self, "_get_connections_for_node"),
-		Callable(self, "_get_other_node_from_connection")
-	)
-
-	highlighted_connections.clear()
-	for route_connection in route:
-		if route_connection is Dictionary and connections.has(route_connection):
-			highlighted_connections.append(route_connection)
-
+	highlighted_connections = [connection]
 	queue_redraw()
 
 func _is_anchor_node(node) -> bool:
@@ -861,8 +904,9 @@ func _ensure_wire_stats_panel() -> void:
 	wire_stats_panel.name = "ElectricalWireStatsPanel"
 	wire_stats_panel.visible = false
 	wire_stats_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wire_stats_panel.top_level = true
 	wire_stats_panel.z_as_relative = false
-	wire_stats_panel.z_index = 220
+	wire_stats_panel.z_index = 4095
 
 	var panel_style := StyleBoxFlat.new()
 	panel_style.bg_color = Color(0.06, 0.10, 0.12, 0.95)
@@ -894,7 +938,7 @@ func _ensure_wire_stats_panel() -> void:
 	margin.add_child(wire_stats_label)
 	wire_stats_panel.add_child(margin)
 
-	get_tree().current_scene.call_deferred("add_child", wire_stats_panel)
+	call_deferred("add_child", wire_stats_panel)
 
 func show_wire_stats_popup(connection: Dictionary) -> void:
 	if connection.is_empty():
@@ -931,6 +975,7 @@ func _update_wire_stats_panel() -> void:
 	desired_pos.x = clamp(desired_pos.x, 8.0, max(8.0, viewport_size.x - panel_size.x - 8.0))
 	desired_pos.y = clamp(desired_pos.y, 8.0, max(8.0, viewport_size.y - panel_size.y - 8.0))
 	wire_stats_panel.position = desired_pos
+	wire_stats_panel.move_to_front()
 
 func _distance_to_connection(screen_position: Vector2, connection: Dictionary) -> float:
 	var start_node: Node2D = connection.get("start_connector", null)
@@ -950,16 +995,11 @@ func _build_connection_stats_text(connection: Dictionary) -> String:
 
 	var powered_connectors: Dictionary = _get_powered_connectors()
 	var is_energized: bool = powered_connectors.has(start_node) and powered_connectors.has(end_node)
-	var wire_points: PackedVector2Array = build_wire_points(start_node, end_node)
-	var wire_load_hint: String = "Stable"
-	if wire_points.size() >= 3:
-		wire_load_hint = "Routed"
 
-	return "Type: Power Cable\nFrom: %s\nTo: %s\nState: %s\nRouting: %s" % [
+	return "Type: Power Cable\nFrom: %s\nTo: %s\nState: %s" % [
 		_get_connector_label(start_node),
 		_get_connector_label(end_node),
-		"Energized" if is_energized else "No Power",
-		wire_load_hint
+		"Energized" if is_energized else "No Power"
 	]
 
 func _get_connector_label(connector_node: Node2D) -> String:

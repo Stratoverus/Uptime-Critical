@@ -6,8 +6,9 @@ var start_visual_position: Vector2 = Vector2.ZERO
 var end_visual_position: Vector2 = Vector2.ZERO
 var cable_type_name := ""
 var cost_per_foot := 0.0
+var world_units_per_foot: float = 32.0
 var length := 0.0
-var total_cost = (length / 300.0) * cost_per_foot
+var total_cost := 0.0
 var glow_line: Line2D = null
 var base_default_color: Color = Color(0.45, 0.45, 0.45, 1.0)
 var base_glow_color: Color = Color(0.24, 0.24, 0.24, 0.24)
@@ -31,6 +32,7 @@ func setup(a, b, cable_data: Dictionary, start_world_position: Vector2 = Vector2
 	end_point = b
 	cable_type_name = cable_data.get("name", "Cable")
 	cost_per_foot = cable_data.get("cost", 0)
+	world_units_per_foot = float(cable_data.get("world_units_per_foot", world_units_per_foot))
 	z_as_relative = false
 
 	if cable_type_name == "Cat5":
@@ -92,7 +94,7 @@ func setup(a, b, cable_data: Dictionary, start_world_position: Vector2 = Vector2
 	length = calculate_polyline_length(orthogonal_points)
 
 	# calculate cost
-	total_cost = length * cost_per_foot
+	total_cost = (length / max(world_units_per_foot, 0.001)) * cost_per_foot
 	set_traffic_load_rps(0.0)
 
 func build_orthogonal_path(start_pos: Vector2, end_pos: Vector2) -> PackedVector2Array:

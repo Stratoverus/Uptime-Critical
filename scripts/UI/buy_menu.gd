@@ -14,14 +14,14 @@ var day_label_node: Control = null
 @export var panel_day_label_gap: float = 8.0
 
 var cable_items = [
-	{ "name": "Cat5", "color": Color(0.53, 0.53, 0.53, 1.0), "cost": 1 },
-	{ "name": "Cat6", "color": Color(0.36, 0.56, 0.72, 1.0), "cost": 2 },
-	{ "name": "Fiber", "color": Color(0.16, 0.74, 0.66, 1.0), "cost": 5 },
-	{ "name": "Internet Pipe (Uplink)", "color": Color(0.94, 0.76, 0.18, 1.0), "cost": 12 }
+	{ "name": "Cat5", "color": Color(0.53, 0.53, 0.53, 1.0), "cost": 0.25 },
+	{ "name": "Cat6", "color": Color(0.36, 0.56, 0.72, 1.0), "cost": 0.40 },
+	{ "name": "Fiber", "color": Color(0.16, 0.74, 0.66, 1.0), "cost": 0.90 },
+	{ "name": "Internet Pipe (Uplink)", "color": Color(0.94, 0.76, 0.18, 1.0), "cost": 2.50 }
 ]
 
 var electrical_cable_items = [
-	{ "name": "Power Cable", "color": Color(0.12, 0.86, 1.0, 0.95), "cost": 2 }
+	{ "name": "Power Cable", "color": Color(0.12, 0.86, 1.0, 0.95), "cost": 0.005 }
 ]
 
 var current_menu_mode: String = "units"
