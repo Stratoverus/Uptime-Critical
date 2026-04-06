@@ -12,7 +12,7 @@ size = Vector2(100, 100)
 script = ExtResource("1_eb5cv")
 build_time_sec = 3.0
 level = 2
-network_bandwidth_capacity_units = 6
+max_network_ports = 12
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1278217980]
 texture = ExtResource("2_1cqke")

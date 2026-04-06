@@ -13,6 +13,7 @@ script = ExtResource("1_mefap")
 build_time_sec = 2.0
 base_heat = 18.0
 heat_radius = 300.0
+request_capacity_rps = 240.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1301325800]
 texture = ExtResource("2_mju2r")

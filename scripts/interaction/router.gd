@@ -4,7 +4,7 @@ extends InteractableObject
 @export var max_electrical_connections: int = 1
 @export var electrical_node_offset: Vector2 = Vector2(0, 22)
 @export var internet_node_offset: Vector2 = Vector2(26, 22)
-@export_range(1, 64, 1) var network_bandwidth_capacity_units: int = 4
+@export_range(1, 64, 1) var max_network_ports: int = 8
 
 var current_facing: String = "front"
 var is_connected_to_network: bool = false
@@ -23,12 +23,6 @@ var traffic_status_lights: Array[Node] = []
 var traffic_load_units: float = 0.0
 var visual_state_initialized: bool = false
 var last_visual_active_state: bool = false
-# set below to 8 
-var port_limits = {
-	1: 8,
-	2: 12,
-	3: 16
-}
 
 var sprites_by_level = {
 	1: {
@@ -57,15 +51,17 @@ var upgrade_costs = {
 }
 
 func update_actions() -> void:
+	actions = []
+	if is_manually_enabled:
+		actions.append("Turn Off")
+	else:
+		actions.append("Turn On")
+
 	if level >= 3:
-		actions = ["Turn Off", "Turn On"]
+		return
 	else:
 		var cost = upgrade_costs.get(level, 0)
-		actions = [
-			"Turn Off",
-			"Turn On",
-			"Upgrade ($" + str(cost) + ")"
-		]
+		actions.append("Upgrade ($" + str(cost) + ")")
 
 func _ready() -> void:
 	add_to_group("network_nodes")
@@ -112,10 +108,12 @@ func perform_action(action_name: String) -> void:
 
 func turn_off() -> void:
 	is_manually_enabled = false
+	update_actions()
 	_apply_visual_state()
 
 func turn_on() -> void:
 	is_manually_enabled = true
+	update_actions()
 	_apply_visual_state()
 
 func upgrade() -> void:
@@ -124,10 +122,8 @@ func upgrade() -> void:
 
 	var cost = upgrade_costs.get(level, 0)
 
-	var game = get_tree().get_first_node_in_group("hud")
-
-	if game and game.can_afford(cost):
-		game.spend_money(cost)
+	if GameManager != null and GameManager.can_afford(cost):
+		GameManager.spend_money(cost)
 
 		level += 1
 		object_name = "Router L" + str(level)
@@ -136,6 +132,12 @@ func upgrade() -> void:
 		set_facing(current_facing)
 		_update_port_label()
 		_sync_traffic_status_lights()
+
+func is_available_for_routing() -> bool:
+	return _is_active() and is_connected_to_network
+
+func get_capacity_units() -> int:
+	return 1
 
 func set_network_connected_state(connected: bool) -> void:
 	is_connected_to_network = connected
@@ -199,7 +201,7 @@ func has_free_port() -> bool:
 	return connected_segments.size() < get_port_limit()
 
 func get_port_limit() -> int:
-	return port_limits.get(level, 8)
+	return max(max_network_ports, 1)
 
 func _ensure_port_label() -> void:
 	if port_label != null and is_instance_valid(port_label):
@@ -331,12 +333,10 @@ func set_network_traffic_load(load_units: float) -> void:
 	_sync_traffic_status_lights()
 
 func set_network_traffic_ratio(ratio: float) -> void:
-	var capacity: int = max(network_bandwidth_capacity_units, 1)
-	set_network_traffic_load(clamp(ratio, 0.0, 1.0) * float(capacity))
+	set_network_traffic_load(clamp(ratio, 0.0, 1.0))
 
 func get_network_load_ratio() -> float:
-	var capacity: int = max(network_bandwidth_capacity_units, 1)
-	return clamp(traffic_load_units / float(capacity), 0.0, 1.0)
+	return clamp(traffic_load_units, 0.0, 1.0)
 
 func _apply_visual_state() -> void:
 	_update_cable_mode_visual()

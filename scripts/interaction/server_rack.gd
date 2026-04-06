@@ -7,7 +7,8 @@ extends InteractableObject
 @export var airflow_rate: float = 1.0
 @export var cooling_capacity: float = 0.0
 @export var level: int = 1
-@export_range(1, 64, 1) var network_bandwidth_capacity_units: int = 4
+@export var request_capacity_rps: float = 240.0
+@export var heat_per_handled_request: float = 0.002
 
 var current_facing: String = "front"
 var is_connected_to_network: bool = false
@@ -23,6 +24,7 @@ var electrical_node_right: Node2D = null
 var power_status_lights: Array[Node] = []
 var traffic_status_lights: Array[Node] = []
 var traffic_load_units: float = 0.0
+var request_load_rps: float = 0.0
 var visual_state_initialized: bool = false
 var last_visual_active_state: bool = false
 
@@ -53,15 +55,17 @@ var upgrade_costs = {
 }
 
 func update_actions() -> void:
+	actions = []
+	if is_manually_enabled:
+		actions.append("Turn Off")
+	else:
+		actions.append("Turn On")
+
 	if level >= 3:
-		actions = ["Turn Off", "Turn On"]
+		return
 	else:
 		var cost = upgrade_costs.get(level, 0)
-		actions = [
-			"Turn Off",
-			"Turn On",
-			"Upgrade $" + str(cost)
-		]
+		actions.append("Upgrade $" + str(cost))
 
 func _ready() -> void:
 	add_to_group("network_nodes")
@@ -87,7 +91,7 @@ func get_heat_value() -> float:
 	if not _is_active():
 		return 0.0
 
-	return base_heat
+	return base_heat + (request_load_rps * heat_per_handled_request)
 
 func get_heat_radius() -> float:
 	return heat_radius
@@ -140,6 +144,7 @@ func turn_off() -> void:
 		return
 
 	is_manually_enabled = false
+	update_actions()
 	_sync_power_status_lights()
 	_sync_traffic_status_lights()
 	_apply_visual_state()
@@ -150,6 +155,7 @@ func turn_on() -> void:
 		return
 
 	is_manually_enabled = true
+	update_actions()
 	_sync_power_status_lights()
 	_sync_traffic_status_lights()
 	_apply_visual_state()
@@ -159,16 +165,24 @@ func upgrade() -> void:
 		return
 
 	var cost = upgrade_costs.get(level, 0)
-	var game = get_tree().get_first_node_in_group("hud")
 
-	if game and game.can_afford(cost):
-		game.spend_money(cost)
+	if GameManager != null and GameManager.can_afford(cost):
+		GameManager.spend_money(cost)
 
 		level += 1
 		object_name = "Server Rack L" + str(level)
 		update_actions()
 		set_facing(current_facing)
 		_sync_traffic_status_lights()
+
+func is_available_for_traffic() -> bool:
+	return _is_active() and is_network_online
+
+func get_capacity_units() -> int:
+	return 1
+
+func get_request_capacity_rps() -> float:
+	return max(request_capacity_rps, 1.0)
 
 func get_thermal_system() -> Node:
 	return get_tree().get_first_node_in_group("thermal_system")
@@ -258,6 +272,8 @@ func set_powered_state(powered: bool) -> void:
 	if is_powered == powered:
 		return
 	is_powered = powered
+	if not is_powered:
+		request_load_rps = 0.0
 	_sync_power_status_lights()
 	_sync_traffic_status_lights()
 	_apply_visual_state()
@@ -266,13 +282,14 @@ func set_network_traffic_load(load_units: float) -> void:
 	traffic_load_units = max(load_units, 0.0)
 	_sync_traffic_status_lights()
 
+func set_request_load_rps(load_rps: float) -> void:
+	request_load_rps = max(load_rps, 0.0)
+
 func set_network_traffic_ratio(ratio: float) -> void:
-	var capacity: int = max(network_bandwidth_capacity_units, 1)
-	set_network_traffic_load(clamp(ratio, 0.0, 1.0) * float(capacity))
+	set_network_traffic_load(clamp(ratio, 0.0, 1.0))
 
 func get_network_load_ratio() -> float:
-	var capacity: int = max(network_bandwidth_capacity_units, 1)
-	return clamp(traffic_load_units / float(capacity), 0.0, 1.0)
+	return clamp(traffic_load_units, 0.0, 1.0)
 
 func _update_network_visual() -> void:
 	_apply_visual_state()

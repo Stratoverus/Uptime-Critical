@@ -7,12 +7,15 @@ extends InteractableObject
 @export var intake_local_direction: Vector2 = Vector2.DOWN
 @export var airflow_rate: float = 1.35
 @export var cooling_capacity: float = 40.0
+@export var overdrive_cooling_multiplier: float = 1.75
+@export var overdrive_power_multiplier: float = 2.5
 @export var max_electrical_connections: int = 1
 @export var electrical_node_offset: Vector2 = Vector2(0, -20)
 
 var current_facing: String = "front"
 var is_manually_enabled: bool = true
 var is_powered: bool = false
+var is_overdrive_enabled: bool = false
 var electrical_connected_segments: Array = []
 var electrical_node: Node2D = null
 var power_status_lights: Array[Node] = []
@@ -45,19 +48,27 @@ var sprites_by_level = {
 }
 
 func update_actions() -> void:
+	actions = []
+	if is_manually_enabled:
+		actions.append("Turn Off")
+	else:
+		actions.append("Turn On")
+
 	if level >= 3:
-		actions = ["Turn Off", "Turn On", "Inspect"]
+		actions.append("Inspect")
 	else:
 		var cost = upgrade_costs.get(level, 0)
-		actions = [
-			"Turn Off",
-			"Turn On",
-			"Inspect",
-			"Upgrade $" + str(cost)
-		]
+		actions.append("Inspect")
+		actions.append("Upgrade $" + str(cost))
+
+	if is_overdrive_enabled:
+		actions.append("Disable Overdrive")
+	else:
+		actions.append("Enable Overdrive")
 
 func _ready() -> void:
 	add_to_group("electrical_connectable")
+	add_to_group("cooling_units")
 	object_name = "Cooling Rack L" + str(level)
 	update_actions()
 	interaction_range = 150.0
@@ -100,7 +111,8 @@ func get_airflow_rate() -> float:
 func get_cooling_capacity() -> float:
 	if not _is_active():
 		return 0.0
-	return max(cooling_capacity, 0.0)
+	var multiplier: float = overdrive_cooling_multiplier if is_overdrive_enabled else 1.0
+	return max(cooling_capacity * multiplier, 0.0)
 
 func get_heat_source_type() -> StringName:
 	return &"cooler"
@@ -140,6 +152,10 @@ func perform_action(action_name: String) -> void:
 		turn_off()
 	elif action_name == "Turn On":
 		turn_on()
+	elif action_name == "Enable Overdrive":
+		enable_overdrive()
+	elif action_name == "Disable Overdrive":
+		disable_overdrive()
 	elif action_name == "Inspect":
 		inspect()
 	elif action_name.begins_with("Upgrade"):
@@ -149,11 +165,35 @@ func perform_action(action_name: String) -> void:
 
 func turn_off() -> void:
 	is_manually_enabled = false
+	is_overdrive_enabled = false
+	update_actions()
 	_apply_visual_state()
 
 func turn_on() -> void:
 	is_manually_enabled = true
+	update_actions()
 	_apply_visual_state()
+
+func enable_overdrive() -> void:
+	if not _is_active():
+		show_top_alert("Cannot enable overdrive while cooler is offline.")
+		return
+	is_overdrive_enabled = true
+	update_actions()
+	_apply_visual_state()
+
+func disable_overdrive() -> void:
+	is_overdrive_enabled = false
+	update_actions()
+	_apply_visual_state()
+
+func is_overdrive_active() -> bool:
+	return _is_active() and is_overdrive_enabled
+
+func get_overdrive_power_multiplier() -> float:
+	if not is_overdrive_active():
+		return 1.0
+	return max(overdrive_power_multiplier, 1.0)
 
 func inspect() -> void:
 	pass
@@ -163,10 +203,8 @@ func upgrade() -> void:
 		return
 
 	var cost = upgrade_costs.get(level, 0)
-	var game = get_tree().get_first_node_in_group("hud")
-
-	if game and game.can_afford(cost):
-		game.spend_money(cost)
+	if GameManager != null and GameManager.can_afford(cost):
+		GameManager.spend_money(cost)
 
 		level += 1
 		object_name = "Cooling Rack L" + str(level)
@@ -214,6 +252,8 @@ func _apply_visual_state() -> void:
 
 	var active_state: bool = _is_active()
 	var target_modulate: Color = Color(1.0, 1.0, 1.0, 1.0) if active_state else Color(0.45, 0.45, 0.45, 1.0)
+	if active_state and is_overdrive_enabled:
+		target_modulate = Color(1.0, 0.92, 0.75, 1.0)
 	var should_animate_power_change: bool = visual_state_initialized and (last_visual_active_state != active_state)
 	set_sprite_modulate(target_modulate, power_fade_duration_sec if should_animate_power_change else 0.0)
 

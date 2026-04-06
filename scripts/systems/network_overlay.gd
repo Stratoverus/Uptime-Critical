@@ -1,6 +1,7 @@
 extends Control
 
 const WiringGraph = preload("res://scripts/systems/wiring/wiring_graph.gd")
+const WiringPlacement = preload("res://scripts/systems/wiring/wiring_placement.gd")
 
 signal cable_mode_changed(is_enabled)
 
@@ -30,6 +31,7 @@ signal cable_mode_changed(is_enabled)
 @export var anchor_min_distance_from_nodes: float = 20.0
 @export var wire_highlight_color: Color = Color(1.0, 0.88, 0.40, 1.0)
 @export var wire_highlight_glow_color: Color = Color(1.0, 0.70, 0.10, 0.40)
+@export var wire_stats_close_distance: float = 36.0
 @export var preview_affordable_color: Color = Color(0.80, 1.0, 0.85, 1.0)
 @export var preview_unaffordable_color: Color = Color(1.0, 0.35, 0.35, 1.0)
 @export var node_icon_color: Color = Color(0.10, 0.10, 0.10, 0.95)
@@ -53,6 +55,9 @@ var selected_wire: Line2D = null
 var highlighted_wire_segments: Array = []
 var wire_delete_confirmation_open := false
 var overlay_title_label: Label = null
+var wire_stats_panel: PanelContainer = null
+var wire_stats_label: Label = null
+var stats_panel_wire: Line2D = null
 var default_cable_type := {
 	"name": "Cat5",
 	"color": Color(0.45, 0.45, 0.45, 1.0),
@@ -65,6 +70,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	visible = false
 	modulate = Color(1.0, 1.0, 1.0, 0.0)
+	_ensure_wire_stats_panel()
 
 func _process(_delta: float) -> void:
 	if not visible:
@@ -73,6 +79,7 @@ func _process(_delta: float) -> void:
 	queue_redraw()
 	update_cable_preview()
 	_update_overlay_status_visibility()
+	_update_wire_stats_panel()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_network_overlay"):
@@ -86,6 +93,107 @@ func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton and event.pressed:
 		_handle_cable_mode_input(event)
 		accept_event()
+
+func _ensure_wire_stats_panel() -> void:
+	if wire_stats_panel != null and is_instance_valid(wire_stats_panel):
+		return
+
+	wire_stats_panel = PanelContainer.new()
+	wire_stats_panel.name = "WireStatsPanel"
+	wire_stats_panel.visible = false
+	wire_stats_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wire_stats_panel.z_as_relative = false
+	wire_stats_panel.z_index = 220
+
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.08, 0.09, 0.11, 0.95)
+	panel_style.border_color = Color(0.95, 0.82, 0.32, 0.95)
+	panel_style.border_width_left = 2
+	panel_style.border_width_right = 2
+	panel_style.border_width_top = 2
+	panel_style.border_width_bottom = 2
+	panel_style.corner_radius_top_left = 6
+	panel_style.corner_radius_top_right = 6
+	panel_style.corner_radius_bottom_left = 6
+	panel_style.corner_radius_bottom_right = 6
+	wire_stats_panel.add_theme_stylebox_override("panel", panel_style)
+
+	wire_stats_label = Label.new()
+	wire_stats_label.name = "WireStatsLabel"
+	wire_stats_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	wire_stats_label.custom_minimum_size = Vector2(320, 0)
+	wire_stats_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wire_stats_label.add_theme_color_override("font_color", Color(0.95, 0.96, 1.0, 1.0))
+	wire_stats_label.add_theme_font_size_override("font_size", 15)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 10)
+	margin.add_theme_constant_override("margin_right", 10)
+	margin.add_theme_constant_override("margin_top", 8)
+	margin.add_theme_constant_override("margin_bottom", 8)
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(wire_stats_label)
+	wire_stats_panel.add_child(margin)
+
+	get_tree().current_scene.call_deferred("add_child", wire_stats_panel)
+
+func show_wire_stats_popup(wire: Line2D) -> void:
+	if wire == null or not is_instance_valid(wire):
+		return
+	_ensure_wire_stats_panel()
+	stats_panel_wire = wire
+	if wire_stats_panel != null:
+		wire_stats_panel.visible = true
+	_update_wire_stats_panel()
+
+func hide_wire_stats_popup() -> void:
+	stats_panel_wire = null
+	if wire_stats_panel != null and is_instance_valid(wire_stats_panel):
+		wire_stats_panel.visible = false
+
+func _update_wire_stats_panel() -> void:
+	if wire_stats_panel == null or not is_instance_valid(wire_stats_panel):
+		return
+	if wire_stats_label == null or not is_instance_valid(wire_stats_label):
+		return
+	if stats_panel_wire == null or not is_instance_valid(stats_panel_wire):
+		hide_wire_stats_popup()
+		return
+
+	var mouse_world: Vector2 = screen_to_world(get_viewport().get_mouse_position())
+	if _distance_to_wire_world(mouse_world, stats_panel_wire) > wire_stats_close_distance:
+		hide_wire_stats_popup()
+		return
+
+	wire_stats_label.text = _build_wire_stats_text(stats_panel_wire)
+	var mouse_pos: Vector2 = get_viewport().get_mouse_position()
+	var desired_pos := mouse_pos + Vector2(16.0, 16.0)
+	var panel_size: Vector2 = wire_stats_panel.get_combined_minimum_size()
+	var viewport_size: Vector2 = get_viewport_rect().size
+	desired_pos.x = clamp(desired_pos.x, 8.0, max(8.0, viewport_size.x - panel_size.x - 8.0))
+	desired_pos.y = clamp(desired_pos.y, 8.0, max(8.0, viewport_size.y - panel_size.y - 8.0))
+	wire_stats_panel.position = desired_pos
+
+func _distance_to_wire_world(world_position: Vector2, wire: Line2D) -> float:
+	if wire == null or not is_instance_valid(wire):
+		return INF
+	if wire.points.size() < 2:
+		return INF
+
+	var best_distance: float = INF
+	for i in range(wire.points.size() - 1):
+		var p1: Vector2 = wire.to_global(wire.points[i])
+		var p2: Vector2 = wire.to_global(wire.points[i + 1])
+		var closest: Vector2 = WiringPlacement.closest_point_on_segment(world_position, p1, p2)
+		best_distance = min(best_distance, world_position.distance_to(closest))
+
+	return best_distance
+
+func _build_wire_stats_text(wire: Line2D) -> String:
+	if wire.has_method("get_wire_stats_text"):
+		return str(wire.call("get_wire_stats_text"))
+	var wire_type: Variant = wire.get("cable_type_name")
+	return "Type: %s" % String(wire_type)
 
 func toggle_overlay() -> void:
 	set_overlay_visible(not visible)
@@ -132,6 +240,7 @@ func set_overlay_visible(overlay_visible: bool, instant_transition: bool = false
 		cable_placement_active = false
 		selected_wire = null
 		highlighted_wire_segments.clear()
+		hide_wire_stats_popup()
 		clear_cable_preview()
 		hide_overlay_title()
 		update_all_port_label_visibility(false)
@@ -265,6 +374,7 @@ func _handle_cable_mode_input(event: InputEvent) -> void:
 			if not clicked_node.is_empty():
 				selected_wire = null
 				highlighted_wire_segments.clear()
+				hide_wire_stats_popup()
 				_handle_cable_node_click(clicked_node)
 			else:
 				# Only allow wire selection when not actively placing a wire,
@@ -273,10 +383,12 @@ func _handle_cable_mode_input(event: InputEvent) -> void:
 					var clicked_wire = find_wire_at_position(mouse_world_pos)
 					if clicked_wire != null:
 						highlight_wire_route(clicked_wire)
+						show_wire_stats_popup(clicked_wire)
 						return
 
 				selected_wire = null
 				highlighted_wire_segments.clear()
+				hide_wire_stats_popup()
 				_handle_cable_empty_click(mouse_world_pos)
 
 		elif event.button_index == MOUSE_BUTTON_RIGHT:
@@ -287,6 +399,7 @@ func _handle_cable_mode_input(event: InputEvent) -> void:
 			cable_start_point = null
 			cable_start_world_position = Vector2.ZERO
 			cable_placement_active = selected_cable_type != null
+			hide_wire_stats_popup()
 			clear_cable_preview()
 
 func get_clicked_network_node(mouse_world_position: Vector2, mouse_screen_position: Vector2 = Vector2.ZERO) -> Dictionary:
@@ -557,18 +670,21 @@ func draw_highlighted_wires() -> void:
 			continue
 		if not segment is Line2D:
 			continue
-		
-		# Draw glow first
-		draw_set_transform(segment.global_position, segment.rotation, segment.scale)
-		var glow_width = wire_glow_width + 4.0
-		for point in range(segment.points.size() - 1):
-			draw_line(segment.points[point], segment.points[point + 1], wire_highlight_glow_color, glow_width)
-		
-		# Draw main highlight line
-		for point in range(segment.points.size() - 1):
-			draw_line(segment.points[point], segment.points[point + 1], wire_highlight_color, wire_width + 2.0)
-		
-		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+		var glow_width: float = wire_glow_width + 4.0
+		for i in range(segment.points.size() - 1):
+			var p1_world: Vector2 = segment.to_global(segment.points[i])
+			var p2_world: Vector2 = segment.to_global(segment.points[i + 1])
+			var p1_screen: Vector2 = world_to_screen(p1_world)
+			var p2_screen: Vector2 = world_to_screen(p2_world)
+			draw_line(p1_screen, p2_screen, wire_highlight_glow_color, glow_width)
+
+		for i in range(segment.points.size() - 1):
+			var h1_world: Vector2 = segment.to_global(segment.points[i])
+			var h2_world: Vector2 = segment.to_global(segment.points[i + 1])
+			var h1_screen: Vector2 = world_to_screen(h1_world)
+			var h2_screen: Vector2 = world_to_screen(h2_world)
+			draw_line(h1_screen, h2_screen, wire_highlight_color, wire_width + 2.0)
 
 func get_network_markers() -> Array[Dictionary]:
 	var markers: Array[Dictionary] = []
@@ -705,18 +821,7 @@ func _update_overlay_status_visibility() -> void:
 		overlay_status_hide_at_ms = 0
 
 func build_orthogonal_preview_points(start_pos: Vector2, end_pos: Vector2) -> PackedVector2Array:
-	var points := PackedVector2Array()
-	points.append(start_pos)
-
-	var dx = abs(end_pos.x - start_pos.x)
-	var dy = abs(end_pos.y - start_pos.y)
-	if dx >= dy:
-		append_unique_preview_point(points, Vector2(end_pos.x, start_pos.y))
-	else:
-		append_unique_preview_point(points, Vector2(start_pos.x, end_pos.y))
-
-	append_unique_preview_point(points, end_pos)
-	return points
+	return WiringPlacement.build_orthogonal_path(start_pos, end_pos)
 
 func append_unique_preview_point(points: PackedVector2Array, point: Vector2) -> void:
 	if points.is_empty():
@@ -727,10 +832,7 @@ func append_unique_preview_point(points: PackedVector2Array, point: Vector2) -> 
 	points.append(point)
 
 func calculate_polyline_length(points: PackedVector2Array) -> float:
-	var total := 0.0
-	for i in range(points.size() - 1):
-		total += points[i].distance_to(points[i + 1])
-	return total
+	return WiringPlacement.calculate_polyline_length(points)
 
 func get_network_point_name(node) -> String:
 	if node == null:
@@ -768,6 +870,8 @@ func can_reach_router(start_node) -> bool:
 		if segments == null:
 			continue
 
+		var internet_segments: Variant = current.get("internet_connected_segments")
+
 		for segment in segments:
 			if segment == null:
 				continue
@@ -778,13 +882,32 @@ func can_reach_router(start_node) -> bool:
 			if next_point != null and not visited.has(next_point):
 				queue.append(next_point)
 
+		if internet_segments is Array:
+			for segment in internet_segments:
+				if segment == null:
+					continue
+				if not segment.has_method("get_other_point"):
+					continue
+
+				var next_internet_point: Variant = segment.get_other_point(current)
+				if next_internet_point != null and not visited.has(next_internet_point):
+					queue.append(next_internet_point)
+
 	return false
 
 func update_all_server_network_status() -> void:
 	for node in get_tree().get_nodes_in_group("network_nodes"):
-		if node.get("network_node_type") == "server":
-			var connected = can_reach_router(node)
-			node.update_network_status(connected)
+		if node == null:
+			continue
+		var node_type: String = String(node.get("network_node_type"))
+		if node_type != "server" and node_type != "router":
+			continue
+
+		var connected = can_reach_router(node)
+		if node.has_method("update_network_status"):
+			node.call("update_network_status", connected)
+		elif node.has_method("set_network_connected_state"):
+			node.call("set_network_connected_state", connected)
 
 func can_accept_new_connection(node: Node, endpoint_world_position: Vector2 = Vector2.ZERO, remote_node: Node = null, remote_world_position: Vector2 = Vector2.ZERO) -> bool:
 	if node == null:
@@ -878,11 +1001,10 @@ func _get_endpoint_connection_count(owner_node: Node, endpoint_world_position: V
 	return count
 
 func _is_anchor_too_close_to_network_node(world_position: Vector2) -> bool:
+	var connector_positions: Array = []
 	for marker in get_network_markers():
-		var marker_world_pos: Vector2 = marker.get("world_position", Vector2.ZERO)
-		if marker_world_pos.distance_to(world_position) < anchor_min_distance_from_nodes:
-			return true
-	return false
+		connector_positions.append(marker.get("world_position", Vector2.ZERO))
+	return WiringPlacement.is_point_too_close_to_positions(world_position, connector_positions, anchor_min_distance_from_nodes)
 
 func _get_network_port_icon(owner_node: Node, connector_node: Node2D) -> String:
 	if owner_node != null and owner_node.has_method("get_network_port_icon"):
@@ -944,7 +1066,7 @@ func find_wire_at_position(world_position: Vector2, tolerance: float = 8.0) -> L
 		for i in range(segment.points.size() - 1):
 			var p1 = segment.to_global(segment.points[i])
 			var p2 = segment.to_global(segment.points[i + 1])
-			var closest_point = get_closest_point_on_segment(world_position, p1, p2)
+			var closest_point = WiringPlacement.closest_point_on_segment(world_position, p1, p2)
 			var dist = world_position.distance_to(closest_point)
 			if dist <= tolerance:
 				return segment
@@ -952,15 +1074,7 @@ func find_wire_at_position(world_position: Vector2, tolerance: float = 8.0) -> L
 	return null
 
 func get_closest_point_on_segment(point: Vector2, seg_start: Vector2, seg_end: Vector2) -> Vector2:
-	var seg_vec = seg_end - seg_start
-	var point_vec = point - seg_start
-	var seg_len_sq = seg_vec.length_squared()
-	
-	if seg_len_sq == 0.0:
-		return seg_start
-	
-	var t = max(0.0, min(1.0, point_vec.dot(seg_vec) / seg_len_sq))
-	return seg_start + seg_vec * t
+	return WiringPlacement.closest_point_on_segment(point, seg_start, seg_end)
 
 func highlight_wire_route(wire: Line2D) -> void:
 	if wire == null:
@@ -1055,6 +1169,7 @@ func _on_delete_wire_confirmed() -> void:
 	selected_wire.queue_free()
 	selected_wire = null
 	highlighted_wire_segments.clear()
+	hide_wire_stats_popup()
 	wire_delete_confirmation_open = false
 	if SaveManager != null and SaveManager.has_method("mark_runtime_dirty"):
 		SaveManager.mark_runtime_dirty()
@@ -1099,6 +1214,7 @@ func clear_wiring() -> void:
 	placed_cable_segments.clear()
 	selected_wire = null
 	highlighted_wire_segments.clear()
+	hide_wire_stats_popup()
 	cable_start_point = null
 	cable_start_world_position = Vector2.ZERO
 	clear_cable_preview()

@@ -76,6 +76,8 @@ func _ready() -> void:
 	_ensure_delete_save_confirm_dialog()
 	_ensure_fps_counter_label()
 	_load_runtime_display_settings()
+	if GameManager != null and GameManager.has_signal("gameplay_started") and not GameManager.gameplay_started.is_connected(_on_gameplay_started):
+		GameManager.gameplay_started.connect(_on_gameplay_started)
 
 	for node in get_tree().get_nodes_in_group("interactable"):
 		node.interaction_requested.connect(_on_interaction_requested)
@@ -101,6 +103,13 @@ func _ready() -> void:
 
 func _on_interaction_requested(interactable) -> void:
 	if selected_unit_to_place != null:
+		if radial_menu.visible:
+			radial_menu.hide()
+		current_interactable = null
+		pending_action = ""
+		return
+
+	if interactable != null and str(interactable.get("object_name")) == "Breaker":
 		if radial_menu.visible:
 			radial_menu.hide()
 		current_interactable = null
@@ -151,6 +160,10 @@ func get_action_icon(action_name: String) -> Texture2D:
 		return load("res://assets/UI/icons/inspect.svg")
 	elif action_name.begins_with("Upgrade"):
 		return load("res://assets/UI/icons/upgrade.svg")
+	elif action_name == "Enable Overdrive":
+		return load("res://assets/UI/icons/inspect.svg")
+	elif action_name == "Disable Overdrive":
+		return load("res://assets/UI/icons/turn_off.svg")
 	else:
 		return null
 
@@ -1204,6 +1217,19 @@ func _set_pause_state(is_paused: bool) -> void:
 	var music_bus_index: int = AudioServer.get_bus_index(&"Music")
 	if music_bus_index >= 0:
 		AudioServer.set_bus_mute(music_bus_index, is_paused)
+
+func begin_prep_session(duration_seconds: float) -> void:
+	_set_pause_state(false)
+	_show_pause_status("Prepare yourself - setup has started", Color(1.0, 0.92, 0.45, 1.0))
+	if GameManager != null and GameManager.has_method("begin_prep_countdown"):
+		GameManager.begin_prep_countdown(duration_seconds)
+
+func set_start_dialog_pause(active: bool) -> void:
+	_set_pause_state(active)
+
+func _on_gameplay_started() -> void:
+	_set_pause_state(false)
+	_show_pause_status("Gameplay resumed", Color(0.85, 1.0, 0.88, 1.0))
 
 func get_world_state_key() -> String:
 	var current_scene := get_tree().current_scene

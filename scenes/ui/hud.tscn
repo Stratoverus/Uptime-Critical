@@ -66,6 +66,88 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="PrepBanner" type="PanelContainer" parent="Control" unique_id=1273194557]
+visible = false
+layout_mode = 1
+anchors_preset = 10
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -220.0
+offset_top = 20.0
+offset_right = 220.0
+offset_bottom = 96.0
+grow_horizontal = 2
+z_index = 300
+theme_override_styles/panel = SubResource("StyleBoxFlat_c3qrg")
+
+[node name="PrepDock" type="PanelContainer" parent="Control" unique_id=1984309311]
+visible = false
+layout_mode = 1
+anchors_preset = 10
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -170.0
+offset_top = 120.0
+offset_right = 170.0
+offset_bottom = 210.0
+grow_horizontal = 2
+z_index = 300
+theme_override_styles/panel = SubResource("StyleBoxFlat_8ysvq")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/PrepDock" unique_id=1343916527]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="PrepDockLabel" type="Label" parent="Control/PrepDock/VBoxContainer" unique_id=1650090601]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "Session Control"
+horizontal_alignment = 1
+
+[node name="PrepDockHint" type="Label" parent="Control/PrepDock/VBoxContainer" unique_id=1081663673]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.93333334, 0.4, 1)
+theme_override_font_sizes/font_size = 16
+text = "The next 30 seconds are your setup window."
+horizontal_alignment = 1
+
+[node name="PrepDockButton" type="Button" parent="Control/PrepDock/VBoxContainer" unique_id=1204439586]
+custom_minimum_size = Vector2(240, 36)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_c3qrg")
+text = "Begin 30s Prep"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/PrepBanner" unique_id=1541087446]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="PrepTitle" type="Label" parent="Control/PrepBanner/VBoxContainer" unique_id=2007512229]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.9313725, 0.49803922, 1)
+theme_override_font_sizes/font_size = 30
+text = "Prepare yourself"
+horizontal_alignment = 1
+
+[node name="PrepSubtitle" type="Label" parent="Control/PrepBanner/VBoxContainer" unique_id=1028435558]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "Traffic starts in 30 seconds"
+horizontal_alignment = 1
+
+[node name="PrepCountdown" type="Label" parent="Control/PrepBanner/VBoxContainer" unique_id=1260584395]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9098039, 0.5686275, 0.12156863, 1)
+theme_override_font_sizes/font_size = 30
+text = "30"
+horizontal_alignment = 1
+
+[node name="StartConfirmationDialog" type="AcceptDialog" parent="Control" unique_id=1641023905]
+title = "Start Session"
+dialog_text = "Prepare yourself. Press OK to start the 30-second setup pause."
+
 [node name="MarginContainer" type="MarginContainer" parent="Control" unique_id=1325518787]
 layout_mode = 0
 offset_right = 760.0
@@ -85,6 +167,27 @@ custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 show_percentage = false
 script = ExtResource("2_oj5la")
+
+[node name="ServiceBar" type="ProgressBar" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1016843501]
+custom_minimum_size = Vector2(0, 24)
+visible = false
+layout_mode = 2
+show_percentage = false
+script = ExtResource("2_oj5la")
+
+[node name="TrafficLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer/ServiceBar" unique_id=1522880021]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -11.5
+offset_right = 20.0
+offset_bottom = 11.5
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="TrafficLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer/TrafficBar" unique_id=35951128]
 layout_mode = 1
@@ -123,6 +226,39 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 text = "Event Label"
 
+[node name="PrepStatusLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1872225041]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.972549, 0.7411765, 0.20392157, 1)
+theme_override_font_sizes/font_size = 22
+text = "Prepare yourself"
+visible = false
+
+[node name="BottleneckLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1552241231]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Bottleneck: Balanced"
+
+[node name="HandledLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1962793001]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Handled Total: 0 Req/s"
+
+[node name="DroppedLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=222445910]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Dropped: 0 Req/s (0.0%)"
+
+[node name="ReputationLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1460794207]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+text = "Reputation: 100.0%"
+
+[node name="IrreparableLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=123338803]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.79897434, 4.379898e-06, 6.738305e-07, 1)
+text = "Irreparable in: 0s"
+
 [node name="MoneyContainer" type="HBoxContainer" parent="Control/MarginContainer/HUDContainer" unique_id=1385391011]
 layout_mode = 2
 
@@ -140,6 +276,23 @@ theme_type_variation = &"TooltipLabel"
 theme_override_colors/font_color = Color(0.77788156, 0.77788156, 0.7778816, 1)
 theme_override_font_sizes/font_size = 20
 text = "+ $315.12/min"
+vertical_alignment = 1
+
+[node name="DeficitLabel" type="Label" parent="Control/MarginContainer/HUDContainer/MoneyContainer" unique_id=1253364914]
+layout_mode = 2
+theme = ExtResource("3_gss2c")
+theme_type_variation = &"TooltipLabel"
+theme_override_font_sizes/font_size = 18
+text = ""
+vertical_alignment = 1
+
+[node name="PrepLabel" type="Label" parent="Control/MarginContainer/HUDContainer/MoneyContainer" unique_id=1740030193]
+layout_mode = 2
+theme = ExtResource("3_gss2c")
+theme_type_variation = &"TooltipLabel"
+theme_override_colors/font_color = Color(0.83218807, 0.78218055, 0.30452254, 1)
+theme_override_font_sizes/font_size = 18
+text = "Prep: 30s remaining"
 vertical_alignment = 1
 
 [node name="TestingControls" type="HBoxContainer" parent="Control/MarginContainer/HUDContainer" unique_id=37755057]
@@ -164,6 +317,13 @@ layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_6jtrr")
 text = "Speed x100: OFF"
+
+[node name="StartSessionButton" type="Button" parent="Control/MarginContainer/HUDContainer/TestingControls" unique_id=1827352201]
+layout_mode = 2
+visible = false
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = SubResource("StyleBoxFlat_c3qrg")
+text = "Begin 30s Prep"
 
 [node name="EventControls" type="HBoxContainer" parent="Control/MarginContainer/HUDContainer" unique_id=1085091507]
 layout_mode = 2
@@ -230,6 +390,9 @@ horizontal_alignment = 1
 [connection signal="pressed" from="Control/MarginContainer/HUDContainer/TestingControls/DemandButton" to="." method="_on_demand_button_pressed"]
 [connection signal="pressed" from="Control/MarginContainer/HUDContainer/TestingControls/UpgradeButton" to="." method="_on_upgrade_button_pressed"]
 [connection signal="pressed" from="Control/MarginContainer/HUDContainer/TestingControls/SpeedButton" to="." method="_on_speed_button_pressed"]
+[connection signal="pressed" from="Control/PrepDock/VBoxContainer/PrepDockButton" to="." method="_on_start_session_button_pressed"]
+[connection signal="pressed" from="Control/MarginContainer/HUDContainer/TestingControls/StartSessionButton" to="." method="_on_start_session_button_pressed"]
+[connection signal="confirmed" from="Control/StartConfirmationDialog" to="." method="_on_start_session_confirmed"]
 [connection signal="pressed" from="Control/MarginContainer/HUDContainer/EventControls/DDoSButton" to="." method="_on_ddos_button_pressed"]
 [connection signal="pressed" from="Control/MarginContainer/HUDContainer/EventControls/BlackFriday" to="." method="_on_black_friday_pressed"]
 [connection signal="pressed" from="Control/MarginContainer/HUDContainer/EventControls/ViralVideo" to="." method="_on_viral_video_pressed"]
