@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://cc38vwh5am7hq"]
+
+[ext_resource type="Texture2D" uid="uid://ce3wjgbh3fp30" path="res://assets/object_sprites/breaker/breaker_front.png" id="1_7ui1p"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4itdj"]
+size = Vector2(81.5, 78)
+
+[node name="breaker" type="Node2D" unique_id=1008483833]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=234022704]
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D" unique_id=1978945234]
+position = Vector2(71, 65)
+scale = Vector2(0.82, 0.78)
+texture = ExtResource("1_7ui1p")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=1873650339]
+position = Vector2(71.25, 65)
+shape = SubResource("RectangleShape2D_4itdj")
