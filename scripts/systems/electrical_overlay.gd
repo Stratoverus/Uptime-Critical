@@ -59,6 +59,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	visible = start_visible
 	modulate = Color(1.0, 1.0, 1.0, 1.0 if start_visible else 0.0)
+	_refresh_default_power_cable()
 	_ensure_wire_stats_panel()
 	update_anchor_visibility(start_visible)
 	call_deferred("update_all_power_states")
@@ -176,9 +177,10 @@ func set_overlay_visible(overlay_visible: bool) -> void:
 		modulate.a = 1.0 if overlay_visible else 0.0
 		if overlay_visible:
 			show_overlay_title("Electrical Overlay")
+			# Port labels belong to network overlay only.
+			update_all_port_label_visibility(false)
 		else:
 			hide_overlay_title()
-		update_all_port_label_visibility(overlay_visible)
 		update_anchor_visibility(overlay_visible)
 		dragging_connector.clear()
 		selected_connection = {}
@@ -207,8 +209,8 @@ func set_overlay_visible(overlay_visible: bool) -> void:
 		if overlay_status_label != null:
 			overlay_status_label.visible = false
 			overlay_status_hide_at_ms = 0
-
-	update_all_port_label_visibility(overlay_visible)
+		# Port labels belong to network overlay only.
+		update_all_port_label_visibility(false)
 
 	update_anchor_visibility(overlay_visible)
 	dragging_connector.clear()
@@ -1384,3 +1386,13 @@ func _get_selected_wire_color() -> Color:
 func _get_selected_wire_glow_color() -> Color:
 	var base_color: Color = _get_selected_wire_color()
 	return Color(base_color.r * 0.55, base_color.g * 0.55, base_color.b * 0.55, wire_glow_color.a)
+
+func _refresh_default_power_cable() -> void:
+	var economy_config: Node = get_node_or_null("/root/EconomyConfig")
+	if economy_config == null:
+		return
+	if not economy_config.has_method("get_cable_item_by_name"):
+		return
+	var cable_data: Variant = economy_config.call("get_cable_item_by_name", "Power Cable")
+	if cable_data is Dictionary and not (cable_data as Dictionary).is_empty():
+		default_power_cable = (cable_data as Dictionary).duplicate(true)

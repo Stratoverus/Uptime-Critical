@@ -4,11 +4,15 @@ var color_safe = Color.GREEN
 var color_danger = Color.RED
 var dropped_overlay_color = Color(0.88, 0.15, 0.12, 0.8)
 var dropped_ratio: float = 0.0
+@export_range(0.0, 1.0, 0.001) var drop_label_show_threshold: float = 0.01
+@export_range(0.0, 1.0, 0.001) var drop_label_hide_threshold: float = 0.005
+var _drop_label_visible: bool = false
 
 func update_display(current_val: float, max_val: float, servers_active: bool, unit_label: String = "Req/s", dropped_ratio_input: float = 0.0):
 	max_value = max(max_val, 1.0)
 	value = current_val
 	dropped_ratio = clamp(dropped_ratio_input, 0.0, 1.0)
+	_update_drop_label_visibility()
 
 	var filling_ratio = value / max_value
 	var current_color = color_safe.lerp(color_danger, filling_ratio)
@@ -24,7 +28,7 @@ func update_display(current_val: float, max_val: float, servers_active: bool, un
 			$TrafficLabel.text = "%.2f / %.2f k%s" % [value / 1000.0, max_value / 1000.0, unit_label]
 		else:
 			$TrafficLabel.text = "%.2f / %.2f M%s" % [value / 1000000.0, max_value / 1000000.0, unit_label]
-		if dropped_ratio > 0.0:
+		if _drop_label_visible:
 			$TrafficLabel.text += " | Drop %.0f%%" % (dropped_ratio * 100.0)
 	else:
 		$TrafficLabel.text = "SERVER OFFLINE"
@@ -55,3 +59,14 @@ func _draw() -> void:
 		Vector2(bar_rect.size.x * dropped_ratio_on_capacity, bar_rect.size.y)
 	)
 	draw_rect(dropped_rect, dropped_overlay_color, true)
+
+func _update_drop_label_visibility() -> void:
+	var show_threshold: float = max(drop_label_show_threshold, 0.0)
+	var hide_threshold: float = clamp(drop_label_hide_threshold, 0.0, show_threshold)
+
+	if _drop_label_visible:
+		if dropped_ratio <= hide_threshold:
+			_drop_label_visible = false
+	else:
+		if dropped_ratio >= show_threshold:
+			_drop_label_visible = true

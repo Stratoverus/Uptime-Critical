@@ -15,6 +15,12 @@ var base_glow_color: Color = Color(0.24, 0.24, 0.24, 0.24)
 var utilization_ratio: float = 0.0
 var current_traffic_load_rps: float = 0.0
 var max_traffic_capacity_rps: float = 0.0
+@export var cat5_capacity_rps: float = 900.0
+@export var cat6_capacity_rps: float = 1800.0
+@export var fiber_capacity_rps: float = 3600.0
+@export var uplink_capacity_rps: float = 9000.0
+@export var power_capacity_rps: float = 1800.0
+@export var default_capacity_rps: float = 500.0
 @export_range(0.0, 1.0, 0.01) var warning_start_ratio: float = 0.50
 @export var hot_color: Color = Color(1.0, 0.06, 0.06, 1.0)
 @export var hot_glow_color: Color = Color(1.0, 0.08, 0.08, 0.92)
@@ -37,19 +43,19 @@ func setup(a, b, cable_data: Dictionary, start_world_position: Vector2 = Vector2
 
 	if cable_type_name == "Cat5":
 		width = 4
-		max_traffic_capacity_rps = 300.0
+		max_traffic_capacity_rps = _get_capacity_for_cable(cable_type_name, cat5_capacity_rps)
 	elif cable_type_name == "Cat6":
 		width = 5
-		max_traffic_capacity_rps = 600.0
+		max_traffic_capacity_rps = _get_capacity_for_cable(cable_type_name, cat6_capacity_rps)
 	elif cable_type_name == "Fiber":
 		width = 6
-		max_traffic_capacity_rps = 1500.0
+		max_traffic_capacity_rps = _get_capacity_for_cable(cable_type_name, fiber_capacity_rps)
 	elif cable_type_name == "Internet Pipe (Uplink)":
-		max_traffic_capacity_rps = 5000.0
+		max_traffic_capacity_rps = _get_capacity_for_cable(cable_type_name, uplink_capacity_rps)
 	elif cable_type_name == "Power Cable":
-		max_traffic_capacity_rps = 1200.0
+		max_traffic_capacity_rps = _get_capacity_for_cable(cable_type_name, power_capacity_rps)
 	else:
-		max_traffic_capacity_rps = 500.0
+		max_traffic_capacity_rps = _get_capacity_for_cable(cable_type_name, default_capacity_rps)
 	base_default_color = cable_data.get("color", Color(0.45, 0.45, 0.45, 1.0))
 	default_color = base_default_color
 
@@ -199,3 +205,9 @@ func _get_node_label(node) -> String:
 		return str(object_name_value)
 
 	return str(node.name)
+
+func _get_capacity_for_cable(cable_name: String, fallback_capacity: float) -> float:
+	var economy_config: Node = get_node_or_null("/root/EconomyConfig")
+	if economy_config != null and economy_config.has_method("get_cable_capacity_rps"):
+		return max(float(economy_config.call("get_cable_capacity_rps", cable_name, fallback_capacity)), 1.0)
+	return max(fallback_capacity, 1.0)

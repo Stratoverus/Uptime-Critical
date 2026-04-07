@@ -13,8 +13,7 @@ script = ExtResource("1_mwunb")
 base_heat = 18.0
 heat_radius = 280.0
 level = 2
-request_capacity_rps = 360.0
-build_time_sec = 3.0
+request_capacity_rps = 390.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=535800224]
 scale = Vector2(0.94, 0.94)

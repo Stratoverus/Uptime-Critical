@@ -308,53 +308,70 @@ theme_override_font_sizes/font_size = 18
 text = "Prep: 30s remaining"
 vertical_alignment = 1
 
-[node name="TestingControls" type="HBoxContainer" parent="Control/MarginContainer/HUDContainer" unique_id=37755057]
+[node name="DevControlsDock" type="MarginContainer" parent="Control" unique_id=1775505701]
+layout_mode = 1
+anchors_preset = 3
+anchor_top = 1.0
+anchor_right = 0.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = -140.0
+offset_right = 760.0
+offset_bottom = -20.0
+grow_vertical = 0
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/DevControlsDock" unique_id=1775505702]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TestingControls" type="HBoxContainer" parent="Control/DevControlsDock/VBoxContainer" unique_id=37755057]
 layout_mode = 2
 
-[node name="DemandButton" type="Button" parent="Control/MarginContainer/HUDContainer/TestingControls" unique_id=1049800876]
+[node name="DemandButton" type="Button" parent="Control/DevControlsDock/VBoxContainer/TestingControls" unique_id=1049800876]
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_c3qrg")
 text = "Increase Demand 50%"
 
-[node name="UpgradeButton" type="Button" parent="Control/MarginContainer/HUDContainer/TestingControls" unique_id=594929377]
+[node name="UpgradeButton" type="Button" parent="Control/DevControlsDock/VBoxContainer/TestingControls" unique_id=594929377]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_8ysvq")
 text = "Upgrade Server"
 
-[node name="SpeedButton" type="Button" parent="Control/MarginContainer/HUDContainer/TestingControls" unique_id=1989824576]
+[node name="SpeedButton" type="Button" parent="Control/DevControlsDock/VBoxContainer/TestingControls" unique_id=1989824576]
 custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_6jtrr")
 text = "Speed x100: OFF"
 
-[node name="StartSessionButton" type="Button" parent="Control/MarginContainer/HUDContainer/TestingControls" unique_id=1827352201]
-visible = false
+[node name="StartSessionButton" type="Button" parent="Control/DevControlsDock/VBoxContainer/TestingControls" unique_id=1827352201]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_c3qrg")
 text = "Begin 30s Prep"
 
-[node name="EventControls" type="HBoxContainer" parent="Control/MarginContainer/HUDContainer" unique_id=1085091507]
+[node name="EventControls" type="HBoxContainer" parent="Control/DevControlsDock/VBoxContainer" unique_id=1085091507]
 layout_mode = 2
 
-[node name="DDoSButton" type="Button" parent="Control/MarginContainer/HUDContainer/EventControls" unique_id=86379122]
+[node name="DDoSButton" type="Button" parent="Control/DevControlsDock/VBoxContainer/EventControls" unique_id=86379122]
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_c3qrg")
 text = "DDoS Attack"
 
-[node name="BlackFriday" type="Button" parent="Control/MarginContainer/HUDContainer/EventControls" unique_id=1302835794]
+[node name="BlackFriday" type="Button" parent="Control/DevControlsDock/VBoxContainer/EventControls" unique_id=1302835794]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_8ysvq")
 text = "Black Friday"
 
-[node name="ViralVideo" type="Button" parent="Control/MarginContainer/HUDContainer/EventControls" unique_id=2016781889]
+[node name="ViralVideo" type="Button" parent="Control/DevControlsDock/VBoxContainer/EventControls" unique_id=2016781889]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_styles/normal = SubResource("StyleBoxFlat_6jtrr")
@@ -400,12 +417,12 @@ theme_override_font_sizes/font_size = 25
 text = "DAY 1"
 horizontal_alignment = 1
 
+[connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/TestingControls/DemandButton" to="." method="_on_demand_button_pressed"]
+[connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/TestingControls/UpgradeButton" to="." method="_on_upgrade_button_pressed"]
+[connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/TestingControls/SpeedButton" to="." method="_on_speed_button_pressed"]
 [connection signal="pressed" from="Control/PrepDock/VBoxContainer/PrepDockButton" to="." method="_on_start_session_button_pressed"]
+[connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/TestingControls/StartSessionButton" to="." method="_on_start_session_button_pressed"]
 [connection signal="confirmed" from="Control/StartConfirmationDialog" to="." method="_on_start_session_confirmed"]
-[connection signal="pressed" from="Control/MarginContainer/HUDContainer/TestingControls/DemandButton" to="." method="_on_demand_button_pressed"]
-[connection signal="pressed" from="Control/MarginContainer/HUDContainer/TestingControls/UpgradeButton" to="." method="_on_upgrade_button_pressed"]
-[connection signal="pressed" from="Control/MarginContainer/HUDContainer/TestingControls/SpeedButton" to="." method="_on_speed_button_pressed"]
-[connection signal="pressed" from="Control/MarginContainer/HUDContainer/TestingControls/StartSessionButton" to="." method="_on_start_session_button_pressed"]
-[connection signal="pressed" from="Control/MarginContainer/HUDContainer/EventControls/DDoSButton" to="." method="_on_ddos_button_pressed"]
-[connection signal="pressed" from="Control/MarginContainer/HUDContainer/EventControls/BlackFriday" to="." method="_on_black_friday_pressed"]
-[connection signal="pressed" from="Control/MarginContainer/HUDContainer/EventControls/ViralVideo" to="." method="_on_viral_video_pressed"]
+[connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/EventControls/DDoSButton" to="." method="_on_ddos_button_pressed"]
+[connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/EventControls/BlackFriday" to="." method="_on_black_friday_pressed"]
+[connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/EventControls/ViralVideo" to="." method="_on_viral_video_pressed"]

@@ -12,6 +12,7 @@ size = Vector2(94, 94)
 script = ExtResource("1_mefap")
 base_heat = 18.0
 heat_radius = 300.0
+request_capacity_rps = 270.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1301325800]
 scale = Vector2(0.94, 0.94)
