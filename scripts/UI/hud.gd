@@ -123,7 +123,7 @@ func _process(delta: float):
 			]
 		else:
 			dropped_label.text = "Dropped: %d Req/s (%.1f%%) | Total: %s req" % [int(round(GameManager.dropped_rps)), GameManager.dropped_ratio * 100.0, _format_request_count(GameManager.total_dropped_requests)]
-		dropped_label.modulate = Color(0.9, 0.15, 0.15, 1.0) if GameManager.dropped_ratio > 0.1 else Color(0.0, 0.0, 0.0, 1.0)
+		dropped_label.modulate = Color(0.9, 0.15, 0.15, 1.0) if GameManager.dropped_ratio > 0.1 else Color(255.0, 255.0, 255.0, 1.0)
 	if reputation_label != null:
 		reputation_label.text = "Reputation: %.1f%%" % GameManager.datacenter_reputation
 		reputation_label.modulate = Color(0.9, 0.15, 0.15, 1.0) if GameManager.datacenter_reputation <= 25.0 else Color(255.0, 255.0, 255.0, 1.0)
