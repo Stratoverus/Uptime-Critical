@@ -72,6 +72,9 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	visible = false
 	modulate = Color(1.0, 1.0, 1.0, 0.0)
+	var config_default: Dictionary = _get_cable_data_from_config("Cat5")
+	if not config_default.is_empty():
+		default_cable_type = config_default
 	_ensure_wire_stats_panel()
 
 func _process(_delta: float) -> void:
@@ -88,13 +91,27 @@ func _unhandled_input(event: InputEvent) -> void:
 		toggle_overlay()
 		get_viewport().set_input_as_handled()
 
-func _gui_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if not visible:
 		return
+	if not (event is InputEventMouseButton):
+		return
+	var mouse_event := event as InputEventMouseButton
+	if not mouse_event.pressed:
+		return
+	if mouse_event.button_index != MOUSE_BUTTON_LEFT and mouse_event.button_index != MOUSE_BUTTON_RIGHT:
+		return
 
-	if event is InputEventMouseButton and event.pressed:
-		_handle_cable_mode_input(event)
-		accept_event()
+	# Allow UI buttons to remain interactive while still letting map wiring work under non-button HUD boxes.
+	var hovered_control: Control = get_viewport().gui_get_hovered_control()
+	if hovered_control != null and hovered_control is BaseButton:
+		return
+
+	_handle_cable_mode_input(mouse_event)
+	get_viewport().set_input_as_handled()
+
+func _gui_input(_event: InputEvent) -> void:
+	return
 
 func _ensure_wire_stats_panel() -> void:
 	if wire_stats_panel != null and is_instance_valid(wire_stats_panel):
@@ -1460,6 +1477,10 @@ func _resolve_network_node_from_saved(path_text: String, fallback_world_pos: Vec
 	return null
 
 func _get_cable_data_by_name(cable_name: String) -> Dictionary:
+	var config_data: Dictionary = _get_cable_data_from_config(cable_name)
+	if not config_data.is_empty():
+		return config_data
+
 	if buy_menu != null and buy_menu.has_method("get_cable_item_by_name"):
 		var data: Variant = buy_menu.call("get_cable_item_by_name", cable_name)
 		if data is Dictionary and not (data as Dictionary).is_empty():
@@ -1469,26 +1490,40 @@ func _get_cable_data_by_name(cable_name: String) -> Dictionary:
 		return {
 			"name": INTERNET_PIPE_NAME,
 			"color": Color(0.94, 0.76, 0.18, 1.0),
-			"cost": 12
+			"cost": 2.50
 		}
 
 	if cable_name == "Fiber":
 		return {
 			"name": "Fiber",
-			"color": Color(0.90, 0.95, 1.0, 1.0),
-			"cost": 3
+			"color": Color(0.16, 0.74, 0.66, 1.0),
+			"cost": 0.90
 		}
 	if cable_name == "Cat6":
 		return {
 			"name": "Cat6",
-			"color": Color(0.65, 0.65, 0.65, 1.0),
-			"cost": 2
+			"color": Color(0.36, 0.56, 0.72, 1.0),
+			"cost": 0.40
 		}
 	return {
 		"name": "Cat5",
-		"color": Color(0.45, 0.45, 0.45, 1.0),
-		"cost": 1
+		"color": Color(0.53, 0.53, 0.53, 1.0),
+		"cost": 0.25
 	}
+
+func _get_cable_data_from_config(cable_name: String) -> Dictionary:
+	var economy_config: Node = _get_economy_config()
+	if economy_config == null:
+		return {}
+	if not economy_config.has_method("get_cable_item_by_name"):
+		return {}
+	var data: Variant = economy_config.call("get_cable_item_by_name", cable_name)
+	if data is Dictionary and not (data as Dictionary).is_empty():
+		return (data as Dictionary).duplicate(true)
+	return {}
+
+func _get_economy_config() -> Node:
+	return get_node_or_null("/root/EconomyConfig")
 
 func _get_network_port_type_for_endpoint(owner_node: Node, endpoint_world_position: Vector2) -> String:
 	if owner_node == null or not owner_node.has_method("get_network_port_type"):

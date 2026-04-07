@@ -6,14 +6,18 @@ class_name TrafficStatusLight
 		light_color = value
 		_apply_visual_state()
 
-@export_range(0.0, 1.0, 0.01) var min_alpha: float = 0.10
-@export_range(0.0, 1.0, 0.01) var max_alpha: float = 0.62
-@export_range(0.1, 8.0, 0.05) var blink_speed_hz: float = 0.85
+@export_range(0.0, 1.0, 0.01) var min_alpha: float = 0.30
+@export_range(0.0, 1.0, 0.01) var max_alpha: float = 1.00
+@export_range(0.1, 10.0, 0.05) var low_load_blink_speed_hz: float = 1.2
+@export_range(0.1, 14.0, 0.05) var high_load_blink_speed_hz: float = 7.8
+@export_range(0.0, 1.0, 0.01) var low_load_pulse_floor: float = 0.70
+@export_range(0.0, 1.0, 0.01) var high_load_pulse_floor: float = 0.24
+@export_range(0.0, 1.0, 0.01) var peak_brightness_boost: float = 0.35
 @export var show_dim_when_unpowered: bool = false
 @export_range(0.0, 1.0, 0.01) var unpowered_alpha: float = 0.08
 @export var randomize_phase_on_ready: bool = true
 @export_range(0.0, 6.28318, 0.0001) var phase_offset: float = 0.0
-@export_range(2, 64, 1) var default_sprite_size_px: int = 14
+@export_range(2, 64, 1) var default_sprite_size_px: int = 18
 @export_range(0.0, 1.0, 0.01) var load_ratio: float = 0.0:
 	set(value):
 		load_ratio = clamp(value, 0.0, 1.0)
@@ -60,14 +64,16 @@ func _apply_visual_state() -> void:
 		return
 
 	var usage: float = clamp(load_ratio, 0.0, 1.0)
-	var blink_speed: float = blink_speed_hz
+	var blink_speed: float = lerp(low_load_blink_speed_hz, high_load_blink_speed_hz, usage)
 	var wave: float = 0.5 + (0.5 * sin((blink_time * blink_speed * TAU) + phase_offset))
-	var pulse: float = lerp(0.78, 1.0, wave)
+	var pulse_floor: float = lerp(low_load_pulse_floor, high_load_pulse_floor, usage)
+	var pulse: float = lerp(pulse_floor, 1.0, wave)
+	var boosted_max_alpha: float = min(max_alpha + (usage * peak_brightness_boost), 1.0)
 	var color_out: Color = Color(
 		light_color.r,
 		light_color.g,
 		light_color.b,
-		lerp(min_alpha, max_alpha, usage) * pulse
+		lerp(min_alpha, boosted_max_alpha, usage) * pulse
 	)
 	light_sprite.visible = true
 	light_sprite.modulate = color_out
