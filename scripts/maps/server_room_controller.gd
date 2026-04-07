@@ -200,7 +200,7 @@ func create_placement_preview() -> void:
 	preview_collision = CollisionShape2D.new()
 
 	var shape = RectangleShape2D.new()
-	shape.size = Vector2(100, 100)
+	shape.size = Vector2(94, 94)
 	preview_collision.shape = shape
 
 	preview_sprite.texture = load(selected_unit_to_place["sprites"][get_current_facing()])
@@ -244,7 +244,13 @@ func _physics_process(_delta: float) -> void:
 			return
 
 	if preview_area != null:
-		preview_area.global_position = get_global_mouse_position()
+		var active_floor = _get_active_floor()
+		if active_floor != null:
+			var raw_mouse_pos = get_global_mouse_position()
+			var map_coords = active_floor.local_to_map(raw_mouse_pos)
+			preview_area.global_position = active_floor.map_to_local(map_coords)
+		else:
+			preview_area.global_position = get_global_mouse_position()
 
 		if preview_sprite != null:
 			var placement_state := get_current_placement_state()
@@ -390,7 +396,17 @@ func place_selected_unit(keep_placing: bool = false) -> void:
 	new_unit.add_to_group("placed_unit")
 
 	placed_units.add_child(new_unit)
-	new_unit.global_position = get_global_mouse_position()
+	
+	# NEW TILEMAP SNAPPING LOGIC
+	var active_floor = _get_active_floor()
+	if active_floor != null:
+		var raw_mouse_pos = get_global_mouse_position()
+		var map_coords = active_floor.local_to_map(raw_mouse_pos)
+		new_unit.global_position = active_floor.map_to_local(map_coords)
+	else:
+		new_unit.global_position = get_global_mouse_position()
+	# ==========================================
+
 	new_unit.set_meta("ignore_interaction_until", Time.get_ticks_msec() + 150)
 
 	var facing = get_current_facing()
@@ -1497,3 +1513,8 @@ func _update_fps_counter_label() -> void:
 		fps_counter_label.position = Vector2(max(0.0, get_viewport_rect().size.x - 140.0), 16.0)
 	else:
 		fps_counter_label.visible = false
+
+func _get_active_floor() -> TileMapLayer:
+	# This asks the engine to find the node with our tag.
+	# If the room hasn't loaded yet, it safely returns null.
+	return get_tree().get_first_node_in_group("floor_tilemap") as TileMapLayer
