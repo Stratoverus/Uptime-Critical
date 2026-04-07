@@ -14,7 +14,7 @@ build_time_sec = 3.0
 base_heat = 18.0
 heat_radius = 280.0
 level = 2
-request_capacity_rps = 360.0
+request_capacity_rps = 390.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=535800224]
 texture = ExtResource("2_h4au7")

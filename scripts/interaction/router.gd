@@ -5,6 +5,8 @@ extends InteractableObject
 @export var electrical_node_offset: Vector2 = Vector2(0, 22)
 @export var internet_node_offset: Vector2 = Vector2(26, 22)
 @export_range(1, 64, 1) var max_network_ports: int = 8
+@export var upgrade_cost_l1_to_l2: int = 250
+@export var upgrade_cost_l2_to_l3: int = 350
 
 var current_facing: String = "front"
 var is_connected_to_network: bool = false
@@ -45,11 +47,6 @@ var sprites_by_level = {
 	}
 }
 
-var upgrade_costs = {
-	1: 250,
-	2: 350
-}
-
 func update_actions() -> void:
 	actions = []
 	if is_manually_enabled:
@@ -60,7 +57,7 @@ func update_actions() -> void:
 	if level >= 3:
 		return
 	else:
-		var cost = upgrade_costs.get(level, 0)
+		var cost := _get_upgrade_cost(level)
 		actions.append("Upgrade ($" + str(cost) + ")")
 
 func _ready() -> void:
@@ -120,7 +117,7 @@ func upgrade() -> void:
 	if level >= 3:
 		return
 
-	var cost = upgrade_costs.get(level, 0)
+	var cost := _get_upgrade_cost(level)
 
 	if GameManager != null and GameManager.can_afford(cost):
 		GameManager.spend_money(cost)
@@ -132,6 +129,13 @@ func upgrade() -> void:
 		set_facing(current_facing)
 		_update_port_label()
 		_sync_traffic_status_lights()
+
+func _get_upgrade_cost(from_level: int) -> int:
+	var fallback_cost: int = upgrade_cost_l1_to_l2 if from_level == 1 else upgrade_cost_l2_to_l3 if from_level == 2 else 0
+	var economy_config: Node = get_node_or_null("/root/EconomyConfig")
+	if economy_config != null and economy_config.has_method("get_upgrade_cost"):
+		return int(economy_config.call("get_upgrade_cost", "router", from_level, fallback_cost))
+	return fallback_cost
 
 func is_available_for_routing() -> bool:
 	return _is_active() and is_connected_to_network

@@ -209,6 +209,7 @@ func _ready() -> void:
 		push_error("BuyMenu node path mismatch")
 		return
 
+	_refresh_economy_data()
 	title_label.text = "Buy Menu"
 	style_dev_button(dev_money_button)
 	build_unit_list()
@@ -385,6 +386,36 @@ func set_selected_cable_by_name(cable_name: String) -> void:
 		if cable_data is Dictionary and str(cable_data.get("name", "")) == cable_name:
 			apply_cable_selection_visual(button)
 			return
+
+func _refresh_economy_data() -> void:
+	var economy_config: Node = _get_economy_config()
+	if economy_config == null:
+		return
+
+	if economy_config.has_method("get_network_cable_items"):
+		var network_data: Variant = economy_config.call("get_network_cable_items")
+		if network_data is Array:
+			cable_items = (network_data as Array).duplicate(true)
+
+	if economy_config.has_method("get_electrical_cable_items"):
+		var electrical_data: Variant = economy_config.call("get_electrical_cable_items")
+		if electrical_data is Array:
+			electrical_cable_items = (electrical_data as Array).duplicate(true)
+
+	if not economy_config.has_method("get_unit_cost"):
+		return
+
+	for unit in unit_data:
+		if not (unit is Dictionary):
+			continue
+		var unit_dict := unit as Dictionary
+		var unit_id: String = str(unit_dict.get("id", ""))
+		var fallback_cost: int = int(unit_dict.get("cost", 0))
+		var configured_cost: Variant = economy_config.call("get_unit_cost", unit_id, fallback_cost)
+		unit_dict["cost"] = int(configured_cost)
+
+func _get_economy_config() -> Node:
+	return get_node_or_null("/root/EconomyConfig")
 
 func get_cable_item_by_name(cable_name: String) -> Dictionary:
 	var source_items: Array = []

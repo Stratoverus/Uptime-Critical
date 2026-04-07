@@ -11,6 +11,8 @@ extends InteractableObject
 @export var overdrive_power_multiplier: float = 2.5
 @export var max_electrical_connections: int = 1
 @export var electrical_node_offset: Vector2 = Vector2(0, -20)
+@export var upgrade_cost_l1_to_l2: int = 200
+@export var upgrade_cost_l2_to_l3: int = 300
 
 var current_facing: String = "front"
 var is_manually_enabled: bool = true
@@ -21,11 +23,6 @@ var electrical_node: Node2D = null
 var power_status_lights: Array[Node] = []
 var visual_state_initialized: bool = false
 var last_visual_active_state: bool = false
-var upgrade_costs = {
-	1: 200,
-	2: 300
-}
-
 var sprites_by_level = {
 	1: {
 		"front": preload("res://assets/object_sprites/coolingRacks/cooling_rack_1_front.png"),
@@ -57,7 +54,7 @@ func update_actions() -> void:
 	if level >= 3:
 		actions.append("Inspect")
 	else:
-		var cost = upgrade_costs.get(level, 0)
+		var cost := _get_upgrade_cost(level)
 		actions.append("Inspect")
 		actions.append("Upgrade $" + str(cost))
 
@@ -202,7 +199,7 @@ func upgrade() -> void:
 	if level >= 3:
 		return
 
-	var cost = upgrade_costs.get(level, 0)
+	var cost := _get_upgrade_cost(level)
 	if GameManager != null and GameManager.can_afford(cost):
 		GameManager.spend_money(cost)
 
@@ -210,6 +207,13 @@ func upgrade() -> void:
 		object_name = "Cooling Rack L" + str(level)
 		update_actions()
 		set_facing(current_facing)
+
+func _get_upgrade_cost(from_level: int) -> int:
+	var fallback_cost: int = upgrade_cost_l1_to_l2 if from_level == 1 else upgrade_cost_l2_to_l3 if from_level == 2 else 0
+	var economy_config: Node = get_node_or_null("/root/EconomyConfig")
+	if economy_config != null and economy_config.has_method("get_upgrade_cost"):
+		return int(economy_config.call("get_upgrade_cost", "cooling", from_level, fallback_cost))
+	return fallback_cost
 
 func get_electrical_nodes() -> Array[Node2D]:
 	_ensure_electrical_node()

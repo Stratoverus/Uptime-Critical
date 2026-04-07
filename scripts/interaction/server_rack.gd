@@ -9,6 +9,8 @@ extends InteractableObject
 @export var level: int = 1
 @export var request_capacity_rps: float = 240.0
 @export var heat_per_handled_request: float = 0.002
+@export var upgrade_cost_l1_to_l2: int = 200
+@export var upgrade_cost_l2_to_l3: int = 300
 
 var current_facing: String = "front"
 var is_connected_to_network: bool = false
@@ -49,11 +51,6 @@ var sprites_by_level = {
 	}
 }
 
-var upgrade_costs = {
-	1: 200,
-	2: 300
-}
-
 func update_actions() -> void:
 	actions = []
 	if is_manually_enabled:
@@ -64,7 +61,7 @@ func update_actions() -> void:
 	if level >= 3:
 		return
 	else:
-		var cost = upgrade_costs.get(level, 0)
+		var cost := _get_upgrade_cost(level)
 		actions.append("Upgrade $" + str(cost))
 
 func _ready() -> void:
@@ -164,7 +161,7 @@ func upgrade() -> void:
 	if level >= 3:
 		return
 
-	var cost = upgrade_costs.get(level, 0)
+	var cost := _get_upgrade_cost(level)
 
 	if GameManager != null and GameManager.can_afford(cost):
 		GameManager.spend_money(cost)
@@ -174,6 +171,13 @@ func upgrade() -> void:
 		update_actions()
 		set_facing(current_facing)
 		_sync_traffic_status_lights()
+
+func _get_upgrade_cost(from_level: int) -> int:
+	var fallback_cost: int = upgrade_cost_l1_to_l2 if from_level == 1 else upgrade_cost_l2_to_l3 if from_level == 2 else 0
+	var economy_config: Node = get_node_or_null("/root/EconomyConfig")
+	if economy_config != null and economy_config.has_method("get_upgrade_cost"):
+		return int(economy_config.call("get_upgrade_cost", "server", from_level, fallback_cost))
+	return fallback_cost
 
 func is_available_for_traffic() -> bool:
 	return _is_active() and is_network_online
@@ -284,6 +288,7 @@ func set_network_traffic_load(load_units: float) -> void:
 
 func set_request_load_rps(load_rps: float) -> void:
 	request_load_rps = max(load_rps, 0.0)
+	_sync_traffic_status_lights()
 
 func set_network_traffic_ratio(ratio: float) -> void:
 	set_network_traffic_load(clamp(ratio, 0.0, 1.0))
@@ -349,7 +354,12 @@ func _sync_traffic_status_lights() -> void:
 	if traffic_status_lights.is_empty():
 		return
 
-	var load_ratio: float = get_network_load_ratio()
+	var load_ratio: float = 0.0
+	if _is_active():
+		load_ratio = clamp(request_load_rps / get_request_capacity_rps(), 0.0, 1.0)
+		if load_ratio > 0.0:
+			# Keep light activity visible at low-but-nonzero throughput.
+			load_ratio = max(load_ratio, 0.12)
 	for light_node in traffic_status_lights:
 		if light_node == null:
 			continue

@@ -20,8 +20,8 @@ extends CanvasLayer
 @onready var prep_title = get_node_or_null("Control/PrepBanner/VBoxContainer/PrepTitle")
 @onready var prep_subtitle = get_node_or_null("Control/PrepBanner/VBoxContainer/PrepSubtitle")
 @onready var prep_countdown = get_node_or_null("Control/PrepBanner/VBoxContainer/PrepCountdown")
-@onready var speed_button = $Control/MarginContainer/HUDContainer/TestingControls/SpeedButton
-@onready var start_button = get_node_or_null("Control/MarginContainer/HUDContainer/TestingControls/StartSessionButton")
+@onready var speed_button = $Control/DevControlsDock/VBoxContainer/TestingControls/SpeedButton
+@onready var start_button = get_node_or_null("Control/DevControlsDock/VBoxContainer/TestingControls/StartSessionButton")
 @onready var prep_dock_button = get_node_or_null("Control/PrepDock/VBoxContainer/PrepDockButton")
 @onready var network_overlay_button = get_node_or_null("Control/MarginContainer/HUDContainer/TestingControls/OverlayButtons/NetworkOverlayButton")
 @onready var electrical_overlay_button = get_node_or_null("Control/MarginContainer/HUDContainer/TestingControls/OverlayButtons/ElectricalOverlayButton")
@@ -43,6 +43,7 @@ var temp_home_x: float
 func _ready():
 	await get_tree().process_frame
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_enable_hud_mouse_passthrough()
 	if traffic_bar != null:
 		traffic_bar.max_value = max(GameManager.datacenter_capacity_rps, 1.0)
 	if service_bar != null:
@@ -73,7 +74,10 @@ func _process(delta: float):
 	if not is_instance_valid(traffic_bar):
 		return
 
-	event_label.text = "Event: %s" % GameManager.get_active_event_name()
+	if GameManager.dropped_rps > 0.01:
+		event_label.text = "Event: %s | Drop Cause: %s" % [GameManager.get_active_event_name(), GameManager.drop_cause_summary]
+	else:
+		event_label.text = "Event: %s" % GameManager.get_active_event_name()
 
 	var day_progress = GameManager.total_minutes_today / 1440.0
 	clock_pointer.rotation = (day_progress * TAU) - (PI / 2.0)
@@ -81,9 +85,10 @@ func _process(delta: float):
 
 	demand_label.text = "Incoming: %d Req/s" % int(round(GameManager.incoming_total_rps))
 
-	displayed_traffic = lerp(displayed_traffic, float(GameManager.incoming_total_rps), delta * 5.0)
+	var current_incoming_rps: float = float(GameManager.incoming_total_rps)
+	displayed_traffic = lerp(displayed_traffic, current_incoming_rps, delta * 5.0)
 	var bar_capacity_rps: float = max(GameManager.datacenter_capacity_rps, 1.0)
-	traffic_bar.update_display(displayed_traffic, bar_capacity_rps, GameManager.servers_active, "Req/s", GameManager.dropped_ratio)
+	traffic_bar.update_display(current_incoming_rps, bar_capacity_rps, GameManager.servers_active, "Req/s", GameManager.dropped_ratio)
 
 	update_timer += delta
 	if update_timer > 0.5:
@@ -100,11 +105,24 @@ func _process(delta: float):
 		ddos_rps_label.text = ""
 
 	if handled_label != null:
-		handled_label.text = "Handled Total: %d Req/s" % int(round(GameManager.handled_total_rps))
+		handled_label.text = "Processed: %d Req/s | Total: %s req" % [int(round(GameManager.handled_total_rps)), _format_request_count(GameManager.total_processed_requests)]
 	if bottleneck_label != null:
-		bottleneck_label.text = "Bottleneck: %s (%d clusters)" % [GameManager.capacity_bottleneck, GameManager.active_cluster_count]
+		if GameManager.dropped_rps > 0.01:
+			bottleneck_label.text = "Bottleneck: %s (%s)" % [GameManager.capacity_bottleneck, GameManager.drop_cause_summary]
+		else:
+			bottleneck_label.text = "Bottleneck: %s (%d clusters)" % [GameManager.capacity_bottleneck, GameManager.active_cluster_count]
 	if dropped_label != null:
-		dropped_label.text = "Dropped: %d Req/s (%.1f%%)" % [int(round(GameManager.dropped_rps)), GameManager.dropped_ratio * 100.0]
+		if GameManager.dropped_rps > 0.01:
+			dropped_label.text = "Dropped: %d Req/s (%.1f%%) [%s | Wire: %d | Pre-wire: %d] | Total: %s req" % [
+				int(round(GameManager.dropped_rps)),
+				GameManager.dropped_ratio * 100.0,
+				GameManager.drop_cause_summary,
+				int(round(GameManager.dropped_wire_bottleneck_rps)),
+				int(round(GameManager.dropped_pre_wire_rps)),
+				_format_request_count(GameManager.total_dropped_requests)
+			]
+		else:
+			dropped_label.text = "Dropped: %d Req/s (%.1f%%) | Total: %s req" % [int(round(GameManager.dropped_rps)), GameManager.dropped_ratio * 100.0, _format_request_count(GameManager.total_dropped_requests)]
 		dropped_label.modulate = Color(0.9, 0.15, 0.15, 1.0) if GameManager.dropped_ratio > 0.1 else Color(0.0, 0.0, 0.0, 1.0)
 	if reputation_label != null:
 		reputation_label.text = "Reputation: %.1f%%" % GameManager.datacenter_reputation
@@ -139,6 +157,27 @@ func _process(delta: float):
 		_update_prep_state(GameManager.get_prep_countdown_remaining_seconds(), GameManager.is_prep_countdown_active())
 
 	_update_overlay_buttons()
+
+func _enable_hud_mouse_passthrough() -> void:
+	var top_left_margin: Control = get_node_or_null("Control/MarginContainer")
+	if top_left_margin != null:
+		top_left_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var passthrough_root: Control = get_node_or_null("Control/MarginContainer/HUDContainer")
+	if passthrough_root == null:
+		return
+	_set_control_tree_mouse_passthrough(passthrough_root)
+
+func _set_control_tree_mouse_passthrough(node: Control) -> void:
+	for child in node.get_children():
+		if not (child is Control):
+			continue
+		var child_control: Control = child as Control
+		if child_control is BaseButton:
+			child_control.mouse_filter = Control.MOUSE_FILTER_STOP
+		else:
+			child_control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_set_control_tree_mouse_passthrough(child_control)
 
 func calculate_sla_multiplier(current_temp: float) -> float:
 	var threshold = 70.0
@@ -325,3 +364,11 @@ func _update_heat_overlay_button() -> void:
 		heat_overlay_button.text = "Hide Heat Overlay (H)"
 	else:
 		heat_overlay_button.text = "Toggle Heat Overlay (H)"
+
+func _format_request_count(value: float) -> String:
+	var safe_value: float = max(value, 0.0)
+	if safe_value >= 1000000.0:
+		return "%.2fM" % (safe_value / 1000000.0)
+	if safe_value >= 1000.0:
+		return "%.2fK" % (safe_value / 1000.0)
+	return "%d" % int(round(safe_value))
