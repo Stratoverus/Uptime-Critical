@@ -6,18 +6,19 @@
 [ext_resource type="PackedScene" uid="uid://dpus22sr8lcxi" path="res://scenes/vfx/traffic_status_light.tscn" id="4_t9m2r"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lnbjj"]
-size = Vector2(100, 100)
+size = Vector2(94, 94)
 
 [node name="ServerRackL3" type="Area2D" unique_id=221516462]
 script = ExtResource("1_8aj2n")
-build_time_sec = 4.0
 base_heat = 24.0
 heat_radius = 340.0
 level = 3
 request_capacity_rps = 540.0
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1441826650]
+scale = Vector2(0.94, 0.94)
 texture = ExtResource("2_f7mt5")
+offset = Vector2(1, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=818224557]
 shape = SubResource("RectangleShape2D_lnbjj")
