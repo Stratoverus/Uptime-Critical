@@ -52,6 +52,8 @@ var pending_delete_slot_name: String = ""
 var pending_delete_display_label: String = ""
 var fps_counter_label: Label = null
 var show_fps_counter: bool = false
+var pause_bgm_option: OptionButton = null
+var place_sfx_player: AudioStreamPlayer = null
 
 const SETTINGS_CONFIG_PATH: String = "user://settings.cfg"
 const BUILD_REVEAL_SHADER_PATH: String = "res://assets/shaders/build_reveal.gdshader"
@@ -63,6 +65,7 @@ const PREVIEW_VALID_COLOR: Color = Color(1.0, 1.0, 1.0, 0.5)
 const PREVIEW_BLOCKED_COLOR: Color = Color(1.0, 0.25, 0.25, 0.65)
 const PREVIEW_INSUFFICIENT_FUNDS_COLOR: Color = Color(1.0, 0.25, 0.25, 0.65)
 const PREVIEW_BLOCKED_ZONE_COLOR: Color = Color(0.95, 0.45, 0.45, 0.62)
+const PLACE_SFX: AudioStream = preload("res://music/build.wav")
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -100,6 +103,7 @@ func _ready() -> void:
 	_update_buy_menu_mode()
 	_ensure_top_alert_label()
 	call_deferred("_load_world_state_from_save")
+	_ensure_place_sfx_player()
 
 func _on_interaction_requested(interactable) -> void:
 	if selected_unit_to_place != null:
@@ -427,6 +431,10 @@ func place_selected_unit(keep_placing: bool = false) -> void:
 	_play_build_reveal_animation(new_unit)
 
 	GameManager.spend_money(cost)
+	
+	if place_sfx_player != null:
+		place_sfx_player.play()
+
 	_mark_save_dirty()
 
 	if keep_placing:
@@ -828,6 +836,16 @@ func _ensure_settings_panel() -> void:
 		return
 
 	settings_panel = PanelContainer.new()
+
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.08, 0.08, 0.95)
+	style.border_width_top = 2
+	style.border_width_bottom = 2
+	style.border_width_left = 2
+	style.border_width_right = 2
+	style.border_color = Color(1, 1, 1, 0.1)
+
+	settings_panel.add_theme_stylebox_override("panel", style)
 	settings_panel.name = "PauseSettingsPanel"
 	settings_panel.visible = false
 	settings_panel.z_index = 410
@@ -854,6 +872,7 @@ func _ensure_settings_panel() -> void:
 
 	vbox.add_child(_make_volume_slider_row("Master Volume", "Master"))
 	vbox.add_child(_make_volume_slider_row("Music Volume", "Music"))
+	vbox.add_child(_make_bgm_dropdown_row())
 
 	var close_button := Button.new()
 	close_button.text = "Back"
@@ -891,6 +910,33 @@ func _make_volume_slider_row(title_text: String, bus_name: String) -> HBoxContai
 			AudioServer.set_bus_volume_db(idx, new_value)
 	)
 	row.add_child(slider)
+
+	return row
+
+func _make_bgm_dropdown_row() -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+
+	var title := Label.new()
+	title.text = "BGM Track"
+	title.custom_minimum_size = Vector2(130, 22)
+	row.add_child(title)
+
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
+
+	pause_bgm_option = OptionButton.new()
+	pause_bgm_option.custom_minimum_size = Vector2(150, 32)
+	pause_bgm_option.add_item("Cyberpunk")
+	pause_bgm_option.add_item("Hyperdrive")
+	pause_bgm_option.add_item("Lo-Fi")
+
+	var saved_track := _get_saved_bgm_track()
+	_select_option_by_text(pause_bgm_option, saved_track)
+
+	pause_bgm_option.item_selected.connect(_on_pause_bgm_selected)
+	row.add_child(pause_bgm_option)
 
 	return row
 
@@ -961,6 +1007,8 @@ func _show_pause_status(message: String, color: Color) -> void:
 func _open_settings_panel() -> void:
 	if settings_panel != null:
 		settings_panel.visible = true
+		if pause_bgm_option != null:
+			_select_option_by_text(pause_bgm_option, _get_saved_bgm_track())
 
 func _ensure_save_slot_popup() -> void:
 	if save_slot_popup != null and is_instance_valid(save_slot_popup):
@@ -1232,7 +1280,8 @@ func _set_pause_state(is_paused: bool) -> void:
 	get_tree().paused = is_paused
 	var music_bus_index: int = AudioServer.get_bus_index(&"Music")
 	if music_bus_index >= 0:
-		AudioServer.set_bus_mute(music_bus_index, is_paused)
+		var should_mute := is_paused and not (settings_panel != null and settings_panel.visible)
+		AudioServer.set_bus_mute(music_bus_index, should_mute)
 
 func begin_prep_session(duration_seconds: float) -> void:
 	_set_pause_state(false)
@@ -1518,3 +1567,39 @@ func _get_active_floor() -> TileMapLayer:
 	# This asks the engine to find the node with our tag.
 	# If the room hasn't loaded yet, it safely returns null.
 	return get_tree().get_first_node_in_group("floor_tilemap") as TileMapLayer
+
+func _get_saved_bgm_track() -> String:
+	var cfg := ConfigFile.new()
+	if cfg.load(SETTINGS_CONFIG_PATH) != OK:
+		return "Cyberpunk"
+	return String(cfg.get_value("audio", "bgm_track", "Cyberpunk"))
+
+func _select_option_by_text(option_button: OptionButton, text: String) -> void:
+	for i in range(option_button.get_item_count()):
+		if option_button.get_item_text(i) == text:
+			option_button.select(i)
+			return
+
+func _on_pause_bgm_selected(index: int) -> void:
+	var selected_name := pause_bgm_option.get_item_text(index)
+	_save_runtime_bgm_track(selected_name)
+	_apply_runtime_bgm(selected_name)
+
+func _apply_runtime_bgm(track_name: String) -> void:
+	MusicManager.play_track(track_name)
+
+func _save_runtime_bgm_track(track_name: String) -> void:
+	var cfg := ConfigFile.new()
+	cfg.load(SETTINGS_CONFIG_PATH)
+	cfg.set_value("audio", "bgm_track", track_name)
+	cfg.save(SETTINGS_CONFIG_PATH)
+
+func _ensure_place_sfx_player() -> void:
+	if place_sfx_player != null and is_instance_valid(place_sfx_player):
+		return
+
+	place_sfx_player = AudioStreamPlayer.new()
+	place_sfx_player.name = "PlaceSfxPlayer"
+	place_sfx_player.bus = "Sound Effects"
+	place_sfx_player.stream = PLACE_SFX
+	add_child(place_sfx_player)

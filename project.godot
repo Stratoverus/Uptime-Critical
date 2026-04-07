@@ -25,6 +25,7 @@ SceneTransition="*res://scenes/ui/transitions/SceneTransition.tscn"
 SaveManager="*res://autoload/save_manager.gd"
 GameManager="*res://autoload/GameManager.gd"
 EconomyConfig="*res://autoload/EconomyConfig.gd"
+MusicManager="*uid://doe0bpvr1qtm7"
 
 [display]
 
