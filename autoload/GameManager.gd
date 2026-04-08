@@ -84,6 +84,7 @@ var ddos_rps: float = 0.0
 var jitter = 0
 var traffic_volatility_state: float = 0.0
 var traffic_ramp_elapsed_minutes: float = 0.0
+var traffic_ramp_started: bool = false
 var discovered_capacity_rps: float = 0.0
 var discovery_start_capacity_rps: float = 0.0
 var discovery_target_capacity_rps: float = 0.0
@@ -112,7 +113,7 @@ var total_processed_requests: float = 0.0
 var total_dropped_requests: float = 0.0
 
 # Reputation / failure state
-@export var starting_reputation: float = 100.0
+@export var starting_reputation: float = 50.0
 @export var reputation_decay_per_second: float = 0.9
 @export var reputation_threshold_drop_start: float = 0.15
 @export var reputation_threshold_penalty_per_second: float = 2.0
@@ -202,6 +203,7 @@ func reset_runtime_state(map_scene_path: String = "") -> void:
 	jitter = 0
 	traffic_volatility_state = 0.0
 	traffic_ramp_elapsed_minutes = 0.0
+	traffic_ramp_started = false
 	discovered_capacity_rps = max_load * clamp(starting_load_ratio, 0.05, 1.0)
 	discovery_start_capacity_rps = discovered_capacity_rps
 	discovery_target_capacity_rps = max(max_load, discovered_capacity_rps)
@@ -256,6 +258,10 @@ func reset_runtime_state(map_scene_path: String = "") -> void:
 
 
 func _process(delta: float) -> void:
+	var tree := get_tree()
+	if tree != null and tree.paused:
+		return
+
 	if not gameplay_started_flag:
 		if prep_countdown_active:
 			prep_countdown_remaining_seconds = max(prep_countdown_remaining_seconds - delta, 0.0)
@@ -265,10 +271,6 @@ func _process(delta: float) -> void:
 				prep_countdown_last_logged_second = remaining_second
 			if prep_countdown_remaining_seconds <= 0.0:
 				start_gameplay()
-		return
-
-	var tree := get_tree()
-	if tree != null and tree.paused:
 		return
 
 	# ============================================
@@ -297,7 +299,12 @@ func _process(delta: float) -> void:
 	var online_servers := _get_online_servers()
 	var online_routers := _get_online_routers()
 	_refresh_datacenter_capacity(online_servers, online_routers)
-	traffic_ramp_elapsed_minutes += max(delta, 0.0) / 60.0
+	var has_online_network: bool = not online_servers.is_empty()
+	if has_online_network and not traffic_ramp_started:
+		traffic_ramp_started = true
+		traffic_ramp_elapsed_minutes = 0.0
+	if traffic_ramp_started:
+		traffic_ramp_elapsed_minutes += max(delta, 0.0) / 60.0
 	var ramp_minutes_setting: float = _get_economy_traffic_ramp_setting("traffic_ramp_minutes_to_max", traffic_ramp_minutes_to_max)
 	var ramp_multiplier_max_setting: float = _get_economy_traffic_ramp_setting("traffic_ramp_multiplier_max", traffic_ramp_multiplier_max)
 	var ramp_curve_exponent_setting: float = _get_economy_traffic_ramp_setting("traffic_ramp_curve_exponent", traffic_ramp_curve_exponent)
@@ -469,6 +476,8 @@ func _process(delta: float) -> void:
 	money_changed.emit(revenue)
 
 	_update_reputation_and_failure(delta)
+	if is_game_over:
+		return
 
 	save_dirty_mark_accumulator += delta
 	if save_dirty_mark_accumulator >= 1.0:
@@ -671,6 +680,7 @@ func export_runtime_state() -> Dictionary:
 		"ddos_rps": ddos_rps,
 		"jitter": jitter,
 		"traffic_ramp_elapsed_minutes": traffic_ramp_elapsed_minutes,
+		"traffic_ramp_started": traffic_ramp_started,
 		"discovered_capacity_rps": discovered_capacity_rps,
 		"discovery_start_capacity_rps": discovery_start_capacity_rps,
 		"discovery_target_capacity_rps": discovery_target_capacity_rps,
@@ -731,6 +741,7 @@ func import_runtime_state(state: Dictionary) -> void:
 	ddos_rps = float(state.get("ddos_rps", ddos_rps))
 	jitter = float(state.get("jitter", jitter))
 	traffic_ramp_elapsed_minutes = float(state.get("traffic_ramp_elapsed_minutes", traffic_ramp_elapsed_minutes))
+	traffic_ramp_started = bool(state.get("traffic_ramp_started", traffic_ramp_started))
 	discovered_capacity_rps = float(state.get("discovered_capacity_rps", discovered_capacity_rps))
 	discovery_start_capacity_rps = float(state.get("discovery_start_capacity_rps", discovery_start_capacity_rps))
 	discovery_target_capacity_rps = float(state.get("discovery_target_capacity_rps", discovery_target_capacity_rps))

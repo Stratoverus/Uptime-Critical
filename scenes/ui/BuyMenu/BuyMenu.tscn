@@ -113,6 +113,14 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_hyxqa")
 theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_b106m")
 text = "Toggle Heat Overlay (H)"
 
+[node name="BuildViewButton" type="Button" parent="Panel/MainVBox"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_3inbt")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_ub4y5")
+theme_override_styles/hover = SubResource("StyleBoxFlat_hyxqa")
+theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_b106m")
+text = "Build View"
+
 [node name="TitleLabel" type="Label" parent="Panel/MainVBox" unique_id=538898412]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94212544, 0.8298394, 0.8782319, 1)

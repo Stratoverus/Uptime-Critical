@@ -520,7 +520,11 @@ func show_overlay_title(title: String) -> void:
 		overlay_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		overlay_title_label.add_theme_font_size_override("font_size", 24)
 		overlay_title_label.add_to_group("overlay_titles")
-		get_tree().current_scene.add_child(overlay_title_label)
+		var hud_root := get_tree().current_scene.get_node_or_null("HUD") if get_tree().current_scene != null else null
+		if hud_root != null:
+			hud_root.add_child(overlay_title_label)
+		else:
+			get_tree().current_scene.add_child(overlay_title_label)
 
 	for title_node in get_tree().get_nodes_in_group("overlay_titles"):
 		if title_node is Label and title_node != overlay_title_label:
