@@ -212,7 +212,7 @@ func _ready() -> void:
 		return
 
 	_refresh_economy_data()
-	title_label.text = "Buy Menu"
+	title_label.text = "Build View"
 	style_dev_button(dev_money_button)
 	build_unit_list()
 	dev_money_button.pressed.connect(_on_dev_money_button_pressed)
@@ -308,7 +308,7 @@ func set_menu_mode_by_name(mode: String) -> void:
 		populate_menu(electrical_cable_items, true)
 		call_deferred("_select_default_cable_item")
 	else:
-		title_label.text = "Buy Menu"
+		title_label.text = "Build View"
 		populate_menu(unit_data, false)
 
 	call_deferred("_pin_panel_below_day_label")

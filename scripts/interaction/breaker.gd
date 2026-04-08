@@ -1,6 +1,6 @@
 extends InteractableObject
 
-@export var max_electrical_connections: int = 4
+@export var max_electrical_connections: int = 10
 @export var electrical_node_offset: Vector2 = Vector2(0, 34)
 @export var internet_node_offset: Vector2 = Vector2(28, 34)
 

@@ -192,5 +192,12 @@ animation = &"walkDown"
 position = Vector2(0.5, 6.3333335)
 shape = SubResource("RectangleShape2D_p47bc")
 
+[node name="NavigationAgent2D" type="NavigationAgent2D" parent="CharacterBody2D"]
+path_desired_distance = 8.0
+target_desired_distance = 8.0
+avoidance_enabled = true
+radius = 12.0
+max_speed = 220.0
+
 [node name="Camera2D" type="Camera2D" parent="CharacterBody2D" unique_id=369653670]
 process_callback = 0

@@ -177,10 +177,10 @@ func set_overlay_visible(overlay_visible: bool) -> void:
 		modulate.a = 1.0 if overlay_visible else 0.0
 		if overlay_visible:
 			show_overlay_title("Electrical Overlay")
-			# Port labels belong to network overlay only.
-			update_all_port_label_visibility(false)
+			update_all_port_label_visibility(true)
 		else:
 			hide_overlay_title()
+			update_all_port_label_visibility(false)
 		update_anchor_visibility(overlay_visible)
 		dragging_connector.clear()
 		selected_connection = {}
@@ -204,12 +204,12 @@ func set_overlay_visible(overlay_visible: bool) -> void:
 		_ensure_default_cable_type()
 		_sync_buy_menu_cable_selection()
 		show_overlay_title("Electrical Overlay")
+		update_all_port_label_visibility(true)
 	else:
 		hide_overlay_title()
 		if overlay_status_label != null:
 			overlay_status_label.visible = false
 			overlay_status_hide_at_ms = 0
-		# Port labels belong to network overlay only.
 		update_all_port_label_visibility(false)
 
 	update_anchor_visibility(overlay_visible)
@@ -454,7 +454,28 @@ func remove_connection(connection: Dictionary) -> void:
 	update_all_power_states()
 	queue_redraw()
 
-func find_connection_at_position(screen_position: Vector2, tolerance: float = 8.0) -> Dictionary:
+func remove_connections_for_owner(owner_node: Node) -> void:
+	if owner_node == null or not is_instance_valid(owner_node):
+		return
+
+	var connections_to_remove: Array = []
+	for connection in connections:
+		if connection.get("start_connector", null) != null and _find_connector_owner(connection.get("start_connector", null)) == owner_node:
+			connections_to_remove.append(connection)
+		elif connection.get("end_connector", null) != null and _find_connector_owner(connection.get("end_connector", null)) == owner_node:
+			connections_to_remove.append(connection)
+
+	if connections_to_remove.is_empty():
+		return
+
+	bulk_remove_active = true
+	for connection in connections_to_remove:
+		remove_connection(connection)
+	bulk_remove_active = false
+	update_all_power_states()
+	queue_redraw()
+
+func find_connection_at_position(screen_position: Vector2, tolerance: float = 12.0) -> Dictionary:
 	var best_connection: Dictionary = {}
 	var best_distance: float = max(tolerance, 0.0)
 
@@ -635,6 +656,10 @@ func _find_connector_owner(connector_node: Node2D) -> Node:
 
 func update_all_port_label_visibility(should_show: bool) -> void:
 	for node in get_tree().get_nodes_in_group(connectable_group):
+		if node == null or not is_instance_valid(node):
+			continue
+		if str(node.get("network_node_type")) != "internet_source":
+			continue
 		if node.has_method("set_port_label_visible"):
 			node.call("set_port_label_visible", should_show)
 
@@ -1311,7 +1336,11 @@ func show_overlay_title(title: String) -> void:
 		overlay_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		overlay_title_label.add_theme_font_size_override("font_size", 24)
 		overlay_title_label.add_to_group("overlay_titles")
-		get_tree().current_scene.add_child(overlay_title_label)
+		var hud_root := get_tree().current_scene.get_node_or_null("HUD") if get_tree().current_scene != null else null
+		if hud_root != null:
+			hud_root.add_child(overlay_title_label)
+		else:
+			get_tree().current_scene.add_child(overlay_title_label)
 
 	for title_node in get_tree().get_nodes_in_group("overlay_titles"):
 		if title_node is Label and title_node != overlay_title_label:
