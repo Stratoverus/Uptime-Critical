@@ -3,12 +3,14 @@ extends CharacterBody2D
 @export var move_speed: float = 220.0
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var navigation_agent: NavigationAgent2D = get_node_or_null("NavigationAgent2D") as NavigationAgent2D
 
 var move_target: Vector2 = Vector2.ZERO
 var moving_to_target: bool = false
 var target_interactable = null
 var auto_move_target: Vector2 = Vector2.ZERO
 var auto_moving: bool = false
+var use_navigation_path: bool = false
 
 const MOVE_ACTIONS := {
 	"move_left": KEY_A,
@@ -34,13 +36,23 @@ func _physics_process(_delta: float) -> void:
 
 	if direction != Vector2.ZERO:
 		auto_moving = false
+		use_navigation_path = false
 		velocity = direction * move_speed
 	else:
 		if auto_moving:
-			var auto_direction := auto_move_target - global_position
+			var target_position: Vector2 = auto_move_target
+			if use_navigation_path and navigation_agent != null:
+				navigation_agent.target_position = auto_move_target
+				if not navigation_agent.is_navigation_finished():
+					target_position = navigation_agent.get_next_path_position()
+				else:
+					use_navigation_path = false
+
+			var auto_direction := target_position - global_position
 
 			if auto_direction.length() < 8.0:
 				auto_moving = false
+				use_navigation_path = false
 				velocity = Vector2.ZERO
 			else:
 				direction = auto_direction.normalized()
@@ -94,4 +106,9 @@ func move_to_interactable(interactable) -> void:
 		direction = Vector2.DOWN
 
 	auto_move_target = interactable.global_position + direction * (interactable.interaction_range - 10.0)
+	if navigation_agent != null:
+		navigation_agent.target_position = auto_move_target
+		use_navigation_path = not navigation_agent.is_navigation_finished()
+	else:
+		use_navigation_path = false
 	auto_moving = true

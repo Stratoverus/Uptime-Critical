@@ -36,10 +36,36 @@ func _ready() -> void:
 func setup(a, b, cable_data: Dictionary, start_world_position: Vector2 = Vector2.ZERO, end_world_position: Vector2 = Vector2.ZERO) -> void:
 	start_point = a
 	end_point = b
+	z_as_relative = false
+	_apply_cable_profile(cable_data)
+
+	var start_pos = start_world_position if start_world_position != Vector2.ZERO else a.global_position
+	var end_pos = end_world_position if end_world_position != Vector2.ZERO else b.global_position
+	start_visual_position = start_pos
+	end_visual_position = end_pos
+	_refresh_geometry(start_pos, end_pos)
+
+	# calculate length
+	length = calculate_polyline_length(points)
+
+	# calculate cost
+	total_cost = (length / max(world_units_per_foot, 0.001)) * cost_per_foot
+	set_traffic_load_rps(0.0)
+
+func apply_cable_data(cable_data: Dictionary) -> void:
+	if cable_data.is_empty():
+		return
+
+	_apply_cable_profile(cable_data)
+	_refresh_geometry(start_visual_position, end_visual_position)
+	length = calculate_polyline_length(points)
+	total_cost = (length / max(world_units_per_foot, 0.001)) * cost_per_foot
+	set_traffic_load_rps(current_traffic_load_rps)
+
+func _apply_cable_profile(cable_data: Dictionary) -> void:
 	cable_type_name = cable_data.get("name", "Cable")
 	cost_per_foot = cable_data.get("cost", 0)
 	world_units_per_foot = float(cable_data.get("world_units_per_foot", world_units_per_foot))
-	z_as_relative = false
 
 	if cable_type_name == "Cat5":
 		width = 4
@@ -56,11 +82,11 @@ func setup(a, b, cable_data: Dictionary, start_world_position: Vector2 = Vector2
 		max_traffic_capacity_rps = _get_capacity_for_cable(cable_type_name, power_capacity_rps)
 	else:
 		max_traffic_capacity_rps = _get_capacity_for_cable(cable_type_name, default_capacity_rps)
+
 	base_default_color = cable_data.get("color", Color(0.45, 0.45, 0.45, 1.0))
 	default_color = base_default_color
 
 	if cable_type_name == "Internet Pipe (Uplink)":
-		# Keep uplink clearly visible above world tiles/walls.
 		z_index = 120
 	else:
 		z_index = 0
@@ -81,10 +107,7 @@ func setup(a, b, cable_data: Dictionary, start_world_position: Vector2 = Vector2
 		glow_line.default_color = base_glow_color
 		glow_line.closed = false
 
-	var start_pos = start_world_position if start_world_position != Vector2.ZERO else a.global_position
-	var end_pos = end_world_position if end_world_position != Vector2.ZERO else b.global_position
-	start_visual_position = start_pos
-	end_visual_position = end_pos
+func _refresh_geometry(start_pos: Vector2, end_pos: Vector2) -> void:
 	var orthogonal_points := build_orthogonal_path(start_pos, end_pos)
 
 	clear_points()
@@ -96,12 +119,7 @@ func setup(a, b, cable_data: Dictionary, start_world_position: Vector2 = Vector2
 		for p in orthogonal_points:
 			glow_line.add_point(p)
 
-	# calculate length
 	length = calculate_polyline_length(orthogonal_points)
-
-	# calculate cost
-	total_cost = (length / max(world_units_per_foot, 0.001)) * cost_per_foot
-	set_traffic_load_rps(0.0)
 
 func build_orthogonal_path(start_pos: Vector2, end_pos: Vector2) -> PackedVector2Array:
 	var path_points := PackedVector2Array()

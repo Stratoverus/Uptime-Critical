@@ -22,6 +22,7 @@ var blink_time: float = 0.0
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_PAUSABLE
 	if randomize_phase_on_ready:
 		phase_offset = randf() * TAU
 	_ensure_light_sprite()
