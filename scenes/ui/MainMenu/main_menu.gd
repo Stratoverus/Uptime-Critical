@@ -37,7 +37,6 @@ var settings_state: Dictionary = {
 	"fullscreen": true,
 	"vsync": true,
 	"show_fps": false,
-	"bgm_track": "Cyberpunk",
 }
 var is_syncing_settings_ui: bool = false
 var has_unsaved_settings: bool = false
