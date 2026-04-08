@@ -10,6 +10,7 @@ extends Node2D
 @onready var cable_mode_button = $BuyMenu/Panel/MainVBox/CableModeButton
 @onready var electrical_overlay_button = $BuyMenu/Panel/MainVBox/ElectricalOverlayButton
 @onready var heat_overlay_button = $BuyMenu/Panel/MainVBox/HeatOverlayButton
+@onready var build_view_button = $BuyMenu/Panel/MainVBox/BuildViewButton
 
 const MAIN_MENU_SCENE: String = "res://scenes/ui/MainMenu/main_menu.tscn"
 const UNIT_SCENE_BY_ID := {
@@ -39,6 +40,8 @@ var top_alert_label: Label = null
 var top_alert_hide_at_ms: int = 0
 var pause_menu_panel: PanelContainer = null
 var pause_menu_status_label: Label = null
+var game_over_panel: PanelContainer = null
+var game_over_reason_label: Label = null
 var settings_panel: PanelContainer = null
 var unsaved_quit_dialog: AcceptDialog = null
 var pending_quit_action: String = ""
@@ -81,6 +84,8 @@ func _ready() -> void:
 	_load_runtime_display_settings()
 	if GameManager != null and GameManager.has_signal("gameplay_started") and not GameManager.gameplay_started.is_connected(_on_gameplay_started):
 		GameManager.gameplay_started.connect(_on_gameplay_started)
+	if GameManager != null and GameManager.has_signal("game_over_state_changed") and not GameManager.game_over_state_changed.is_connected(_on_game_over_state_changed):
+		GameManager.game_over_state_changed.connect(_on_game_over_state_changed)
 
 	for node in get_tree().get_nodes_in_group("interactable"):
 		node.interaction_requested.connect(_on_interaction_requested)
@@ -97,11 +102,15 @@ func _ready() -> void:
 		electrical_overlay_button.pressed.connect(_on_electrical_overlay_button_pressed)
 	if heat_overlay_button:
 		heat_overlay_button.pressed.connect(_on_heat_overlay_button_pressed)
+	if build_view_button:
+		build_view_button.pressed.connect(_on_build_view_button_pressed)
 
 	_update_cable_mode_button()
 	_update_overlay_toggle_buttons()
 	_update_buy_menu_mode()
 	_ensure_top_alert_label()
+	if GameManager != null and GameManager.is_game_over:
+		call_deferred("_on_game_over_state_changed", GameManager.game_over_reason)
 	call_deferred("_load_world_state_from_save")
 	_ensure_place_sfx_player()
 
@@ -642,6 +651,8 @@ func _get_thermal_system_node():
 	return get_tree().get_first_node_in_group("thermal_system")
 
 func _set_overlay_states(network_enabled: bool, electrical_enabled: bool, heat_enabled: bool) -> void:
+	if selected_unit_to_place != null and (network_enabled or electrical_enabled or heat_enabled):
+		cancel_placement()
 	if network_overlay != null and network_overlay.has_method("set_overlay_visible"):
 		network_overlay.set_overlay_visible(network_enabled)
 
@@ -669,6 +680,9 @@ func _on_heat_overlay_button_pressed() -> void:
 	var thermal_system = _get_thermal_system_node()
 	var heat_currently_enabled: bool = thermal_system != null and bool(thermal_system.get("heat_view_enabled"))
 	_set_overlay_states(false, false, not heat_currently_enabled)
+
+func _on_build_view_button_pressed() -> void:
+	_set_overlay_states(false, false, false)
 
 
 func _on_network_overlay_mode_changed(is_enabled: bool) -> void:
@@ -803,6 +817,7 @@ func _ensure_pause_menu_ui() -> void:
 	vbox.add_child(title)
 
 	vbox.add_child(_make_pause_menu_button("Resume", Callable(self, "_resume_from_pause_menu")))
+	vbox.add_child(_make_pause_menu_button("Restart Level", Callable(self, "_restart_level_from_pause_menu")))
 	vbox.add_child(_make_pause_menu_button("Save", Callable(self, "_save_from_pause_menu")))
 	vbox.add_child(_make_pause_menu_button("Settings", Callable(self, "_open_settings_panel")))
 	vbox.add_child(_make_pause_menu_button("Quit To Menu", Callable(self, "_request_quit_to_menu")))
@@ -873,6 +888,7 @@ func _ensure_settings_panel() -> void:
 	vbox.add_child(_make_volume_slider_row("Master Volume", "Master"))
 	vbox.add_child(_make_volume_slider_row("Music Volume", "Music"))
 	vbox.add_child(_make_bgm_dropdown_row())
+	vbox.add_child(_make_volume_slider_row("Sound Effects", "SoundEffects"))
 
 	var close_button := Button.new()
 	close_button.text = "Back"
@@ -904,6 +920,8 @@ func _make_volume_slider_row(title_text: String, bus_name: String) -> HBoxContai
 	var bus_idx := AudioServer.get_bus_index(bus_name)
 	if bus_idx >= 0:
 		slider.value = AudioServer.get_bus_volume_db(bus_idx)
+	else:
+		slider.editable = false
 	slider.value_changed.connect(func(new_value: float) -> void:
 		var idx := AudioServer.get_bus_index(bus_name)
 		if idx >= 0:
@@ -969,6 +987,8 @@ func _is_pause_menu_open() -> bool:
 func _open_pause_menu() -> void:
 	if pause_menu_panel == null:
 		return
+	if game_over_panel != null:
+		game_over_panel.visible = false
 	if settings_panel != null:
 		settings_panel.visible = false
 	pause_menu_panel.visible = true
@@ -982,7 +1002,12 @@ func _resume_from_pause_menu() -> void:
 		settings_panel.visible = false
 	if save_slot_popup != null:
 		save_slot_popup.hide()
+	if game_over_panel != null:
+		game_over_panel.visible = false
 	_set_pause_state(false)
+
+func _restart_level_from_pause_menu() -> void:
+	_restart_current_level()
 
 func _save_from_pause_menu() -> void:
 	_show_save_slot_popup()
@@ -1009,6 +1034,87 @@ func _open_settings_panel() -> void:
 		settings_panel.visible = true
 		if pause_bgm_option != null:
 			_select_option_by_text(pause_bgm_option, _get_saved_bgm_track())
+
+func _ensure_game_over_ui() -> void:
+	if game_over_panel != null and is_instance_valid(game_over_panel):
+		return
+
+	game_over_panel = PanelContainer.new()
+	game_over_panel.name = "GameOverPanel"
+	game_over_panel.visible = false
+	game_over_panel.z_index = 500
+	game_over_panel.process_mode = Node.PROCESS_MODE_ALWAYS
+	game_over_panel.custom_minimum_size = Vector2(420, 280)
+	game_over_panel.position = Vector2(get_viewport_rect().get_center().x - 210.0, get_viewport_rect().get_center().y - 140.0)
+
+	var root_margin := MarginContainer.new()
+	root_margin.add_theme_constant_override("margin_left", 18)
+	root_margin.add_theme_constant_override("margin_top", 18)
+	root_margin.add_theme_constant_override("margin_right", 18)
+	root_margin.add_theme_constant_override("margin_bottom", 18)
+	game_over_panel.add_child(root_margin)
+
+	var vbox := VBoxContainer.new()
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_theme_constant_override("separation", 10)
+	root_margin.add_child(vbox)
+
+	var title := Label.new()
+	title.text = "GAME OVER"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 36)
+	vbox.add_child(title)
+
+	game_over_reason_label = Label.new()
+	game_over_reason_label.text = ""
+	game_over_reason_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	game_over_reason_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	game_over_reason_label.custom_minimum_size = Vector2(360, 0)
+	vbox.add_child(game_over_reason_label)
+
+	vbox.add_child(_make_pause_menu_button("Restart Level", Callable(self, "_restart_level_from_pause_menu")))
+	vbox.add_child(_make_pause_menu_button("Quit To Menu", Callable(self, "_request_quit_to_menu")))
+	vbox.add_child(_make_pause_menu_button("Quit To Desktop", Callable(self, "_request_quit_to_desktop")))
+
+	if hud != null:
+		hud.add_child(game_over_panel)
+	else:
+		add_child(game_over_panel)
+
+func _show_game_over_popup(reason: String) -> void:
+	_ensure_game_over_ui()
+	cancel_placement()
+	_close_active_overlay_if_any()
+	if game_over_reason_label != null:
+		game_over_reason_label.text = reason if not reason.is_empty() else "The datacenter is no longer recoverable."
+	if pause_menu_panel != null:
+		pause_menu_panel.visible = false
+	if settings_panel != null:
+		settings_panel.visible = false
+	if game_over_panel != null:
+		game_over_panel.visible = true
+	_set_pause_state(true)
+
+func _hide_game_over_popup() -> void:
+	if game_over_panel != null:
+		game_over_panel.visible = false
+
+func _restart_current_level() -> void:
+	var current_map_path: String = GameManager.current_map_scene_path if GameManager != null else get_tree().current_scene.scene_file_path
+	if current_map_path.is_empty():
+		return
+
+	_hide_game_over_popup()
+	if pause_menu_panel != null:
+		pause_menu_panel.visible = false
+	if settings_panel != null:
+		settings_panel.visible = false
+	if save_slot_popup != null:
+		save_slot_popup.hide()
+	_set_pause_state(false)
+	if GameManager != null and GameManager.has_method("reset_runtime_state"):
+		GameManager.reset_runtime_state(current_map_path)
+	SceneTransition.change_scene(current_map_path)
 
 func _ensure_save_slot_popup() -> void:
 	if save_slot_popup != null and is_instance_valid(save_slot_popup):
@@ -1253,9 +1359,22 @@ func _request_quit_to_desktop() -> void:
 	_prompt_unsaved_before_quit()
 
 func _prompt_unsaved_before_quit() -> void:
-	if SaveManager != null and SaveManager.has_method("has_unsaved_changes") and SaveManager.has_unsaved_changes():
+	if unsaved_quit_dialog == null or not is_instance_valid(unsaved_quit_dialog):
+		_ensure_unsaved_quit_dialog()
+
+	var has_unsaved_changes: bool = SaveManager != null and SaveManager.has_method("has_unsaved_changes") and SaveManager.has_unsaved_changes()
+	if unsaved_quit_dialog != null:
+		if has_unsaved_changes:
+			unsaved_quit_dialog.dialog_text = "You have unsaved progress. Save before quitting?"
+		else:
+			unsaved_quit_dialog.dialog_text = "No unsaved progress detected. Quit anyway?"
+
+	_set_pause_state(true)
+	if unsaved_quit_dialog != null:
 		unsaved_quit_dialog.popup_centered()
 		return
+
+	# Fallback if dialog couldn't be created.
 	_perform_quit_action(false)
 
 func _on_unsaved_quit_dialog_action(action: StringName) -> void:
@@ -1295,6 +1414,9 @@ func set_start_dialog_pause(active: bool) -> void:
 func _on_gameplay_started() -> void:
 	_set_pause_state(false)
 	_show_pause_status("Gameplay resumed", Color(0.85, 1.0, 0.88, 1.0))
+
+func _on_game_over_state_changed(reason: String) -> void:
+	_show_game_over_popup(reason)
 
 func get_world_state_key() -> String:
 	var current_scene := get_tree().current_scene

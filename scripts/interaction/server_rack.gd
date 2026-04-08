@@ -29,6 +29,7 @@ var traffic_load_units: float = 0.0
 var request_load_rps: float = 0.0
 var visual_state_initialized: bool = false
 var last_visual_active_state: bool = false
+var has_been_powered: bool = false
 
 var sprites_by_level = {
 	1: {
@@ -59,10 +60,12 @@ func update_actions() -> void:
 		actions.append("Turn On")
 
 	if level >= 3:
+		actions.append("Remove")
 		return
 	else:
 		var cost := _get_upgrade_cost(level)
 		actions.append("Upgrade $" + str(cost))
+		actions.append("Remove")
 
 func _ready() -> void:
 	add_to_group("network_nodes")
@@ -132,6 +135,8 @@ func perform_action(action_name: String) -> void:
 		turn_on()
 	elif action_name.begins_with("Upgrade"):
 		upgrade()
+	elif action_name == "Remove":
+		request_removal()
 	else:
 		super.perform_action(action_name)
 
@@ -171,6 +176,44 @@ func upgrade() -> void:
 		update_actions()
 		set_facing(current_facing)
 		_sync_traffic_status_lights()
+
+func request_removal() -> void:
+	var refund := _get_refund_amount()
+	_cleanup_attached_connections()
+	if GameManager != null:
+		GameManager.add_money(refund)
+	show_top_alert("Removed server for $%.2f refund." % refund)
+	if SaveManager != null and SaveManager.has_method("mark_runtime_dirty"):
+		SaveManager.mark_runtime_dirty()
+	queue_free()
+
+func _get_purchase_cost() -> float:
+	var fallback_cost: int = int(get_meta("cost", 0))
+	var unit_id: String = str(get_meta("unit_id", ""))
+	if unit_id.is_empty():
+		return float(fallback_cost)
+	var economy_config: Node = get_node_or_null("/root/EconomyConfig")
+	if economy_config != null and economy_config.has_method("get_unit_cost"):
+		return float(economy_config.call("get_unit_cost", unit_id, fallback_cost))
+	return float(fallback_cost)
+
+func _get_refund_amount() -> float:
+	var purchase_cost: float = _get_purchase_cost()
+	var refund_ratio: float = 0.50 if has_been_powered or is_powered else 0.75
+	return purchase_cost * refund_ratio
+
+func _cleanup_attached_connections() -> void:
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return
+
+	var network_overlay := get_tree().get_first_node_in_group("network_overlay")
+	if network_overlay != null and network_overlay.has_method("remove_connections_for_owner"):
+		network_overlay.call("remove_connections_for_owner", self)
+
+	var electrical_overlay = get_tree().get_first_node_in_group("electrical_overlay")
+	if electrical_overlay != null and electrical_overlay.has_method("remove_connections_for_owner"):
+		electrical_overlay.call("remove_connections_for_owner", self)
 
 func _get_upgrade_cost(from_level: int) -> int:
 	var fallback_cost: int = upgrade_cost_l1_to_l2 if from_level == 1 else upgrade_cost_l2_to_l3 if from_level == 2 else 0
@@ -276,6 +319,8 @@ func set_powered_state(powered: bool) -> void:
 	if is_powered == powered:
 		return
 	is_powered = powered
+	if powered:
+		has_been_powered = true
 	if not is_powered:
 		request_load_rps = 0.0
 	_sync_power_status_lights()
