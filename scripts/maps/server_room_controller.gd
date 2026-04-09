@@ -253,16 +253,12 @@ func _physics_process(_delta: float) -> void:
 			return
 
 	if preview_area != null:
-		var active_floor = _get_active_floor()
-		if active_floor != null:
-			var raw_mouse_pos = get_global_mouse_position()
-			var map_coords = active_floor.local_to_map(raw_mouse_pos)
-			preview_area.global_position = active_floor.map_to_local(map_coords)
-		else:
-			preview_area.global_position = get_global_mouse_position()
+		var raw_mouse_pos := get_global_mouse_position()
+		var snapped_world_pos := _get_snapped_world_position(raw_mouse_pos)
+		preview_area.global_position = snapped_world_pos
 
 		if preview_sprite != null:
-			var placement_state := get_current_placement_state()
+			var placement_state := get_current_placement_state_at_world_position(snapped_world_pos)
 			if bool(placement_state.get("can_place", false)):
 				preview_sprite.modulate = PREVIEW_VALID_COLOR
 			else:
@@ -369,7 +365,8 @@ func place_selected_unit(keep_placing: bool = false) -> void:
 	if is_cable_mode:
 		return
 
-	var placement_state := get_current_placement_state()
+	var snapped_world_pos := _get_snapped_world_position(get_global_mouse_position())
+	var placement_state := get_current_placement_state_at_world_position(snapped_world_pos)
 	if not bool(placement_state.get("can_place", false)):
 		var reason := str(placement_state.get("reason", ""))
 		if reason == "insufficient_funds":
@@ -378,6 +375,8 @@ func place_selected_unit(keep_placing: bool = false) -> void:
 			_show_top_alert("Cannot build here: a server is already there.")
 		elif reason == "blocked_placement":
 			_show_top_alert("Cannot build here: area is blocked.")
+		elif reason == "cannot_build_tile":
+			_show_top_alert("Cannot build here: this tile is not buildable.")
 		return
 
 	var cost = selected_unit_to_place["cost"]
@@ -407,13 +406,7 @@ func place_selected_unit(keep_placing: bool = false) -> void:
 	placed_units.add_child(new_unit)
 	
 	# NEW TILEMAP SNAPPING LOGIC
-	var active_floor = _get_active_floor()
-	if active_floor != null:
-		var raw_mouse_pos = get_global_mouse_position()
-		var map_coords = active_floor.local_to_map(raw_mouse_pos)
-		new_unit.global_position = active_floor.map_to_local(map_coords)
-	else:
-		new_unit.global_position = get_global_mouse_position()
+	new_unit.global_position = snapped_world_pos
 	# ==========================================
 
 	new_unit.set_meta("ignore_interaction_until", Time.get_ticks_msec() + 150)
@@ -598,8 +591,23 @@ func get_placement_collision_reason() -> String:
 	return ""
 
 func get_current_placement_state() -> Dictionary:
+	return get_current_placement_state_at_world_position(_get_snapped_world_position(get_global_mouse_position()))
+
+func _get_snapped_world_position(world_position: Vector2) -> Vector2:
+	var active_floor := _get_active_floor()
+	if active_floor == null:
+		return world_position
+
+	var local_position := active_floor.to_local(world_position)
+	var map_coords: Vector2i = active_floor.local_to_map(local_position)
+	return active_floor.to_global(active_floor.map_to_local(map_coords))
+
+func get_current_placement_state_at_world_position(world_position: Vector2) -> Dictionary:
 	if selected_unit_to_place == null:
 		return {"can_place": false, "reason": "no_selection"}
+
+	if not _is_buildable_placement_area(world_position):
+		return {"can_place": false, "reason": "cannot_build_tile"}
 
 	var collision_reason := get_placement_collision_reason()
 	if collision_reason != "":
@@ -613,6 +621,74 @@ func get_current_placement_state() -> Dictionary:
 		return {"can_place": false, "reason": "insufficient_funds"}
 
 	return {"can_place": true, "reason": ""}
+
+func _is_buildable_placement_area(world_position: Vector2) -> bool:
+	if preview_area == null or preview_collision == null:
+		return false
+
+	var shape := preview_collision.shape
+	if not (shape is RectangleShape2D):
+		return false
+
+	var tilemap_layers: Array = get_tree().current_scene.find_children("*", "TileMapLayer", true, false)
+	if tilemap_layers.is_empty():
+		return false
+
+	var active_floor := _get_active_floor()
+	if active_floor == null:
+		return false
+
+	var local_center := active_floor.to_local(world_position)
+	var extents := (shape as RectangleShape2D).size * 0.5
+	var sample_points := PackedVector2Array([
+		local_center,
+		local_center + Vector2(-extents.x, -extents.y),
+		local_center + Vector2(extents.x, -extents.y),
+		local_center + Vector2(extents.x, extents.y),
+		local_center + Vector2(-extents.x, extents.y),
+		local_center + Vector2(0.0, -extents.y),
+		local_center + Vector2(extents.x, 0.0),
+		local_center + Vector2(0.0, extents.y),
+		local_center + Vector2(-extents.x, 0.0)
+	])
+
+	for sample_local in sample_points:
+		var sample_world := active_floor.to_global(sample_local)
+		if not _is_world_position_buildable_on_any_tilemap_layer(sample_world, tilemap_layers):
+			return false
+
+	return true
+
+func _is_world_position_buildable_on_any_tilemap_layer(world_position: Vector2, tilemap_layers: Array) -> bool:
+	for layer_node in tilemap_layers:
+		var layer := layer_node as TileMapLayer
+		if layer == null:
+			continue
+
+		var local_position := layer.to_local(world_position)
+		var map_coords: Vector2i = layer.local_to_map(local_position)
+		var tile_data: TileData = layer.get_cell_tile_data(map_coords)
+		if tile_data == null:
+			continue
+
+		var can_build_value: Variant = tile_data.get_custom_data("can_build")
+		if can_build_value is bool:
+			if not bool(can_build_value):
+				return false
+		elif can_build_value is int:
+			if int(can_build_value) == 0:
+				return false
+		elif can_build_value is float:
+			if float(can_build_value) == 0.0:
+				return false
+		elif can_build_value is String:
+			var normalized := String(can_build_value).strip_edges().to_lower()
+			if normalized != "true" and normalized != "1" and normalized != "yes":
+				return false
+		else:
+			return false
+
+	return true
 
 func _on_add_dev_money_requested(amount: float) -> void:
 	if GameManager == null:
