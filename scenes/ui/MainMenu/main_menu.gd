@@ -37,6 +37,7 @@ var settings_state: Dictionary = {
 	"fullscreen": true,
 	"vsync": true,
 	"show_fps": false,
+	"bgm_track": "Cyberpunk",
 }
 var is_syncing_settings_ui: bool = false
 var has_unsaved_settings: bool = false
@@ -127,7 +128,7 @@ func _load_settings() -> bool:
 	settings_state["fullscreen"] = bool(cfg.get_value("display", "fullscreen", settings_state["fullscreen"]))
 	settings_state["vsync"] = bool(cfg.get_value("display", "vsync", settings_state["vsync"]))
 	settings_state["show_fps"] = bool(cfg.get_value("display", "show_fps", settings_state["show_fps"]))
-	settings_state["bgm_track"] = cfg.get_value("audio", "bgm_track", "Default")
+	settings_state["bgm_track"] = String(cfg.get_value("audio", "bgm_track", settings_state["bgm_track"]))
 
 	var settings_version: int = int(cfg.get_value("meta", "settings_version", 0))
 	if settings_version < SETTINGS_VERSION:
@@ -136,6 +137,9 @@ func _load_settings() -> bool:
 	return true
 
 func _save_settings() -> void:
+	if not settings_state.has("bgm_track"):
+		settings_state["bgm_track"] = "Cyberpunk"
+		
 	var cfg := ConfigFile.new()
 	cfg.set_value("meta", "settings_version", SETTINGS_VERSION)
 	cfg.set_value("audio", "master_volume", settings_state["master_volume"])
