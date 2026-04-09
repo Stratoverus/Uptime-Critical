@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://c3qwnmtwuih3q"]
+
+[ext_resource type="Texture2D" uid="uid://e32w41i37o6n" path="res://assets/object_sprites/routers/router_1_front.png" id="1_1fsj7"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ngep4"]
+size = Vector2(112, 112)
+
+[node name="router" type="Node2D" unique_id=226666129]
+scale = Vector2(0.9, 0.9)
+
+[node name="StaticBody2D" type="StaticBody2D" parent="." unique_id=1333504891]
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D" unique_id=934793138]
+scale = Vector2(0.93, 0.93)
+texture = ExtResource("1_1fsj7")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D" unique_id=2074102144]
+scale = Vector2(0.9, 0.9)
+shape = SubResource("RectangleShape2D_ngep4")
