@@ -946,6 +946,7 @@ func _make_bgm_dropdown_row() -> HBoxContainer:
 
 	pause_bgm_option = OptionButton.new()
 	pause_bgm_option.custom_minimum_size = Vector2(150, 32)
+	pause_bgm_option.add_item("Sci-Fi")
 	pause_bgm_option.add_item("Cyberpunk")
 	pause_bgm_option.add_item("Hyperdrive")
 	pause_bgm_option.add_item("Lo-Fi")
@@ -1691,10 +1692,9 @@ func _get_active_floor() -> TileMapLayer:
 	return get_tree().get_first_node_in_group("floor_tilemap") as TileMapLayer
 
 func _get_saved_bgm_track() -> String:
-	var cfg := ConfigFile.new()
-	if cfg.load(SETTINGS_CONFIG_PATH) != OK:
-		return "Cyberpunk"
-	return String(cfg.get_value("audio", "bgm_track", "Cyberpunk"))
+	if has_node("/root/MusicManager"):
+		return MusicManager.get_current_track()
+	return "Sci-Fi"
 
 func _select_option_by_text(option_button: OptionButton, text: String) -> void:
 	for i in range(option_button.get_item_count()):
@@ -1708,13 +1708,11 @@ func _on_pause_bgm_selected(index: int) -> void:
 	_apply_runtime_bgm(selected_name)
 
 func _apply_runtime_bgm(track_name: String) -> void:
-	MusicManager.play_track(track_name)
+	if has_node("/root/MusicManager"):
+		MusicManager.play_track(track_name)
 
-func _save_runtime_bgm_track(track_name: String) -> void:
-	var cfg := ConfigFile.new()
-	cfg.load(SETTINGS_CONFIG_PATH)
-	cfg.set_value("audio", "bgm_track", track_name)
-	cfg.save(SETTINGS_CONFIG_PATH)
+func _save_runtime_bgm_track(_track_name: String) -> void:
+	pass
 
 func _ensure_place_sfx_player() -> void:
 	if place_sfx_player != null and is_instance_valid(place_sfx_player):
@@ -1722,6 +1720,6 @@ func _ensure_place_sfx_player() -> void:
 
 	place_sfx_player = AudioStreamPlayer.new()
 	place_sfx_player.name = "PlaceSfxPlayer"
-	place_sfx_player.bus = "Sound Effects"
+	place_sfx_player.bus = "SoundEffects"
 	place_sfx_player.stream = PLACE_SFX
 	add_child(place_sfx_player)

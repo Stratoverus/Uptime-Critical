@@ -1,8 +1,8 @@
-[gd_scene format=4]
+[gd_scene format=3 uid="uid://l3g1y38c0fhs"]
 
 [ext_resource type="Script" uid="uid://b1n6rn83r0u5l" path="res://scripts/maps/server_room_controller.gd" id="1_controller"]
 [ext_resource type="Script" path="res://scripts/maps/map_loader.gd" id="1_map_loader"]
-[ext_resource type="PackedScene" uid="uid://dabkeypj3l5q5" path="res://scenes/maps/serverMap/server_room.tscn" id="2_map"]
+[ext_resource type="PackedScene" uid="uid://dabkeypj3l5q5" path="res://scenes/maps/serverMap/server_room_1.tscn" id="2_map"]
 [ext_resource type="PackedScene" uid="uid://cn6x5ssw581m4" path="res://scenes/player/player.tscn" id="3_player"]
 [ext_resource type="PackedScene" path="res://scenes/systems/thermal_system.tscn" id="4_thermal"]
 [ext_resource type="PackedScene" path="res://scenes/ui/debug/perf_probe_overlay.tscn" id="5_debug"]
@@ -12,32 +12,31 @@
 [ext_resource type="Script" uid="uid://d1re1xcsywghq" path="res://scripts/placed_units/placed_units.gd" id="9_placed_units"]
 [ext_resource type="PackedScene" uid="uid://b1pe0uxcy2i2s" path="res://scenes/ui/BuyMenu/BuyMenu.tscn" id="10_buy_menu"]
 [ext_resource type="PackedScene" uid="uid://bndfyhrgoen0t" path="res://scenes/ui/hud.tscn" id="11_hud"]
-[ext_resource type="AudioStream" path="res://music/rockot-futuristic-sci-fi-268233.mp3" id="12_music"]
 
-[node name="ServerRoomLevel" type="Node2D"]
+[node name="ServerRoomLevel" type="Node2D" unique_id=436352146]
 script = ExtResource("1_controller")
 
-[node name="Map" type="Node2D" parent="."]
+[node name="Map" type="Node2D" parent="." unique_id=2033318815]
 
-[node name="MapLoader" type="Node" parent="."]
+[node name="MapLoader" type="Node" parent="." unique_id=793112431]
 script = ExtResource("1_map_loader")
 fallback_map_scene = ExtResource("2_map")
 
-[node name="Player" parent="." instance=ExtResource("3_player")]
+[node name="Player" parent="." unique_id=1301212004 instance=ExtResource("3_player")]
 z_index = 300
 position = Vector2(960, 540)
 
-[node name="ThermalSystem" parent="." instance=ExtResource("4_thermal")]
+[node name="ThermalSystem" parent="." unique_id=740951483 instance=ExtResource("4_thermal")]
 
-[node name="PerfProbeOverlay" parent="." instance=ExtResource("5_debug")]
+[node name="PerfProbeOverlay" parent="." unique_id=201856619 instance=ExtResource("5_debug")]
 
-[node name="NetworkOverlay" parent="." instance=ExtResource("6_network")]
+[node name="NetworkOverlay" parent="." unique_id=558691289 instance=ExtResource("6_network")]
 
-[node name="ElectricalOverlay" parent="." instance=ExtResource("7_electrical")]
+[node name="ElectricalOverlay" parent="." unique_id=1875281759 instance=ExtResource("7_electrical")]
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="." unique_id=1325135147]
 
-[node name="RadialMenu" parent="UI" instance=ExtResource("8_radial")]
+[node name="RadialMenu" parent="UI" unique_id=412579644 instance=ExtResource("8_radial")]
 visible = false
 custom_minimum_size = Vector2(400, 290.7981)
 offset_right = 400.0
@@ -49,16 +48,11 @@ center_radius = 80
 selector_position = 2
 icon_scale = 0.08
 
-[node name="PlacedUnits" type="Node2D" parent="."]
+[node name="PlacedUnits" type="Node2D" parent="." unique_id=1825375430]
 script = ExtResource("9_placed_units")
 
-[node name="PlacementPreview" type="Node2D" parent="."]
+[node name="PlacementPreview" type="Node2D" parent="." unique_id=528213051]
 
-[node name="BuyMenu" parent="." instance=ExtResource("10_buy_menu")]
+[node name="BuyMenu" parent="." unique_id=1890692607 instance=ExtResource("10_buy_menu")]
 
-[node name="HUD" parent="." instance=ExtResource("11_hud")]
-
-[node name="GameplayMusic" type="AudioStreamPlayer" parent="."]
-stream = ExtResource("12_music")
-autoplay = true
-bus = &"Music"
+[node name="HUD" parent="." unique_id=1696025977 instance=ExtResource("11_hud")]

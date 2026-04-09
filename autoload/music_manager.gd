@@ -2,9 +2,8 @@ extends Node
 
 @export var default_track_key: String = "Cyberpunk"
 
-const SETTINGS_CONFIG_PATH := "user://settings.cfg"
-
 var tracks := {
+	"Sci-Fi": preload("res://music/rockot-futuristic-sci-fi-268233.mp3"),
 	"Cyberpunk": preload("res://music/vasilyatsevich-brain-implant-cyberpunk-sci-fi-trailer-action-intro-330416.mp3"),
 	"Hyperdrive": preload("res://music/the_mountain-game-game-music-508018.mp3"),
 	"Lo-Fi": preload("res://music/mondamusic-retro-arcade-game-music-491667.mp3")
@@ -18,12 +17,7 @@ func _ready() -> void:
 	player.bus = "Music"
 	add_child(player)
 
-	var saved_track := load_saved_bgm_track()
-
-	if tracks.has(saved_track):
-		play_track(saved_track)
-	else:
-		play_track(default_track_key)
+	play_track(default_track_key)
 
 func play_track(track_name: String) -> void:
 	if not tracks.has(track_name):
@@ -35,6 +29,7 @@ func play_track(track_name: String) -> void:
 	current_track = track_name
 	player.stop()
 	player.stream = tracks[track_name]
+	_ensure_stream_loops(player.stream)
 	player.play()
 
 func set_track(track_name: String) -> void:
@@ -43,8 +38,13 @@ func set_track(track_name: String) -> void:
 func get_current_track() -> String:
 	return current_track
 
-func load_saved_bgm_track() -> String:
-	var cfg := ConfigFile.new()
-	if cfg.load(SETTINGS_CONFIG_PATH) != OK:
-		return default_track_key
-	return String(cfg.get_value("audio", "bgm_track", default_track_key))
+func _ensure_stream_loops(stream: AudioStream) -> void:
+	if stream == null:
+		return
+
+	if stream is AudioStreamMP3:
+		(stream as AudioStreamMP3).loop = true
+	elif stream is AudioStreamOggVorbis:
+		(stream as AudioStreamOggVorbis).loop = true
+	elif stream is AudioStreamWAV:
+		(stream as AudioStreamWAV).loop_mode = AudioStreamWAV.LOOP_FORWARD

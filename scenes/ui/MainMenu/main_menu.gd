@@ -27,7 +27,8 @@ const SETTINGS_VERSION := 2
 var bgm_tracks := {
 	"Cyberpunk": preload("res://music/vasilyatsevich-brain-implant-cyberpunk-sci-fi-trailer-action-intro-330416.mp3"),
 	"Hyperdrive": preload("res://music/the_mountain-game-game-music-508018.mp3"),
-	"Lo-Fi": preload("res://music/mondamusic-retro-arcade-game-music-491667.mp3")
+	"Lo-Fi": preload("res://music/mondamusic-retro-arcade-game-music-491667.mp3"),
+	"Sci-Fi": preload("res://music/rockot-futuristic-sci-fi-268233.mp3")
 }
 var available_maps: Array[Dictionary] = []
 var settings_state: Dictionary = {
@@ -128,7 +129,6 @@ func _load_settings() -> bool:
 	settings_state["fullscreen"] = bool(cfg.get_value("display", "fullscreen", settings_state["fullscreen"]))
 	settings_state["vsync"] = bool(cfg.get_value("display", "vsync", settings_state["vsync"]))
 	settings_state["show_fps"] = bool(cfg.get_value("display", "show_fps", settings_state["show_fps"]))
-	settings_state["bgm_track"] = String(cfg.get_value("audio", "bgm_track", settings_state["bgm_track"]))
 
 	var settings_version: int = int(cfg.get_value("meta", "settings_version", 0))
 	if settings_version < SETTINGS_VERSION:
@@ -148,7 +148,6 @@ func _save_settings() -> void:
 	cfg.set_value("display", "fullscreen", settings_state["fullscreen"])
 	cfg.set_value("display", "vsync", settings_state["vsync"])
 	cfg.set_value("display", "show_fps", settings_state["show_fps"])
-	cfg.set_value("audio", "bgm_track", settings_state["bgm_track"])
 	var save_err: Error = cfg.save(SETTINGS_CONFIG_PATH)
 	if save_err != OK:
 		push_warning("Failed to save settings to " + SETTINGS_CONFIG_PATH)
@@ -386,6 +385,10 @@ func _on_map_selected(map_scene_path: String) -> void:
 		GameManager.reset_runtime_state(map_scene_path)
 	GameManager.current_map_scene_path = map_scene_path
 	map_select_popup.hide()
+
+	if has_node("/root/MusicManager"):
+		MusicManager.play_track("Sci-Fi")
+
 	SceneTransition.change_scene(MAP_LEVEL_SCENE)
 
 func _refresh_continue_button_state() -> void:
@@ -590,6 +593,10 @@ func _load_selected_slot(slot_name: String) -> void:
 
 	if load_slot_popup != null:
 		load_slot_popup.hide()
+
+	if has_node("/root/MusicManager"):
+		MusicManager.play_track("Sci-Fi")
+
 	SceneTransition.change_scene(MAP_LEVEL_SCENE)
 
 func _create_map_preview_texture(map_scene_path: String) -> Texture2D:
