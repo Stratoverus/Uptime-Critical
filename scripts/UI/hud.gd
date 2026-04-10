@@ -21,6 +21,7 @@ extends CanvasLayer
 @onready var prep_subtitle = get_node_or_null("Control/PrepBanner/VBoxContainer/PrepSubtitle")
 @onready var prep_countdown = get_node_or_null("Control/PrepBanner/VBoxContainer/PrepCountdown")
 @onready var speed_button = $Control/DevControlsDock/VBoxContainer/TestingControls/SpeedButton
+@onready var pause_button = get_node_or_null("Control/DevControlsDock/VBoxContainer/TestingControls/PauseButton")
 @onready var start_button = get_node_or_null("Control/DevControlsDock/VBoxContainer/TestingControls/StartSessionButton")
 @onready var prep_dock_button = get_node_or_null("Control/PrepDock/VBoxContainer/PrepDockButton")
 @onready var network_overlay_button = get_node_or_null("Control/MarginContainer/HUDContainer/TestingControls/OverlayButtons/NetworkOverlayButton")
@@ -55,6 +56,10 @@ func _ready():
 			start_button.pressed.connect(_on_start_session_button_pressed)
 		if not start_button.button_down.is_connected(_on_start_session_button_button_down):
 			start_button.button_down.connect(_on_start_session_button_button_down)
+	if pause_button != null:
+		pause_button.text = "Pause Menu"
+		if not pause_button.pressed.is_connected(_on_pause_button_pressed):
+			pause_button.pressed.connect(_on_pause_button_pressed)
 	if prep_dock_button != null:
 		prep_dock_button.text = "Begin 30s Prep"
 		prep_dock_button.visible = false
@@ -67,8 +72,19 @@ func _ready():
 	_update_overlay_buttons()
 	_update_prep_state(GameManager.get_prep_countdown_remaining_seconds(), GameManager.is_prep_countdown_active())
 	if start_confirmation_dialog != null:
+		_center_start_confirmation_text()
 		start_confirmation_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
 		call_deferred("_show_start_confirmation_dialog")
+
+func _center_start_confirmation_text() -> void:
+	if start_confirmation_dialog == null:
+		return
+	var dialog := start_confirmation_dialog as AcceptDialog
+	if dialog == null:
+		return
+	var dialog_label: Label = dialog.get_label()
+	if dialog_label != null:
+		dialog_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
 func _process(delta: float):
 	if not is_instance_valid(traffic_bar):
@@ -159,13 +175,10 @@ func _process(delta: float):
 	_update_overlay_buttons()
 
 func _enable_hud_mouse_passthrough() -> void:
-	var top_left_margin: Control = get_node_or_null("Control/MarginContainer")
-	if top_left_margin != null:
-		top_left_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
-	var passthrough_root: Control = get_node_or_null("Control/MarginContainer/HUDContainer")
+	var passthrough_root: Control = get_node_or_null("Control")
 	if passthrough_root == null:
 		return
+	passthrough_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_set_control_tree_mouse_passthrough(passthrough_root)
 
 func _set_control_tree_mouse_passthrough(node: Control) -> void:
@@ -173,7 +186,7 @@ func _set_control_tree_mouse_passthrough(node: Control) -> void:
 		if not (child is Control):
 			continue
 		var child_control: Control = child as Control
-		if child_control is BaseButton:
+		if child_control is BaseButton or child_control is HSlider or child_control is VSlider or child_control is LineEdit or child_control is TextEdit:
 			child_control.mouse_filter = Control.MOUSE_FILTER_STOP
 		else:
 			child_control.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -200,6 +213,11 @@ func _on_upgrade_button_pressed() -> void:
 func _on_speed_button_pressed() -> void:
 	GameManager.speed_time()
 	speed_button.text = "Speed 100x: ON" if GameManager.time_scale == 1200.0 else "Speed 100x: OFF"
+
+func _on_pause_button_pressed() -> void:
+	var level_controller := get_parent()
+	if level_controller != null and level_controller.has_method("_open_pause_menu"):
+		level_controller.call("_open_pause_menu")
 
 func _on_electrical_overlay_button_pressed() -> void:
 	var overlay = get_tree().get_first_node_in_group("electrical_overlay")

@@ -34,9 +34,10 @@ signal cable_mode_changed(is_enabled)
 @export var wire_stats_close_distance: float = 36.0
 @export var preview_affordable_color: Color = Color(0.80, 1.0, 0.85, 1.0)
 @export var preview_unaffordable_color: Color = Color(1.0, 0.35, 0.35, 1.0)
-@export var node_icon_color: Color = Color(0.10, 0.10, 0.10, 0.95)
+@export var node_icon_color: Color = Color(0.94, 0.96, 1.0, 0.98)
 @export var node_icon_size: int = 14
 @export var wire_world_units_per_foot: float = 32.0
+const SERVER_PORT_ICON: String = "✦"
 
 var selected_cable_type = null
 var manual_selected_cable_type: Dictionary = {}
@@ -59,6 +60,8 @@ var wire_delete_confirmation_open := false
 var overlay_title_label: Label = null
 var wire_stats_panel: PanelContainer = null
 var wire_stats_label: Label = null
+var wire_stats_button_row: HBoxContainer = null
+var wire_upgrade_button: Button = null
 var stats_panel_wire: Line2D = null
 var default_cable_type := {
 	"name": "Cat5",
@@ -106,6 +109,8 @@ func _input(event: InputEvent) -> void:
 	var hovered_control: Control = get_viewport().gui_get_hovered_control()
 	if hovered_control != null and hovered_control is BaseButton:
 		return
+	if wire_stats_panel != null and is_instance_valid(wire_stats_panel) and _is_hovering_wire_stats_panel(hovered_control):
+		return
 
 	_handle_cable_mode_input(mouse_event)
 	get_viewport().set_input_as_handled()
@@ -120,7 +125,7 @@ func _ensure_wire_stats_panel() -> void:
 	wire_stats_panel = PanelContainer.new()
 	wire_stats_panel.name = "WireStatsPanel"
 	wire_stats_panel.visible = false
-	wire_stats_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	wire_stats_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	wire_stats_panel.top_level = true
 	wire_stats_panel.z_as_relative = false
 	wire_stats_panel.z_index = 4095
@@ -152,7 +157,23 @@ func _ensure_wire_stats_panel() -> void:
 	margin.add_theme_constant_override("margin_top", 8)
 	margin.add_theme_constant_override("margin_bottom", 8)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_child(wire_stats_label)
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 6)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(wire_stats_label)
+
+	wire_stats_button_row = HBoxContainer.new()
+	wire_stats_button_row.add_theme_constant_override("separation", 8)
+	wire_stats_button_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	wire_upgrade_button = Button.new()
+	wire_upgrade_button.text = "Upgrade"
+	wire_upgrade_button.custom_minimum_size = Vector2(110, 30)
+	wire_upgrade_button.pressed.connect(_on_wire_upgrade_pressed)
+	wire_stats_button_row.add_child(wire_upgrade_button)
+
+	vbox.add_child(wire_stats_button_row)
+	margin.add_child(vbox)
 	wire_stats_panel.add_child(margin)
 
 	call_deferred("add_child", wire_stats_panel)
@@ -180,20 +201,106 @@ func _update_wire_stats_panel() -> void:
 		hide_wire_stats_popup()
 		return
 
+	var hovered_control: Control = get_viewport().gui_get_hovered_control()
+	var is_hovering_panel: bool = _is_hovering_wire_stats_panel(hovered_control)
 	var mouse_world: Vector2 = screen_to_world(get_viewport().get_mouse_position())
-	if _distance_to_wire_world(mouse_world, stats_panel_wire) > wire_stats_close_distance:
+	if _distance_to_wire_world(mouse_world, stats_panel_wire) > wire_stats_close_distance and not is_hovering_panel:
 		hide_wire_stats_popup()
 		return
 
 	wire_stats_label.text = _build_wire_stats_text(stats_panel_wire)
-	var mouse_pos: Vector2 = get_viewport().get_mouse_position()
-	var desired_pos := mouse_pos + Vector2(16.0, 16.0)
-	var panel_size: Vector2 = wire_stats_panel.get_combined_minimum_size()
-	var viewport_size: Vector2 = get_viewport_rect().size
-	desired_pos.x = clamp(desired_pos.x, 8.0, max(8.0, viewport_size.x - panel_size.x - 8.0))
-	desired_pos.y = clamp(desired_pos.y, 8.0, max(8.0, viewport_size.y - panel_size.y - 8.0))
-	wire_stats_panel.position = desired_pos
+	_update_wire_stats_actions()
+	if not is_hovering_panel:
+		var mouse_pos: Vector2 = get_viewport().get_mouse_position()
+		var desired_pos := mouse_pos + Vector2(16.0, 16.0)
+		var panel_size: Vector2 = wire_stats_panel.get_combined_minimum_size()
+		var viewport_size: Vector2 = get_viewport_rect().size
+		desired_pos.x = clamp(desired_pos.x, 8.0, max(8.0, viewport_size.x - panel_size.x - 8.0))
+		desired_pos.y = clamp(desired_pos.y, 8.0, max(8.0, viewport_size.y - panel_size.y - 8.0))
+		wire_stats_panel.position = desired_pos
 	wire_stats_panel.move_to_front()
+
+func _is_hovering_wire_stats_panel(hovered_control: Control) -> bool:
+	if hovered_control == null or wire_stats_panel == null or not is_instance_valid(wire_stats_panel):
+		return false
+	return hovered_control == wire_stats_panel or wire_stats_panel.is_ancestor_of(hovered_control)
+
+func _update_wire_stats_actions() -> void:
+	if wire_upgrade_button == null or not is_instance_valid(wire_upgrade_button):
+		return
+
+	var upgrade_data := _get_wire_upgrade_data(stats_panel_wire)
+	wire_upgrade_button.visible = not upgrade_data.is_empty()
+	wire_upgrade_button.disabled = upgrade_data.is_empty()
+	if not upgrade_data.is_empty():
+		wire_upgrade_button.text = "Upgrade to %s ($%.2f)" % [str(upgrade_data.get("name", "Wire")), float(upgrade_data.get("extra_cost", 0.0))]
+
+func _on_wire_upgrade_pressed() -> void:
+	upgrade_selected_wire()
+
+func _get_wire_upgrade_data(wire: Line2D) -> Dictionary:
+	if wire == null or not is_instance_valid(wire):
+		return {}
+	if not wire.has_method("get"):
+		return {}
+
+	var current_name: String = str(wire.get("cable_type_name"))
+	var next_name := ""
+	match current_name:
+		"Cat5":
+			next_name = "Cat6"
+		"Cat6":
+			next_name = "Fiber"
+		_:
+			return {}
+
+	var current_data: Dictionary = _get_cable_data_by_name(current_name)
+	var next_data: Dictionary = _get_cable_data_by_name(next_name)
+	if current_data.is_empty() or next_data.is_empty():
+		return {}
+
+	var length_value: Variant = wire.get("length")
+	var units_value: Variant = wire.get("world_units_per_foot")
+	var length_world_units: float = float(length_value) if length_value != null else 0.0
+	var units_per_foot: float = float(units_value) if units_value != null else wire_world_units_per_foot
+	var length_feet: float = length_world_units / max(units_per_foot, 0.001)
+	var extra_cost: float = max(0.0, (float(next_data.get("cost", 0.0)) - float(current_data.get("cost", 0.0))) * length_feet)
+	return {
+		"name": next_name,
+		"extra_cost": extra_cost,
+		"cable_data": next_data
+	}
+
+func upgrade_selected_wire() -> void:
+	if selected_wire == null or not is_instance_valid(selected_wire):
+		_show_overlay_status("Select a wire first.")
+		return
+
+	var upgrade_data := _get_wire_upgrade_data(selected_wire)
+	if upgrade_data.is_empty():
+		_show_overlay_status("This wire cannot be upgraded further.")
+		return
+
+	var extra_cost: float = float(upgrade_data.get("extra_cost", 0.0))
+	if GameManager == null:
+		push_error("GameManager not found")
+		return
+	if not GameManager.can_afford(extra_cost):
+		_show_overlay_status("Can't afford wire upgrade ($%.2f)" % extra_cost)
+		return
+
+	GameManager.spend_money(extra_cost)
+	if selected_wire.has_method("apply_cable_data"):
+		selected_wire.call("apply_cable_data", upgrade_data.get("cable_data", {}))
+	else:
+		_show_overlay_status("Wire upgrade unavailable.")
+		return
+
+	if SaveManager != null and SaveManager.has_method("mark_runtime_dirty"):
+		SaveManager.mark_runtime_dirty()
+	_update_wire_stats_panel()
+	update_all_server_network_status()
+	queue_redraw()
 
 func _distance_to_wire_world(world_position: Vector2, wire: Line2D) -> float:
 	if wire == null or not is_instance_valid(wire):
@@ -212,9 +319,9 @@ func _distance_to_wire_world(world_position: Vector2, wire: Line2D) -> float:
 
 func _build_wire_stats_text(wire: Line2D) -> String:
 	if wire.has_method("get_wire_stats_text"):
-		return str(wire.call("get_wire_stats_text"))
+		return "%s\nRight-click wire to delete." % str(wire.call("get_wire_stats_text"))
 	var wire_type: Variant = wire.get("cable_type_name")
-	return "Type: %s" % String(wire_type)
+	return "Type: %s\nRight-click wire to delete." % String(wire_type)
 
 func toggle_overlay() -> void:
 	set_overlay_visible(not visible)
@@ -390,6 +497,12 @@ func _handle_cable_mode_input(event: InputEvent) -> void:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			var mouse_screen_pos = get_viewport().get_mouse_position()
 			var mouse_world_pos = screen_to_world(mouse_screen_pos)
+			if cable_start_point == null:
+				var pre_node_wire := find_wire_at_position(mouse_world_pos)
+				if pre_node_wire != null:
+					highlight_wire_route(pre_node_wire)
+					show_wire_stats_popup(pre_node_wire)
+					return
 			var clicked_node: Dictionary = get_clicked_network_node(mouse_world_pos, mouse_screen_pos)
 
 			if not clicked_node.is_empty():
@@ -462,11 +575,15 @@ func _handle_cable_node_click(click_result: Dictionary) -> void:
 	if node == null or connector_node == null:
 		return
 
-	_sync_selection_for_clicked_connector(node, connector_node)
+	if not _sync_selection_for_clicked_connector(node, connector_node):
+		return
 
 	var clicked_port_type: String = _get_network_port_type_for_connector(node, connector_node)
 	if cable_start_point == null and _is_selected_internet_pipe() and not _is_uplink_port_type(clicked_port_type):
-		_show_overlay_status("Internet Pipe is only for breaker internet to router internet.")
+		if clicked_port_type == "server":
+			_show_overlay_status("Cannot connect Internet Pipe to a server. Only a breaker can use this connection.")
+		else:
+			_show_overlay_status("Internet Pipe is only for breaker internet to router internet.")
 		return
 
 	if cable_start_point == null:
@@ -542,12 +659,18 @@ func create_cable_segment(start_node, end_node, start_world_position: Vector2, e
 		return false
 
 	var cable_name: String = str(selected_cable_type.get("name", ""))
+	if cable_name == INTERNET_PIPE_NAME:
+		var start_node_type: String = str(start_node.get("network_node_type"))
+		var end_node_type: String = str(end_node.get("network_node_type"))
+		if start_node_type == "server" or end_node_type == "server":
+			_show_overlay_status("Cannot connect Internet Pipe to a server. Only a breaker can use this connection.")
+			return false
 	var internet_uplink: bool = _is_internet_uplink_connection(start_node, start_world_position, end_node, end_world_position)
 	if internet_uplink and cable_name != INTERNET_PIPE_NAME:
 		_show_overlay_status("Internet uplink requires Internet Pipe.")
 		return false
 	if not internet_uplink and cable_name == INTERNET_PIPE_NAME:
-		_show_overlay_status("Internet Pipe only connects wall internet to router internet.")
+		_show_overlay_status("Cannot connect Internet Pipe to a server. Only a breaker can use this connection.")
 		return false
 
 	if would_create_loop(start_node, end_node):
@@ -555,11 +678,17 @@ func create_cable_segment(start_node, end_node, start_world_position: Vector2, e
 		return false
 
 	if not can_accept_new_connection(start_node, start_world_position, end_node, end_world_position):
-		_show_overlay_status("Cannot place cable: start node has no free ports.")
+		if cable_name == INTERNET_PIPE_NAME:
+			_show_overlay_status("Cannot connect Internet Pipe to a server. Only a breaker can use this connection.")
+		else:
+			_show_overlay_status("Cannot place cable: start node has no free ports.")
 		return false
 
 	if not can_accept_new_connection(end_node, end_world_position, start_node, start_world_position):
-		_show_overlay_status("Cannot place cable: end node has no free ports.")
+		if cable_name == INTERNET_PIPE_NAME:
+			_show_overlay_status("Cannot connect Internet Pipe to a server. Only a breaker can use this connection.")
+		else:
+			_show_overlay_status("Cannot place cable: end node has no free ports.")
 		return false
 
 	var scene = preload("res://scenes/units/cable_segment.tscn")
@@ -1082,14 +1211,19 @@ func _is_anchor_too_close_to_network_node(world_position: Vector2) -> bool:
 
 func _get_network_port_icon(owner_node: Node, connector_node: Node2D) -> String:
 	if owner_node != null and owner_node.has_method("get_network_port_icon"):
-		return str(owner_node.call("get_network_port_icon", connector_node))
+		var owner_icon: String = str(owner_node.call("get_network_port_icon", connector_node))
+		if owner_icon != "":
+			return owner_icon
+
+	if owner_node != null and str(owner_node.get("network_node_type")) == "server":
+		return SERVER_PORT_ICON
 
 	if owner_node != null and owner_node.has_method("get_network_port_type"):
 		var port_type: String = str(owner_node.call("get_network_port_type", connector_node))
 		if port_type == "internet_source" or port_type == "internet":
 			return "🌐"
 		if port_type == "server":
-			return "⚡"
+			return SERVER_PORT_ICON
 
 	return ""
 
@@ -1103,8 +1237,10 @@ func _draw_network_node_icon(screen_position: Vector2, icon_text: String) -> voi
 
 	var icon_size_px: int = max(node_icon_size, 8)
 	var text_size: Vector2 = icon_font.get_string_size(icon_text, HORIZONTAL_ALIGNMENT_LEFT, -1, icon_size_px)
-	var baseline_offset: float = text_size.y * 0.35
-	var draw_position := Vector2(screen_position.x - (text_size.x * 0.5), screen_position.y + baseline_offset)
+	var ascent: float = icon_font.get_ascent(icon_size_px)
+	var descent: float = icon_font.get_descent(icon_size_px)
+	var baseline_y: float = screen_position.y + ((ascent - descent) * 0.5)
+	var draw_position := Vector2(screen_position.x - (text_size.x * 0.5), baseline_y)
 	draw_string(icon_font, draw_position, icon_text, HORIZONTAL_ALIGNMENT_LEFT, -1, icon_size_px, node_icon_color)
 
 func would_create_loop(start_node, end_node) -> bool:
@@ -1130,7 +1266,10 @@ func get_endpoint_state(node, endpoint_world_position: Vector2) -> int:
 			return 1  # connected
 	return 0  # empty
 
-func find_wire_at_position(world_position: Vector2, tolerance: float = 8.0) -> Line2D:
+func find_wire_at_position(world_position: Vector2, tolerance: float = 16.0) -> Line2D:
+	var best_segment: Line2D = null
+	var best_distance: float = max(tolerance, 0.0)
+
 	for segment in get_tree().get_nodes_in_group("cable_segments"):
 		if segment == null or not is_instance_valid(segment):
 			continue
@@ -1142,10 +1281,11 @@ func find_wire_at_position(world_position: Vector2, tolerance: float = 8.0) -> L
 			var p2 = segment.to_global(segment.points[i + 1])
 			var closest_point = WiringPlacement.closest_point_on_segment(world_position, p1, p2)
 			var dist = world_position.distance_to(closest_point)
-			if dist <= tolerance:
-				return segment
-	
-	return null
+			if dist <= best_distance:
+				best_distance = dist
+				best_segment = segment
+
+	return best_segment
 
 func get_closest_point_on_segment(point: Vector2, seg_start: Vector2, seg_end: Vector2) -> Vector2:
 	return WiringPlacement.closest_point_on_segment(point, seg_start, seg_end)
@@ -1291,6 +1431,45 @@ func clear_wiring() -> void:
 	cable_start_point = null
 	cable_start_world_position = Vector2.ZERO
 	clear_cable_preview()
+	update_all_server_network_status()
+	queue_redraw()
+
+func remove_connections_for_owner(owner_node: Node) -> void:
+	if owner_node == null or not is_instance_valid(owner_node):
+		return
+
+	var segments_to_remove: Array = []
+	for cable in get_tree().get_nodes_in_group("cable_segments"):
+		if cable == null or not is_instance_valid(cable):
+			continue
+		if cable.get("start_point") == owner_node or cable.get("end_point") == owner_node:
+			segments_to_remove.append(cable)
+
+	for cable in segments_to_remove:
+		if cable == null or not is_instance_valid(cable):
+			continue
+		var start_node: Node = cable.get("start_point") as Node
+		var end_node: Node = cable.get("end_point") as Node
+		var start_world_variant: Variant = cable.get("start_visual_position")
+		var end_world_variant: Variant = cable.get("end_visual_position")
+		var start_world_position: Vector2 = start_world_variant if start_world_variant is Vector2 else Vector2.ZERO
+		var end_world_position: Vector2 = end_world_variant if end_world_variant is Vector2 else Vector2.ZERO
+		var start_connector: Node2D = _get_owner_connector_for_world_position(start_node, start_world_position)
+		var end_connector: Node2D = _get_owner_connector_for_world_position(end_node, end_world_position)
+
+		if start_node != null and start_node.has_method("remove_connection_for_node"):
+			start_node.remove_connection_for_node(cable, start_connector)
+		elif start_node != null and start_node.has_method("remove_connection"):
+			start_node.remove_connection(cable)
+
+		if end_node != null and end_node.has_method("remove_connection_for_node"):
+			end_node.remove_connection_for_node(cable, end_connector)
+		elif end_node != null and end_node.has_method("remove_connection"):
+			end_node.remove_connection(cable)
+
+		cable.queue_free()
+
+	_prune_orphan_network_anchor(owner_node)
 	update_all_server_network_status()
 	queue_redraw()
 
@@ -1580,12 +1759,19 @@ func _restore_manual_cable_after_uplink_if_needed() -> void:
 	_sync_buy_menu_cable_selection()
 	_show_overlay_status("Restored previous cable selection.")
 
-func _sync_selection_for_clicked_connector(owner_node: Node, connector_node: Node2D) -> void:
+func _sync_selection_for_clicked_connector(owner_node: Node, connector_node: Node2D) -> bool:
 	var port_type: String = _get_network_port_type_for_connector(owner_node, connector_node)
 	if _is_uplink_port_type(port_type):
+		if cable_start_point != null:
+			var start_port_type: String = _get_network_port_type_for_endpoint(cable_start_point, cable_start_world_position)
+			if not _is_uplink_port_type(start_port_type):
+				_show_overlay_status("Internet Pipe is only for breaker internet to router internet.")
+				return false
 		_switch_to_internet_pipe_if_needed()
 	else:
 		_restore_manual_cable_after_uplink_if_needed()
+
+	return true
 
 func _is_internet_uplink_connection(start_node: Node, start_world_position: Vector2, end_node: Node, end_world_position: Vector2) -> bool:
 	var start_port_type: String = _get_network_port_type_for_endpoint(start_node, start_world_position)
@@ -1620,7 +1806,11 @@ func show_overlay_title(title: String) -> void:
 		overlay_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		overlay_title_label.add_theme_font_size_override("font_size", 24)
 		overlay_title_label.add_to_group("overlay_titles")
-		get_tree().current_scene.add_child(overlay_title_label)
+		var hud_root := get_tree().current_scene.get_node_or_null("HUD") if get_tree().current_scene != null else null
+		if hud_root != null:
+			hud_root.add_child(overlay_title_label)
+		else:
+			get_tree().current_scene.add_child(overlay_title_label)
 
 	for title_node in get_tree().get_nodes_in_group("overlay_titles"):
 		if title_node is Label and title_node != overlay_title_label:
@@ -1636,5 +1826,9 @@ func hide_overlay_title() -> void:
 
 func update_all_port_label_visibility(should_show: bool) -> void:
 	for node in get_tree().get_nodes_in_group("network_nodes"):
+		if node == null or not is_instance_valid(node):
+			continue
+		if str(node.get("network_node_type")) != "router":
+			continue
 		if node.has_method("set_port_label_visible"):
 			node.call("set_port_label_visible", should_show)
