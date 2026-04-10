@@ -37,11 +37,12 @@ scale = Vector2(0.9, 0.9)
 
 [node name="breakerBack" parent="." unique_id=956255947 instance=ExtResource("3_lukg2")]
 z_index = 1
-position = Vector2(1296, 1968)
+position = Vector2(1202, 1968)
 
-[node name="breakerBack2" parent="." unique_id=414415646 instance=ExtResource("3_lukg2")]
+[node name="breakerBack2" parent="." unique_id=829805204 instance=ExtResource("3_lukg2")]
 z_index = 1
-position = Vector2(2832, 1968)
+position = Vector2(2833, 1968)
+scale = Vector2(0.9, 0.9)
 
 [node name="router" parent="." unique_id=226666129 instance=ExtResource("4_lnnpi")]
 position = Vector2(336, 336)

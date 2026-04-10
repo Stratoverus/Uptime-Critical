@@ -57,13 +57,13 @@ z_index = 1
 position = Vector2(432, 816)
 scale = Vector2(0.9, 0.9)
 
+[node name="breakerBack" parent="." unique_id=956255947 instance=ExtResource("10_i27vu")]
+z_index = 1
+position = Vector2(2737, 2352)
+
 [node name="router" parent="." unique_id=226666129 instance=ExtResource("8_36due")]
 position = Vector2(240, 336)
 
 [node name="server" parent="." unique_id=1437508063 instance=ExtResource("9_i27vu")]
 position = Vector2(240, 1200)
 scale = Vector2(0.9, 0.9)
-
-[node name="breakerBack" parent="." unique_id=956255947 instance=ExtResource("10_i27vu")]
-z_index = 1
-position = Vector2(2736, 2352)

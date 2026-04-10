@@ -60,6 +60,10 @@ z_index = 1
 position = Vector2(3888, 1008)
 scale = Vector2(0.93, 0.93)
 
+[node name="breakerBack" parent="." unique_id=956255947 instance=ExtResource("10_cmej2")]
+z_index = 1
+position = Vector2(1681, 3215)
+
 [node name="router" parent="." unique_id=226666129 instance=ExtResource("7_8x6ql")]
 position = Vector2(240, 1200)
 
@@ -68,11 +72,3 @@ position = Vector2(1104, 332)
 
 [node name="Player" parent="." unique_id=1391588806 instance=ExtResource("9_5pno0")]
 position = Vector2(1395, 1121)
-
-[node name="breakerBack" parent="." unique_id=956255947 instance=ExtResource("10_cmej2")]
-z_index = 1
-position = Vector2(1296, 3216)
-
-[node name="breakerBack2" parent="." unique_id=1136509132 instance=ExtResource("10_cmej2")]
-z_index = 1
-position = Vector2(2064, 3216)
