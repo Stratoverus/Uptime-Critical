@@ -34,36 +34,36 @@ position = Vector2(1435, 771)
 
 [node name="Breaker" parent="." unique_id=575707875 instance=ExtResource("7_amhqe")]
 z_index = 1
-position = Vector2(418.5, 46.5)
+position = Vector2(432, 48)
 scale = Vector2(0.93, 0.93)
 
 [node name="Breaker2" parent="." unique_id=203090569 instance=ExtResource("7_amhqe")]
 z_index = 1
-position = Vector2(1255.5, 46.5)
+position = Vector2(1296, 48)
 scale = Vector2(0.9, 0.9)
 
 [node name="Breaker3" parent="." unique_id=1582593429 instance=ExtResource("7_amhqe")]
 z_index = 1
-position = Vector2(2092.5, 46.5)
+position = Vector2(2160, 48)
 scale = Vector2(0.9, 0.9)
 
 [node name="Breaker4" parent="." unique_id=621922675 instance=ExtResource("7_amhqe")]
 z_index = 1
-position = Vector2(2929.5, 46.5)
+position = Vector2(2928, 48)
 scale = Vector2(0.9, 0.9)
 
 [node name="Breaker5" parent="." unique_id=511224219 instance=ExtResource("7_amhqe")]
 z_index = 1
-position = Vector2(418.5, 790.5)
+position = Vector2(432, 816)
 scale = Vector2(0.9, 0.9)
 
 [node name="router" parent="." unique_id=226666129 instance=ExtResource("8_36due")]
-position = Vector2(232.5, 325.5)
+position = Vector2(240, 336)
 
 [node name="server" parent="." unique_id=1437508063 instance=ExtResource("9_i27vu")]
-position = Vector2(232.5, 1162.5)
+position = Vector2(240, 1200)
 scale = Vector2(0.9, 0.9)
 
 [node name="breakerBack" parent="." unique_id=956255947 instance=ExtResource("10_i27vu")]
 z_index = 1
-position = Vector2(2652, 2280)
+position = Vector2(2736, 2352)
