@@ -1,19 +1,16 @@
-[gd_scene format=3 uid="uid://b1mqh3afmfiyh"]
+[gd_scene format=3 uid="uid://cnf20vfs3fmdu"]
 
-[ext_resource type="Script" uid="uid://fptrj2lklict" path="res://scenes/units/breaker.gd" id="1_rv8s0"]
+[ext_resource type="Script" uid="uid://diecpo4k8f3yl" path="res://scripts/interaction/breaker.gd" id="1_breaker_script"]
 [ext_resource type="Texture2D" uid="uid://ceifmks6p54bp" path="res://assets/object_sprites/breaker/breaker_back.png" id="2_rv8s0"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_breaker"]
 size = Vector2(100, 100)
 
-[node name="Breaker" type="Area2D" unique_id=1895177931]
-script = ExtResource("1_rv8s0")
+[node name="Breaker" type="Area2D" unique_id=624196571]
+script = ExtResource("1_breaker_script")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1554084703]
-position = Vector2(0, 1)
-scale = Vector2(0.93, 0.93)
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=514556472]
 texture = ExtResource("2_rv8s0")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=6144547]
-position = Vector2(0, 1)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=495947973]
 shape = SubResource("RectangleShape2D_breaker")
