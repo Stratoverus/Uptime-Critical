@@ -22,7 +22,14 @@ const SETTINGS_VERSION := 2
 @onready var fps_toggle_button: Button = $CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/FpsRow/FpsToggleButton
 @onready var save_settings_button: Button = $CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/BottomButtons/SaveSettingsButton
 @onready var settings_status_label: Label = $CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/SettingsStatusLabel
+@onready var bgm_option_button: OptionButton = $CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/BGMRow/BgmOptionButton
 
+var bgm_tracks := {
+	"Cyberpunk": preload("res://music/vasilyatsevich-brain-implant-cyberpunk-sci-fi-trailer-action-intro-330416.mp3"),
+	"Hyperdrive": preload("res://music/the_mountain-game-game-music-508018.mp3"),
+	"Lo-Fi": preload("res://music/mondamusic-retro-arcade-game-music-491667.mp3"),
+	"Sci-Fi": preload("res://music/rockot-futuristic-sci-fi-268233.mp3")
+}
 var available_maps: Array[Dictionary] = []
 var settings_state: Dictionary = {
 	"master_volume": 30.0,
@@ -31,6 +38,7 @@ var settings_state: Dictionary = {
 	"fullscreen": true,
 	"vsync": true,
 	"show_fps": false,
+	"bgm_track": "Cyberpunk",
 }
 var is_syncing_settings_ui: bool = false
 var has_unsaved_settings: bool = false
@@ -56,7 +64,10 @@ func _ready() -> void:
 	_ensure_load_slot_popup()
 	_ensure_delete_save_confirm_dialog()
 	_refresh_continue_button_state()
-
+	_populate_bgm_options()
+	_select_option_by_text(bgm_option_button, settings_state["bgm_track"])
+	_apply_music_track(settings_state["bgm_track"])
+	bgm_option_button.item_selected.connect(_on_bgm_option_selected)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
@@ -126,6 +137,9 @@ func _load_settings() -> bool:
 	return true
 
 func _save_settings() -> void:
+	if not settings_state.has("bgm_track"):
+		settings_state["bgm_track"] = "Cyberpunk"
+		
 	var cfg := ConfigFile.new()
 	cfg.set_value("meta", "settings_version", SETTINGS_VERSION)
 	cfg.set_value("audio", "master_volume", settings_state["master_volume"])
@@ -371,6 +385,10 @@ func _on_map_selected(map_scene_path: String) -> void:
 		GameManager.reset_runtime_state(map_scene_path)
 	GameManager.current_map_scene_path = map_scene_path
 	map_select_popup.hide()
+
+	if has_node("/root/MusicManager"):
+		MusicManager.play_track("Sci-Fi")
+
 	SceneTransition.change_scene(MAP_LEVEL_SCENE)
 
 func _refresh_continue_button_state() -> void:
@@ -575,6 +593,10 @@ func _load_selected_slot(slot_name: String) -> void:
 
 	if load_slot_popup != null:
 		load_slot_popup.hide()
+
+	if has_node("/root/MusicManager"):
+		MusicManager.play_track("Sci-Fi")
+
 	SceneTransition.change_scene(MAP_LEVEL_SCENE)
 
 func _create_map_preview_texture(map_scene_path: String) -> Texture2D:
@@ -708,3 +730,25 @@ func _create_fallback_preview() -> Texture2D:
 				image.fill_rect(Rect2i(x, y, 6, 6), Color(0.16, 0.19, 0.22, 1.0))
 
 	return ImageTexture.create_from_image(image)
+
+func _populate_bgm_options() -> void:
+	bgm_option_button.clear()
+	for track_name in bgm_tracks.keys():
+		bgm_option_button.add_item(track_name)
+
+func _apply_music_track(track_name: String) -> void:
+	if not bgm_tracks.has(track_name):
+		return
+
+	MusicManager.set_track(track_name)
+
+func _on_bgm_option_selected(index: int) -> void:
+	var track_name = bgm_option_button.get_item_text(index)
+	settings_state["bgm_track"] = track_name
+	_apply_music_track(track_name)
+
+func _select_option_by_text(option_button: OptionButton, text: String) -> void:
+	for i in range(option_button.get_item_count()):
+		if option_button.get_item_text(i) == text:
+			option_button.select(i)
+			return

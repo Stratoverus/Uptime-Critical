@@ -3,8 +3,7 @@
 [ext_resource type="Script" uid="uid://b7ec2hiqwhed4" path="res://scenes/ui/MainMenu/main_menu.gd" id="1_c38wu"]
 [ext_resource type="Theme" uid="uid://cgovku5fdfya3" path="res://assets/themes/ui_theme.tres" id="1_lwpty"]
 [ext_resource type="Texture2D" uid="uid://cuvwpxnmph0av" path="res://assets/UI/Computer Screen BG.jpg" id="2_lwpty"]
-[ext_resource type="Shader" uid="uid://cfnn2dibqqsjo" path="res://assets/shaders/main_menu_crt.gdshader" id="3_v7pwa"]
-[ext_resource type="AudioStream" uid="uid://ceqy8ycfp2xqo" path="res://music/vasilyatsevich-brain-implant-cyberpunk-sci-fi-trailer-action-intro-330416.mp3" id="4_epepa"]
+[ext_resource type="Shader" path="res://assets/shaders/main_menu_crt.gdshader" id="3_v7pwa"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_rqcfe"]
 shader = ExtResource("3_v7pwa")
@@ -182,6 +181,24 @@ layout_mode = 2
 toggle_mode = true
 text = "Enabled"
 
+[node name="BGMRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox" unique_id=713872291]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/BGMRow" unique_id=1959590199]
+layout_mode = 2
+text = "BGM Track"
+
+[node name="Spacer" type="Control" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/BGMRow" unique_id=1018901139]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BgmOptionButton" type="OptionButton" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/BGMRow" unique_id=1246489062]
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_constants/align_to_largest_stylebox = 1
+alignment = 1
+
 [node name="VsyncRow" type="HBoxContainer" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox" unique_id=1508192801]
 layout_mode = 2
 theme_override_constants/separation = 14
@@ -232,11 +249,6 @@ text = "Save Settings"
 [node name="SettingsBackButton" type="Button" parent="CenterContainer/VBoxContainer/SettingsPanel/MarginContainer/SettingsVBox/BottomButtons" unique_id=206662890]
 layout_mode = 2
 text = "Back"
-
-[node name="MainMenuMusic" type="AudioStreamPlayer" parent="." unique_id=944914707]
-stream = ExtResource("4_epepa")
-autoplay = true
-bus = &"Music"
 
 [node name="FpsLabel" type="Label" parent="." unique_id=674381270]
 visible = false
