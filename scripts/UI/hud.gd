@@ -28,6 +28,7 @@ extends CanvasLayer
 @onready var electrical_overlay_button = get_node_or_null("Control/MarginContainer/HUDContainer/TestingControls/OverlayButtons/ElectricalOverlayButton")
 @onready var heat_overlay_button = get_node_or_null("Control/MarginContainer/HUDContainer/TestingControls/OverlayButtons/HeatOverlayButton")
 @onready var start_confirmation_dialog = get_node_or_null("Control/StartConfirmationDialog")
+@onready var event_confirmation_dialog = get_node_or_null("Control/EventConfirmationDialog")
 @onready var clock_pointer = $Control/TimeContainer/VBoxContainer/ClockContainer/Pointer
 @onready var day_label = $Control/TimeContainer/VBoxContainer/DayLabel
 
@@ -75,11 +76,27 @@ func _ready():
 		_center_start_confirmation_text()
 		start_confirmation_dialog.process_mode = Node.PROCESS_MODE_ALWAYS
 		call_deferred("_show_start_confirmation_dialog")
+	if event_confirmation_dialog != null:
+		_center_event_confirmation_text()
+	if GameManager.has_signal("show_event_popup") and not GameManager.show_event_popup.is_connected(_on_show_event_popup):
+		GameManager.show_event_popup.connect(_on_show_event_popup)
+		
+
 
 func _center_start_confirmation_text() -> void:
 	if start_confirmation_dialog == null:
 		return
 	var dialog := start_confirmation_dialog as AcceptDialog
+	if dialog == null:
+		return
+	var dialog_label: Label = dialog.get_label()
+	if dialog_label != null:
+		dialog_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+
+func _center_event_confirmation_text() -> void:
+	if event_confirmation_dialog == null:
+		return
+	var dialog := event_confirmation_dialog as AcceptDialog
 	if dialog == null:
 		return
 	var dialog_label: Label = dialog.get_label()
@@ -390,3 +407,54 @@ func _format_request_count(value: float) -> String:
 	if safe_value >= 1000.0:
 		return "%.2fK" % (safe_value / 1000.0)
 	return "%d" % int(round(safe_value))
+
+
+func _on_show_event_popup(event_data: Dictionary) -> void:
+	var level_controller := get_parent()
+	if level_controller != null and level_controller.has_method("set_start_dialog_pause"):
+		level_controller.call("set_start_dialog_pause", true)
+			
+	if event_confirmation_dialog != null:
+		event_confirmation_dialog.title = event_data.get("display_name", "Alert")
+		if event_data.get("event_is_good") == true:
+			# Use add_theme_color_override to change theme colors via code
+			event_confirmation_dialog.add_theme_color_override("title_color", Color.GREEN)
+		else:
+			event_confirmation_dialog.add_theme_color_override("title_color", Color.RED)
+		
+		# 1. Grab the lore message
+		var base_msg = event_data.get("message", "An event has occurred.")
+		
+		# 2. Dynamically build the stat block
+		var stats_text = "\n\n--- EVENT DETAILS ---\n"
+		
+		var duration = float(event_data.get("duration_minutes", 0))
+		if duration > 0:
+			stats_text += "• Duration: %d In-Game Hours\n" % int(duration / 60)
+			
+		var demand = float(event_data.get("demand_mult", 1.0))
+		if demand != 1.0:
+			var percent = int(round((demand - 1.0) * 100))
+			var sign_str = "+" if percent > 0 else ""
+			stats_text += "• Market Demand: %s%d%%\n" % [sign_str, percent]
+			
+		var ddos = float(event_data.get("ddos_add", 0.0))
+		if ddos > 0:
+			stats_text += "• Malicious Traffic: +%d RPS\n" % int(ddos)
+
+		# Combine them
+		event_confirmation_dialog.dialog_text = base_msg + stats_text
+		
+		# 3. Force the internal label to format correctly
+		var label: Label = event_confirmation_dialog.get_label()
+		if label != null:
+			label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			
+		# Pop it open
+		event_confirmation_dialog.popup_centered_ratio(0.35)
+
+func _on_event_confirmation_dialog_confirmed() -> void:
+	var level_controller := get_parent()
+	if level_controller != null and level_controller.has_method("set_start_dialog_pause"):
+		level_controller.call("set_start_dialog_pause", false)

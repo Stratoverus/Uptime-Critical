@@ -57,6 +57,9 @@ corner_radius_bottom_right = 10
 corner_radius_bottom_left = 10
 
 [resource]
+AcceptDialog/colors/title_color = Color(4.428029e-06, 0.90091604, 0.24615672, 1)
+AcceptDialog/colors/title_outline_modulate = Color(1, 1, 1, 1)
+AcceptDialog/font_sizes/title_font_size = 20
 Button/colors/font_color = Color(0.44705883, 0.83137256, 0.48235294, 1)
 Button/colors/font_disabled_color = Color(0.13333334, 0.2901961, 0.14901961, 0.7647059)
 Button/colors/font_hover_color = Color(0.7345693, 0.96977514, 0.7465602, 1)
