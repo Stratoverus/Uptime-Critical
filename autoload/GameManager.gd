@@ -26,22 +26,12 @@ var traffic_ramp_multiplier_max: float = 2.25
 var traffic_ramp_curve_exponent: float = 1.1
 var traffic_overload_ceiling_ratio: float = 2.5
 
-@export_group("Event Tuning")
-@export var black_friday_duration_minutes: float = 1440.0
-@export var black_friday_demand_mult: float = 2.5
-@export var botnet_attack_weight: int = 1
-@export var botnet_attack_duration_minutes: float = 60.0
-@export var botnet_attack_demand_mult: float = 1.0
-@export var botnet_attack_ddos_add: float = 800.0
-@export var viral_video_weight: int = 3
-@export var viral_video_duration_minutes: float = 1440.0
-@export var viral_video_demand_mult: float = 1.5
-
 signal money_changed(new_amount)
 signal reputation_changed(new_amount)
 signal game_over_state_changed(reason)
 signal prep_state_changed(remaining_seconds, is_active)
 signal gameplay_started
+signal show_event_popup(event_data: Dictionary)
 
 # Event Definitions
 var EVENTS: Dictionary = {}
@@ -120,7 +110,7 @@ var total_dropped_requests: float = 0.0
 @export var reputation_any_drop_penalty_per_second: float = 0.35
 @export var reputation_recovery_per_second: float = 0.45
 @export var reputation_recovery_drop_ratio_max: float = 0.02
-@export var irreparable_threshold: float = 10.0
+@export var irreparable_threshold: float = -1.0
 @export var irreparable_duration_seconds: float = 240.0
 @export var reputation_soft_drop_exponent: float = 1.35
 @export var reputation_incident_buildup_rate: float = 1.2
@@ -152,32 +142,177 @@ func _ready() -> void:
 
 func _rebuild_event_definitions() -> void:
 	EVENTS = {
+		# ==========================================
+		# CALENDAR EVENTS (Ordered sequentially by Day)
+		# ==========================================
+		"grand_opening": {
+			"display_name": "Grand Opening",
+			"trigger_type": "calendar",
+			"target_day": 1, 
+			"duration_minutes": 1440,
+			"demand_mult": 1.2,
+			"ddos_add": 0.0,
+			"message": "Day 1: Your data center is officially live!",
+			"seen_before": false,
+			"event_is_good": true
+		},
 		"black_friday": {
 			"display_name": "Black Friday",
 			"trigger_type": "calendar",
-			"target_day": 2,
-			"duration_minutes": black_friday_duration_minutes,
-			"demand_mult": black_friday_demand_mult,
+			"target_day": 7,
+			"duration_minutes": 1440,
+			"demand_mult": 2.0,
 			"ddos_add": 0.0,
-			"message": "It's Day 2: Black Friday is here!"
+			"message": "It's Day 7: Black Friday is here!",
+			"seen_before": false,
+			"event_is_good": true
 		},
+		"cyber_monday": {
+			"display_name": "Cyber Monday",
+			"trigger_type": "calendar",
+			"target_day": 10, 
+			"duration_minutes": 1440,
+			"demand_mult": 3.0,
+			"ddos_add": 300.0,
+			"message": "It's Cyber Monday! The network is melting!",
+			"seen_before": false,
+			"event_is_good": true
+		},
+		"quarterly_earnings": {
+			"display_name": "Quarterly Earnings Calls",
+			"trigger_type": "calendar",
+			"target_day": 14, 
+			"duration_minutes": 480, # 8 hours of business time
+			"demand_mult": 1.5,
+			"ddos_add": 0.0,
+			"message": "Corporate clients are streaming their earnings calls. Stable traffic ahead.",
+			"seen_before": false,
+			"event_is_good": true
+		},
+		"major_os_update": {
+			"display_name": "Major OS Update Release",
+			"trigger_type": "calendar",
+			"target_day": 20, 
+			"duration_minutes": 1440,
+			"demand_mult": 1.8,
+			"ddos_add": 0.0,
+			"message": "WindOs 12 just released. Get ready for heavy download traffic!",
+			"seen_before": false,
+			"event_is_good": true
+		},
+		"end_of_month_backups": {
+			"display_name": "End of Month Backups",
+			"trigger_type": "calendar",
+			"target_day": 30, 
+			"duration_minutes": 1440, 
+			"demand_mult": 2.2,
+			"ddos_add": 0.0,
+			"message": "All enterprise clients are running massive end-of-month data backups!",
+			"seen_before": false,
+			"event_is_good": true
+		},
+
+		# ==========================================
+		# RANDOM EVENTS
+		# ==========================================
 		"botnet_attack": {
 			"display_name": "Botnet Attack",
 			"trigger_type": "random",
-			"weight": botnet_attack_weight,
-			"duration_minutes": botnet_attack_duration_minutes,
-			"demand_mult": botnet_attack_demand_mult,
-			"ddos_add": botnet_attack_ddos_add,
-			"message": "Emergency: Massive Botnet detected!"
+			"weight": 0.1,
+			"duration_minutes": 120,
+			"demand_mult": 1,
+			"ddos_add": 800,
+			"message": "Emergency: Massive Botnet detected!",
+			"seen_before": false,
+			"event_is_good": false
 		},
 		"viral_video": {
 			"display_name": "Viral Video",
 			"trigger_type": "random",
-			"weight": viral_video_weight,
-			"duration_minutes": viral_video_duration_minutes,
-			"demand_mult": viral_video_demand_mult,
+			"weight": 0.2,
+			"duration_minutes": 600,
+			"demand_mult": 1.5,
 			"ddos_add": 0.0,
-			"message": "A tech influencer reviewed your service!"
+			"message": "A tech influencer reviewed your service!",
+			"seen_before": false,
+			"event_is_good": true
+		},
+		"competitor_outage": {
+			"display_name": "Competitor Outage",
+			"trigger_type": "random",
+			"weight": 0.2, 
+			"duration_minutes": 360, 
+			"demand_mult": 2.0, 
+			"ddos_add": 0.0,
+			"message": "A rival cloud provider went down! Sudden traffic influx!",
+			"seen_before": false,
+			"event_is_good": true
+		},
+		"crypto_boom": {
+			"display_name": "Crypto Mining Boom",
+			"trigger_type": "random",
+			"weight": 0.1,
+			"duration_minutes": 2880, 
+			"demand_mult": 3.0,
+			"ddos_add": 0.0,
+			"message": "Market surge! Crypto-bros are renting all available compute!",
+			"seen_before": false,
+			"event_is_good": true
+		},
+		"pr_disaster": {
+			"display_name": "Data Leak Rumor",
+			"trigger_type": "random",
+			"weight": 0.3,
+			"duration_minutes": 720, 
+			"demand_mult": 0.5, 
+			"ddos_add": 0.0,
+			"message": "A false rumor about data loss caused clients to pause traffic.",
+			"seen_before": false,
+			"event_is_good": false
+		},
+		"zero_day_exploit": {
+			"display_name": "Zero-Day Exploit",
+			"trigger_type": "random",
+			"weight": 0.2,
+			"duration_minutes": 120, 
+			"demand_mult": 1.0,
+			"ddos_add": 2500.0, 
+			"message": "CRITICAL: Global Zero-Day attack targeting your network!",
+			"seen_before": false,
+			"event_is_good": false
+		},
+		"fiber_cut": {
+			"display_name": "Accidental Fiber Cut",
+			"trigger_type": "random",
+			"weight": 0.2,
+			"duration_minutes": 240, # 4 hours to repair
+			"demand_mult": 0.2, # Traffic plummets because no one can reach you
+			"ddos_add": 0.0,
+			"message": "A construction crew severed a major uplink! Capacity severely reduced.",
+			"seen_before": false,
+			"event_is_good": false
+		},
+		"indie_game_launch": {
+			"display_name": "Indie Game Launch",
+			"trigger_type": "random",
+			"weight": 0.4,
+			"duration_minutes": 1440, 
+			"demand_mult": 2.5, 
+			"ddos_add": 0.0,
+			"message": "A game hosted on your servers just went viral on social media!",
+			"seen_before": false,
+			"event_is_good": true
+		},
+		"scraper_swarm": {
+			"display_name": "AI Scraper Swarm",
+			"trigger_type": "random",
+			"weight": 0.3,
+			"duration_minutes": 300, # 5 hours
+			"demand_mult": 1.0, 
+			"ddos_add": 800.0, # Medium DDoS equivalent
+			"message": "Aggressive AI bots are scraping client data. Junk traffic incoming!",
+			"seen_before": false,
+			"event_is_good": false
 		}
 	}
 
@@ -544,10 +679,6 @@ func _update_reputation_and_failure(delta: float) -> void:
 		reputation_changed.emit(datacenter_reputation)
 	
 
-
-
-
-
 func check_for_events(day, hour):
 	if hour == 6:
 		for id in EVENTS:
@@ -559,13 +690,19 @@ func check_for_events(day, hour):
 
 	if active_event_id != "": return
 
-	var roll = randi() % 100
+	var roll = randf_range(0.0, 100.0)
+	var cumulative_weight = 0.0
+
 	for id in EVENTS:
 		var ev = EVENTS[id]
 		# Use .get() with a default of 0 to prevent crashing on missing weights
-		if ev.get("trigger_type") == "random" and roll < ev.get("weight", 0):
-			start_event(id)
-			break
+		if ev.get("trigger_type") == "random":
+			var event_weight = ev.get("weight", 0.0)
+			cumulative_weight += event_weight
+
+			if roll < cumulative_weight:
+				start_event(id)
+				return
 
 func start_event(event_id: String):
 	if active_event_id != "": 
@@ -583,6 +720,12 @@ func start_event(event_id: String):
 	ddos_load += applied_ddos_bonus
 	
 	event_expiry_time = time + data.duration_minutes
+
+	if data.get("seen_before", false) == false:
+		show_event_popup.emit(data)
+		# Mark it as seen so we don't spam the player next time
+		data["seen_before"] = true
+
 
 	
 

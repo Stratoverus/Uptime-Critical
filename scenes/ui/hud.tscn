@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bndfyhrgoen0t"]
 
-[ext_resource type="Script" path="res://scripts/UI/hud.gd" id="1_136eg"]
-[ext_resource type="Script" path="res://scripts/UI/traffic_bar.gd" id="2_oj5la"]
+[ext_resource type="Script" uid="uid://c7aejxkqell0m" path="res://scripts/UI/hud.gd" id="1_136eg"]
+[ext_resource type="Script" uid="uid://cfr8x0iwa204s" path="res://scripts/UI/traffic_bar.gd" id="2_oj5la"]
 [ext_resource type="Theme" uid="uid://cgovku5fdfya3" path="res://assets/themes/ui_theme.tres" id="3_gss2c"]
 [ext_resource type="Texture2D" uid="uid://dybth8e8ywwv3" path="res://assets/UI/clock/clockface.png" id="4_h022r"]
 [ext_resource type="Texture2D" uid="uid://c6whmyabmipf5" path="res://assets/UI/clock/high-tech-pointer.png" id="5_4jqwt"]
@@ -37,6 +37,85 @@ corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ndjfm"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0, 0, 0, 0.32941177)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.13333334, 0.2901961, 0.14901961, 0.7647059)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ftahe"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0, 0, 0, 0.32941177)
+border_color = Color(0.7345693, 0.96977514, 0.7465602, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_id6vg"]
+content_margin_left = 30.0
+content_margin_top = 6.0
+content_margin_right = 30.0
+content_margin_bottom = 6.0
+bg_color = Color(0, 0, 0, 0.32941177)
+border_color = Color(0.44705883, 0.83137256, 0.48235294, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yvafq"]
+content_margin_top = 5.0
+content_margin_bottom = 5.0
+bg_color = Color(0, 0, 0, 0.32941177)
+border_color = Color(0.3070327, 0.6049059, 0.3358645, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="Theme" id="Theme_136eg"]
+AcceptDialog/colors/title_color = Color(1, 1, 1, 1)
+AcceptDialog/colors/title_outline_modulate = Color(1, 1, 1, 1)
+AcceptDialog/font_sizes/title_font_size = 20
+Button/colors/font_color = Color(0.44705883, 0.83137256, 0.48235294, 1)
+Button/colors/font_disabled_color = Color(0.13333334, 0.2901961, 0.14901961, 0.7647059)
+Button/colors/font_hover_color = Color(0.7345693, 0.96977514, 0.7465602, 1)
+Button/colors/font_pressed_color = Color(0.3070327, 0.6049059, 0.3358645, 1)
+Button/font_sizes/font_size = 20
+Button/styles/disabled = SubResource("StyleBoxFlat_ndjfm")
+Button/styles/hover = SubResource("StyleBoxFlat_ftahe")
+Button/styles/normal = SubResource("StyleBoxFlat_id6vg")
+Button/styles/pressed = SubResource("StyleBoxFlat_yvafq")
+Label/colors/font_color = Color(1, 1, 1, 1)
+Label/colors/font_outline_color = Color(0, 0, 0, 1)
+Label/constants/outline_size = 0
+Label/font_sizes/font_size = 20
+TooltipLabel/colors/font_color = Color(1, 1, 1, 1)
+TooltipLabel/colors/font_outline_color = Color(0, 0, 0, 1)
+TooltipLabel/font_sizes/font_size = 25
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_136eg"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(0.105421, 0.17019928, 0.1285491, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.19825742, 0.6178442, 0.16361347, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6jtrr"]
 content_margin_left = 10.0
@@ -145,8 +224,26 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_c3qrg")
 text = "Begin 30s Prep"
 
 [node name="StartConfirmationDialog" type="AcceptDialog" parent="Control" unique_id=1641023905]
+oversampling_override = 1.0
 title = "Start Session"
-dialog_text = "Prepare yourself.\n\nBuild a router first, then build servers.\nHook up both routers and servers to electrical power and network cables.\nProcess traffic to earn money and increase your reputation.\n\nPress OK to start the 30-second setup pause."
+size = Vector2i(585, 236)
+dialog_text = "Prepare yourself.
+
+Build a router first, then build servers.
+Hook up both routers and servers to electrical power and network cables.
+Process traffic to earn money and increase your reputation.
+
+Press OK to start the 30-second setup pause."
+
+[node name="EventConfirmationDialog" type="AcceptDialog" parent="Control" unique_id=1156348906]
+oversampling_override = 1.0
+title = "Start Session"
+position = Vector2i(0, 36)
+size = Vector2i(196, 116)
+visible = true
+theme = SubResource("Theme_136eg")
+theme_type_variation = &"EventBox"
+theme_override_styles/panel = SubResource("StyleBoxFlat_136eg")
 
 [node name="MarginContainer" type="MarginContainer" parent="Control" unique_id=1325518787]
 layout_mode = 0
@@ -310,14 +407,14 @@ vertical_alignment = 1
 
 [node name="DevControlsDock" type="MarginContainer" parent="Control" unique_id=1775505701]
 layout_mode = 1
-anchors_preset = 3
+anchors_preset = 2
 anchor_top = 1.0
-anchor_right = 0.0
 anchor_bottom = 1.0
 offset_left = 20.0
 offset_top = -140.0
 offset_right = 760.0
 offset_bottom = -20.0
+grow_horizontal = 0
 grow_vertical = 0
 theme_override_constants/margin_left = 0
 theme_override_constants/margin_bottom = 0
@@ -423,12 +520,15 @@ theme_override_font_sizes/font_size = 25
 text = "DAY 1"
 horizontal_alignment = 1
 
+[connection signal="pressed" from="Control/PrepDock/VBoxContainer/PrepDockButton" to="." method="_on_start_session_button_pressed"]
+[connection signal="canceled" from="Control/StartConfirmationDialog" to="." method="_on_start_session_confirmed"]
+[connection signal="confirmed" from="Control/StartConfirmationDialog" to="." method="_on_start_session_confirmed"]
+[connection signal="canceled" from="Control/EventConfirmationDialog" to="." method="_on_event_confirmation_dialog_confirmed"]
+[connection signal="confirmed" from="Control/EventConfirmationDialog" to="." method="_on_event_confirmation_dialog_confirmed"]
 [connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/TestingControls/DemandButton" to="." method="_on_demand_button_pressed"]
 [connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/TestingControls/UpgradeButton" to="." method="_on_upgrade_button_pressed"]
 [connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/TestingControls/SpeedButton" to="." method="_on_speed_button_pressed"]
-[connection signal="pressed" from="Control/PrepDock/VBoxContainer/PrepDockButton" to="." method="_on_start_session_button_pressed"]
 [connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/TestingControls/StartSessionButton" to="." method="_on_start_session_button_pressed"]
-[connection signal="confirmed" from="Control/StartConfirmationDialog" to="." method="_on_start_session_confirmed"]
 [connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/EventControls/DDoSButton" to="." method="_on_ddos_button_pressed"]
 [connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/EventControls/BlackFriday" to="." method="_on_black_friday_pressed"]
 [connection signal="pressed" from="Control/DevControlsDock/VBoxContainer/EventControls/ViralVideo" to="." method="_on_viral_video_pressed"]
