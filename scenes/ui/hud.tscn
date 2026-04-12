@@ -240,7 +240,6 @@ oversampling_override = 1.0
 title = "Start Session"
 position = Vector2i(0, 36)
 size = Vector2i(196, 116)
-visible = true
 theme = SubResource("Theme_136eg")
 theme_type_variation = &"EventBox"
 theme_override_styles/panel = SubResource("StyleBoxFlat_136eg")
