@@ -106,10 +106,7 @@ func _process(delta: float):
 	if not is_instance_valid(traffic_bar):
 		return
 
-	if GameManager.dropped_rps > 0.01:
-		event_label.text = "Event: %s | Drop Cause: %s" % [GameManager.get_active_event_name(), GameManager.drop_cause_summary]
-	else:
-		event_label.text = "Event: %s" % GameManager.get_active_event_name()
+	event_label.text = "Event: %s" % GameManager.get_active_event_name()
 
 	var day_progress = GameManager.total_minutes_today / 1440.0
 	clock_pointer.rotation = (day_progress * TAU) - (PI / 2.0)
