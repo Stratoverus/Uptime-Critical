@@ -324,12 +324,6 @@ offset_bottom = 11.5
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="EventLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=962793761]
-layout_mode = 2
-theme = ExtResource("3_gss2c")
-theme_type_variation = &"HUD label"
-text = "Event Label"
-
 [node name="PrepStatusLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1872225041]
 visible = false
 layout_mode = 2
@@ -339,13 +333,22 @@ theme_override_colors/font_color = Color(0.972549, 0.7411765, 0.20392157, 1)
 theme_override_font_sizes/font_size = 22
 text = "Prepare yourself"
 
-[node name="ReputationLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1460794207]
+[node name="EventLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=962793761]
+layout_mode = 2
+theme = ExtResource("3_gss2c")
+theme_type_variation = &"HUD label"
+text = "Event Label"
+
+[node name="ReputationContainer" type="HBoxContainer" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=2033082993]
+layout_mode = 2
+
+[node name="ReputationLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer/ReputationContainer" unique_id=1460794207]
 layout_mode = 2
 theme = ExtResource("3_gss2c")
 theme_type_variation = &"HUD label"
 text = "Reputation: 100.0%"
 
-[node name="IrreparableLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=123338803]
+[node name="IrreparableLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer/ReputationContainer" unique_id=123338803]
 visible = false
 layout_mode = 2
 theme = ExtResource("3_gss2c")
