@@ -51,16 +51,13 @@ func _physics_process(_delta: float) -> void:
 	else:
 		if auto_moving:
 			var target_position: Vector2 = auto_move_target
-			if use_navigation_path and navigation_agent != null:
-				navigation_agent.target_position = auto_move_target
-				if not navigation_agent.is_navigation_finished():
-					target_position = navigation_agent.get_next_path_position()
-				else:
-					use_navigation_path = false
-
 			var auto_direction := target_position - global_position
 
-			if auto_direction.length() < 8.0:
+			if target_interactable != null and target_interactable.is_player_in_range():
+				auto_moving = false
+				use_navigation_path = false
+				velocity = Vector2.ZERO
+			elif auto_direction.length() < 8.0:
 				auto_moving = false
 				use_navigation_path = false
 				velocity = Vector2.ZERO
@@ -112,16 +109,14 @@ func _action_has_key(action_name: String, key_code: Key) -> bool:
 	return false
 
 func move_to_interactable(interactable) -> void:
+	target_interactable = interactable
+
 	var direction: Vector2 = (global_position - interactable.global_position).normalized()
 	if direction == Vector2.ZERO:
 		direction = Vector2.DOWN
 
 	auto_move_target = interactable.global_position + direction * (interactable.interaction_range - 10.0)
-	if navigation_agent != null:
-		navigation_agent.target_position = auto_move_target
-		use_navigation_path = not navigation_agent.is_navigation_finished()
-	else:
-		use_navigation_path = false
+	use_navigation_path = false
 	auto_moving = true
 
 func _update_walk_sfx() -> void:
