@@ -1,7 +1,6 @@
 [gd_scene format=4 uid="uid://pagdfx2s61tg"]
 
 [ext_resource type="TileSet" uid="uid://bantebqwyr5c1" path="res://assets/Tilesets/serverTileSetSize3.tres" id="3_10x5o"]
-[ext_resource type="PackedScene" uid="uid://72w3bk3c0t4s" path="res://scenes/maps/breaker_back.tscn" id="3_lukg2"]
 [ext_resource type="PackedScene" uid="uid://cv8cmv8i4rt01" path="res://scenes/units/breaker.tscn" id="12_14sw3"]
 
 [node name="serverRoom" type="Node2D" unique_id=1104353977]
@@ -35,19 +34,26 @@ scale = Vector2(0.9, 0.9)
 object_name = "Breaker"
 actions = Array[String](["Turn Off", "Turn On"])
 
-[node name="breakerBack" parent="." unique_id=956255947 instance=ExtResource("3_lukg2")]
-z_index = 1
-position = Vector2(1202, 1968)
-
-[node name="breakerBack2" parent="." unique_id=829805204 instance=ExtResource("3_lukg2")]
-z_index = 1
-position = Vector2(2833, 1968)
-scale = Vector2(0.9, 0.9)
-
 [node name="Breaker4" parent="." unique_id=647132317 instance=ExtResource("12_14sw3")]
 z_index = 1
-position = Vector2(626, 1967.9999)
+position = Vector2(1008, 1968)
 scale = Vector2(0.94, 0.94)
+default_facing = "back"
+object_name = "Breaker"
+actions = Array[String](["Turn Off", "Turn On"])
+
+[node name="Breaker5" parent="." unique_id=459537645 instance=ExtResource("12_14sw3")]
+z_index = 1
+position = Vector2(2065, 1969)
+scale = Vector2(0.9, 0.9)
+default_facing = "back"
+object_name = "Breaker"
+actions = Array[String](["Turn Off", "Turn On"])
+
+[node name="Breaker6" parent="." unique_id=474728624 instance=ExtResource("12_14sw3")]
+z_index = 1
+position = Vector2(3217, 1969)
+scale = Vector2(0.9, 0.9)
 default_facing = "back"
 object_name = "Breaker"
 actions = Array[String](["Turn Off", "Turn On"])
