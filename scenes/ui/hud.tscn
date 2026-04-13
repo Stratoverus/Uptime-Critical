@@ -339,13 +339,16 @@ theme = ExtResource("3_gss2c")
 theme_type_variation = &"HUD label"
 text = "Event Label"
 
-[node name="ReputationLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1460794207]
+[node name="ReputationContainer" type="HBoxContainer" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=2033082993]
+layout_mode = 2
+
+[node name="ReputationLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer/ReputationContainer" unique_id=1460794207]
 layout_mode = 2
 theme = ExtResource("3_gss2c")
 theme_type_variation = &"HUD label"
 text = "Reputation: 100.0%"
 
-[node name="IrreparableLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=123338803]
+[node name="IrreparableLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer/ReputationContainer" unique_id=123338803]
 visible = false
 layout_mode = 2
 theme = ExtResource("3_gss2c")

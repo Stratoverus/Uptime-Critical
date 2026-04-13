@@ -9,8 +9,8 @@ extends CanvasLayer
 @onready var bottleneck_label = get_node_or_null("Control/MarginContainer/HUDContainer/TrafficContainer/BottleneckLabel")
 @onready var handled_label = get_node_or_null("Control/MarginContainer/HUDContainer/TrafficContainer/HandledLabel")
 @onready var dropped_label = get_node_or_null("Control/MarginContainer/HUDContainer/TrafficContainer/DroppedLabel")
-@onready var reputation_label = get_node_or_null("Control/MarginContainer/HUDContainer/TrafficContainer/ReputationLabel")
-@onready var irreparable_label = get_node_or_null("Control/MarginContainer/HUDContainer/TrafficContainer/IrreparableLabel")
+@onready var reputation_label = get_node_or_null("Control/MarginContainer/HUDContainer/TrafficContainer/ReputationContainer/ReputationLabel")
+@onready var irreparable_label = get_node_or_null("Control/MarginContainer/HUDContainer/TrafficContainer/ReputationContainer/IrreparableLabel")
 @onready var cash_label = $Control/MarginContainer/HUDContainer/MoneyContainer/RevenueLabel
 @onready var income_label = $Control/MarginContainer/HUDContainer/MoneyContainer/IncomeLabel
 @onready var deficit_label = get_node_or_null("Control/MarginContainer/HUDContainer/MoneyContainer/DeficitLabel")
@@ -160,7 +160,7 @@ func _process(delta: float):
 			irreparable_label.visible = true
 		elif GameManager.datacenter_reputation <= GameManager.irreparable_threshold:
 			var remain = max(GameManager.irreparable_duration_seconds - GameManager.irreparable_timer_seconds, 0.0)
-			irreparable_label.text = "Irreparable in: %.0fs" % remain
+			irreparable_label.text = "| Irreparable in: %.0fs" % remain
 			irreparable_label.visible = true
 		else:
 			irreparable_label.visible = false
