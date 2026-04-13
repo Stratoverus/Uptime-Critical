@@ -4,6 +4,7 @@ extends CharacterBody2D
 
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var navigation_agent: NavigationAgent2D = get_node_or_null("NavigationAgent2D") as NavigationAgent2D
+@export var walk_volume_db: float = 9.0
 
 var move_target: Vector2 = Vector2.ZERO
 var moving_to_target: bool = false
@@ -11,7 +12,9 @@ var target_interactable = null
 var auto_move_target: Vector2 = Vector2.ZERO
 var auto_moving: bool = false
 var use_navigation_path: bool = false
+var walk_sfx_player: AudioStreamPlayer
 
+const WALK_SFX: AudioStream = preload("res://music/step.mp3")
 const MOVE_ACTIONS := {
 	"move_left": KEY_A,
 	"move_right": KEY_D,
@@ -23,6 +26,13 @@ func _ready() -> void:
 	add_to_group("player")
 	_ensure_wasd_actions()
 	animated_sprite.play("idle")
+
+	walk_sfx_player = AudioStreamPlayer.new()
+	walk_sfx_player.name = "WalkSfxPlayer"
+	walk_sfx_player.bus = "SoundEffects"
+	walk_sfx_player.stream = WALK_SFX
+	walk_sfx_player.volume_db = walk_volume_db
+	add_child(walk_sfx_player)
 
 func _physics_process(_delta: float) -> void:
 	if get_tree().paused:
@@ -61,6 +71,7 @@ func _physics_process(_delta: float) -> void:
 			velocity = Vector2.ZERO
 
 	move_and_slide()
+	_update_walk_sfx()
 	_update_animation(direction)
 
 func _update_animation(direction: Vector2) -> void:
@@ -112,3 +123,16 @@ func move_to_interactable(interactable) -> void:
 	else:
 		use_navigation_path = false
 	auto_moving = true
+
+func _update_walk_sfx() -> void:
+	if walk_sfx_player == null:
+		return
+
+	var is_moving := velocity.length() > 0.1
+
+	if is_moving:
+		if not walk_sfx_player.playing:
+			walk_sfx_player.play()
+	else:
+		if walk_sfx_player.playing:
+			walk_sfx_player.stop()

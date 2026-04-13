@@ -201,18 +201,18 @@ func style_tab_button(button: Button, active: bool) -> void:
 	var color = Color("3b82f6") if active else Color("6b7280")
 	style_menu_button(button, color)
 
-func style_dev_button(button: Button) -> void:
-	style_menu_button(button, Color("16a34a"))
+# func style_dev_button(button: Button) -> void:
+# 	style_menu_button(button, Color("16a34a"))
 
 
 
 func _ready() -> void:
-	if title_label == null or unit_grid == null: #or dev_money_button == null:
+	if title_label == null or unit_grid == null:
 		push_error("BuyMenu node path mismatch")
 		return
 
 	_refresh_economy_data()
-	title_label.text = "Build View"
+	# title_label.text = "Buy Menu"
 	# style_dev_button(dev_money_button)
 	build_unit_list()
 	# dev_money_button.pressed.connect(_on_dev_money_button_pressed)
@@ -287,8 +287,8 @@ func _on_unit_pressed(button: Button) -> void:
 
 	unit_selected.emit(unit)
 
-func _on_dev_money_button_pressed() -> void:
-	GameManager.revenue += 100
+# func _on_dev_money_button_pressed() -> void:
+# 	GameManager.revenue += 100
 
 func set_menu_mode(is_cable: bool):
 	set_menu_mode_by_name("network" if is_cable else "units")

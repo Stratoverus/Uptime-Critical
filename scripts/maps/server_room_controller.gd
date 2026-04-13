@@ -965,6 +965,7 @@ func _ensure_settings_panel() -> void:
 	vbox.add_child(_make_volume_slider_row("Music Volume", "Music"))
 	vbox.add_child(_make_bgm_dropdown_row())
 	vbox.add_child(_make_volume_slider_row("Sound Effects", "SoundEffects"))
+	vbox.add_child(_make_volume_slider_row("Alarm Volume", "Alarm"))
 
 	var close_button := Button.new()
 	close_button.text = "Back"
@@ -1798,4 +1799,5 @@ func _ensure_place_sfx_player() -> void:
 	place_sfx_player.name = "PlaceSfxPlayer"
 	place_sfx_player.bus = "SoundEffects"
 	place_sfx_player.stream = PLACE_SFX
+	place_sfx_player.volume_db = -10
 	add_child(place_sfx_player)

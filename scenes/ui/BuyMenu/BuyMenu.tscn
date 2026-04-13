@@ -95,7 +95,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_hyxqa")
 theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_b106m")
 text = "Toggle Network Overlay (N)"
 
-[node name="ElectricalOverlayButton" type="Button" parent="Panel/MainVBox" unique_id=1571049404]
+[node name="ElectricalOverlayButton" type="Button" parent="Panel/MainVBox" unique_id=1242733411]
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_3inbt")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ub4y5")
@@ -103,7 +103,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_hyxqa")
 theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_b106m")
 text = "Toggle Electrical Overlay (J)"
 
-[node name="HeatOverlayButton" type="Button" parent="Panel/MainVBox" unique_id=501064620]
+[node name="HeatOverlayButton" type="Button" parent="Panel/MainVBox" unique_id=1064320128]
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_3inbt")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ub4y5")
@@ -111,7 +111,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_hyxqa")
 theme_override_styles/hover_pressed = SubResource("StyleBoxFlat_b106m")
 text = "Toggle Heat Overlay (H)"
 
-[node name="BuildViewButton" type="Button" parent="Panel/MainVBox" unique_id=1267951778]
+[node name="BuildViewButton" type="Button" parent="Panel/MainVBox" unique_id=970350156]
 layout_mode = 2
 theme_override_styles/normal = SubResource("StyleBoxFlat_3inbt")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_ub4y5")
@@ -124,11 +124,6 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.94212544, 0.8298394, 0.8782319, 1)
 text = "Buy Menu"
 horizontal_alignment = 1
-
-[node name="DevMoneyButton" type="Button" parent="Panel/MainVBox" unique_id=738706784]
-visible = false
-layout_mode = 2
-text = "Dev +$100"
 
 [node name="UnitGrid" type="GridContainer" parent="Panel/MainVBox" unique_id=1325204484]
 layout_mode = 2
