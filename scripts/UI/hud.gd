@@ -2,9 +2,8 @@ extends CanvasLayer
 
 @onready var traffic_bar = $Control/MarginContainer/HUDContainer/TrafficContainer/TrafficBar
 @onready var service_bar = $Control/MarginContainer/HUDContainer/TrafficContainer/ServiceBar
-@onready var rps_label = $Control/MarginContainer/HUDContainer/TrafficContainer/HBoxContainer/RPSLabel
-@onready var ddos_rps_label = $Control/MarginContainer/HUDContainer/TrafficContainer/HBoxContainer/DDoSLabel
-@onready var demand_label = $Control/MarginContainer/HUDContainer/TrafficContainer/MDLabel
+@onready var ddos_rps_label = $Control/MarginContainer/HUDContainer/TrafficContainer/DemandBox/DDoSLabel
+@onready var demand_label = $Control/MarginContainer/HUDContainer/TrafficContainer/DemandBox/MDLabel
 @onready var event_label = $Control/MarginContainer/HUDContainer/TrafficContainer/EventLabel
 @onready var prep_status_label = get_node_or_null("Control/MarginContainer/HUDContainer/TrafficContainer/PrepStatusLabel")
 @onready var bottleneck_label = get_node_or_null("Control/MarginContainer/HUDContainer/TrafficContainer/BottleneckLabel")
@@ -128,17 +127,15 @@ func _process(delta: float):
 		update_timer = 0.0
 
 	if GameManager.servers_active:
-		rps_label.text = "Handled: %d Req/s" % ceil(GameManager.handled_valid_rps + GameManager.jitter)
 		if (GameManager.ddos_load):
-			ddos_rps_label.text = "Invalid In: %d Req/s" % ceil(GameManager.incoming_invalid_rps)
+			ddos_rps_label.text = "+ %d Req/s DDoS" % ceil(GameManager.incoming_invalid_rps)
 		else:
 			ddos_rps_label.text = ""
 	else:
-		rps_label.text = "SYSTEM OFFLINE"
 		ddos_rps_label.text = ""
 
 	if handled_label != null:
-		handled_label.text = "Processed: %d Req/s | Total: %s req" % [int(round(GameManager.handled_total_rps)), _format_request_count(GameManager.total_processed_requests)]
+		handled_label.text = "Processed: %d Req/s | Total: %s req" % [int(round(ceil(GameManager.handled_valid_rps + GameManager.jitter))), _format_request_count(GameManager.total_processed_requests)]
 	if bottleneck_label != null:
 		if GameManager.dropped_rps > 0.01:
 			bottleneck_label.text = "Bottleneck: %s (%s)" % [GameManager.capacity_bottleneck, GameManager.drop_cause_summary]

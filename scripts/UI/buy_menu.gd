@@ -5,7 +5,7 @@ signal unit_selected(unit_data)
 
 @onready var title_label = $Panel/MainVBox/TitleLabel
 @onready var unit_grid = $Panel/MainVBox/UnitGrid
-@onready var dev_money_button = $Panel/MainVBox/DevMoneyButton
+# @onready var dev_money_button = $Panel/MainVBox/DevMoneyButton
 @onready var menu_panel = $Panel
 
 var selected_button: Button = null
@@ -207,15 +207,15 @@ func style_dev_button(button: Button) -> void:
 
 
 func _ready() -> void:
-	if title_label == null or unit_grid == null or dev_money_button == null:
+	if title_label == null or unit_grid == null: #or dev_money_button == null:
 		push_error("BuyMenu node path mismatch")
 		return
 
 	_refresh_economy_data()
 	title_label.text = "Build View"
-	style_dev_button(dev_money_button)
+	# style_dev_button(dev_money_button)
 	build_unit_list()
-	dev_money_button.pressed.connect(_on_dev_money_button_pressed)
+	# dev_money_button.pressed.connect(_on_dev_money_button_pressed)
 	_cache_day_label_node()
 	if get_viewport() != null and not get_viewport().size_changed.is_connected(_on_viewport_size_changed):
 		get_viewport().size_changed.connect(_on_viewport_size_changed)

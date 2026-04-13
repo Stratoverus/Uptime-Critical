@@ -324,18 +324,6 @@ offset_bottom = 11.5
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="MDLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1845749662]
-layout_mode = 2
-theme = ExtResource("3_gss2c")
-theme_type_variation = &"HUD label"
-text = "Market Demand: 81 Mbps"
-
-[node name="DroppedLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=222445910]
-layout_mode = 2
-theme = ExtResource("3_gss2c")
-theme_type_variation = &"HUD label"
-text = "Dropped: 0 Req/s (0.0%)"
-
 [node name="EventLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=962793761]
 layout_mode = 2
 theme = ExtResource("3_gss2c")
@@ -351,17 +339,11 @@ theme_override_colors/font_color = Color(0.972549, 0.7411765, 0.20392157, 1)
 theme_override_font_sizes/font_size = 22
 text = "Prepare yourself"
 
-[node name="BottleneckLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1552241231]
+[node name="ReputationLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1460794207]
 layout_mode = 2
 theme = ExtResource("3_gss2c")
 theme_type_variation = &"HUD label"
-text = "Bottleneck: Balanced"
-
-[node name="HandledLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1962793001]
-layout_mode = 2
-theme = ExtResource("3_gss2c")
-theme_type_variation = &"HUD label"
-text = "Handled Total: 0 Req/s"
+text = "Reputation: 100.0%"
 
 [node name="IrreparableLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=123338803]
 visible = false
@@ -371,28 +353,41 @@ theme_type_variation = &"HUD label"
 theme_override_colors/font_color = Color(0.79897434, 4.379898e-06, 6.738305e-07, 1)
 text = "Irreparable in: 0s"
 
-[node name="ReputationLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1460794207]
+[node name="BottleneckLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1552241231]
 layout_mode = 2
 theme = ExtResource("3_gss2c")
 theme_type_variation = &"HUD label"
-text = "Reputation: 100.0%"
+text = "Bottleneck: Balanced"
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1260885816]
+[node name="DemandBox" type="HBoxContainer" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=2104592214]
 layout_mode = 2
 
-[node name="RPSLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer/HBoxContainer" unique_id=1845188536]
+[node name="MDLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer/DemandBox" unique_id=1845749662]
 layout_mode = 2
 theme = ExtResource("3_gss2c")
 theme_type_variation = &"HUD label"
-text = "887 RPS (Requests/sec)"
+text = "Market Demand: 81 Mbps"
 
-[node name="DDoSLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer/HBoxContainer" unique_id=1012367703]
+[node name="DDoSLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer/DemandBox" unique_id=1012367703]
 layout_mode = 2
 theme_type_variation = &"HUD label"
 theme_override_colors/font_color = Color(0.79897434, 4.379898e-06, 6.738305e-07, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 3
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 20
 text = "+ 400 (DDoS)"
+
+[node name="HandledLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1962793001]
+layout_mode = 2
+theme = ExtResource("3_gss2c")
+theme_type_variation = &"HUD label"
+text = "Handled Total: 0 Req/s"
+
+[node name="DroppedLabel" type="Label" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=222445910]
+layout_mode = 2
+theme = ExtResource("3_gss2c")
+theme_type_variation = &"HUD label"
+text = "Dropped: 0 Req/s (0.0%)"
 
 [node name="TrafficBar" type="ProgressBar" parent="Control/MarginContainer/HUDContainer/TrafficContainer" unique_id=1287164397]
 custom_minimum_size = Vector2(0, 30)
