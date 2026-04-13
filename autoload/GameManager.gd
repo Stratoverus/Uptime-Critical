@@ -25,6 +25,7 @@ var traffic_ramp_minutes_to_max: float = 40.0
 var traffic_ramp_multiplier_max: float = 2.25
 var traffic_ramp_curve_exponent: float = 1.1
 var traffic_overload_ceiling_ratio: float = 2.5
+var alarm_sfx_player: AudioStreamPlayer
 
 signal money_changed(new_amount)
 signal reputation_changed(new_amount)
@@ -102,6 +103,8 @@ var total_incoming_requests: float = 0.0
 var total_processed_requests: float = 0.0
 var total_dropped_requests: float = 0.0
 
+const ALARM_SFX: AudioStream = preload("res://music/alarm.mp3")
+
 # Reputation / failure state
 @export var starting_reputation: float = 50.0
 @export var reputation_decay_per_second: float = 0.9
@@ -139,6 +142,13 @@ func _ready() -> void:
 		if loaded_game_state is Dictionary and not (loaded_game_state as Dictionary).is_empty():
 			import_runtime_state(loaded_game_state)
 	money_changed.emit(revenue)
+
+	alarm_sfx_player = AudioStreamPlayer.new()
+	alarm_sfx_player.name = "AlarmSfxPlayer"
+	alarm_sfx_player.bus = "Alarm"
+	alarm_sfx_player.stream = ALARM_SFX
+	alarm_sfx_player.volume_db = -8
+	add_child(alarm_sfx_player)
 
 func _rebuild_event_definitions() -> void:
 	EVENTS = {
@@ -726,8 +736,8 @@ func start_event(event_id: String):
 		# Mark it as seen so we don't spam the player next time
 		data["seen_before"] = true
 
-
-	
+	if alarm_sfx_player != null:
+		alarm_sfx_player.play()
 
 
 func end_active_event():
