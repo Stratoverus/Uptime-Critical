@@ -1,8 +1,10 @@
+@tool
 extends InteractableObject
 
 @export var max_electrical_connections: int = 10
 @export var electrical_node_offset: Vector2 = Vector2(0, 34)
 @export var internet_node_offset: Vector2 = Vector2(28, 34)
+@export_enum("front", "right", "back", "left") var default_facing: String = "front"
 
 var electrical_node: Node2D = null
 var internet_node: Node2D = null
@@ -25,13 +27,15 @@ func _ready() -> void:
 	actions = ["Turn Off", "Turn On"]
 	interaction_range = 150.0
 	super._ready()
+	set_facing(default_facing)
 	_ensure_electrical_node()
 	_ensure_internet_node()
 	_ensure_port_label()
 	_update_port_label()
 
 func set_facing(direction: String) -> void:
-	apply_facing_rotation(direction)
+	if direction != "back":
+		apply_facing_rotation(direction)
 	if sprites.has(direction):
 		sprite.texture = sprites[direction]
 	_update_electrical_node_position()
