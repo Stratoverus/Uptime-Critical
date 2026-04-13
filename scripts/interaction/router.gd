@@ -25,6 +25,11 @@ var traffic_status_lights: Array[Node] = []
 var traffic_load_units: float = 0.0
 var visual_state_initialized: bool = false
 var last_visual_active_state: bool = false
+var port_limits = {
+	1: 8,
+	2: 12,
+	3: 16
+}
 
 var sprites_by_level = {
 	1: {
@@ -205,7 +210,7 @@ func has_free_port() -> bool:
 	return connected_segments.size() < get_port_limit()
 
 func get_port_limit() -> int:
-	return max(max_network_ports, 1)
+	return port_limits.get(level, 8)
 
 func _ensure_port_label() -> void:
 	if port_label != null and is_instance_valid(port_label):
