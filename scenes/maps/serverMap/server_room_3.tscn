@@ -1,9 +1,7 @@
 [gd_scene format=4 uid="uid://b4ovio8i2bt6o"]
 
 [ext_resource type="TileSet" uid="uid://bantebqwyr5c1" path="res://assets/Tilesets/serverTileSetSize3.tres" id="1_mh0is"]
-[ext_resource type="PackedScene" uid="uid://cv8cmv8i4rt01" path="res://scenes/units/breaker.tscn" id="6_8twuf"]
-[ext_resource type="PackedScene" uid="uid://fm0bo4d0r70a" path="res://scenes/maps/server.tscn" id="7_5q5eg"]
-[ext_resource type="PackedScene" uid="uid://c3qwnmtwuih3q" path="res://scenes/maps/router.tscn" id="8_kj3p0"]
+[ext_resource type="PackedScene" path="res://scenes/units/breaker.tscn" id="6_8twuf"]
 
 [node name="serverRoom3" type="Node2D" unique_id=1517502279]
 
@@ -44,10 +42,3 @@ scale = Vector2(0.93, 0.93)
 z_index = 1
 position = Vector2(4176, 912)
 scale = Vector2(0.93, 0.93)
-
-[node name="server" parent="." unique_id=1437508063 instance=ExtResource("7_5q5eg")]
-position = Vector2(240, 336)
-scale = Vector2(0.9, 0.9)
-
-[node name="router" parent="." unique_id=226666129 instance=ExtResource("8_kj3p0")]
-position = Vector2(240, 528)

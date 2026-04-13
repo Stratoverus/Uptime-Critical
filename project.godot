@@ -13,7 +13,7 @@ config_version=5
 config/name="Uptime: Critical"
 run/main_scene="uid://03ldyiyyegrm"
 config/features=PackedStringArray("4.6", "Mobile")
-config/icon="res://icon.svg"
+config/icon="uid://m2vjw3lx831f"
 
 [audio]
 
