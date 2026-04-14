@@ -2,6 +2,8 @@ extends Control
 
 const MAP_ROOT_DIR := "res://scenes/maps"
 const MAP_LEVEL_SCENE := "res://scenes/maps/serverMap/server_room_level.tscn"
+const MAP_SCENE_FALLBACK_MIN := 1
+const MAP_SCENE_FALLBACK_MAX := 32
 const SETTINGS_CONFIG_PATH := "user://settings.cfg"
 const SETTINGS_VERSION := 2
 
@@ -84,7 +86,6 @@ func _on_new_game_button_pressed() -> void:
 
 	if available_maps.is_empty():
 		push_warning("No map scenes matching server_room_<number>.tscn were found.")
-		return
 
 	map_select_popup.popup_centered()
 
@@ -341,6 +342,14 @@ func _discover_available_maps() -> Array[Dictionary]:
 	regex.compile("^server_room_(\\d+)\\.tscn$")
 
 	_scan_maps_recursive(MAP_ROOT_DIR, regex, map_entries)
+	if map_entries.is_empty():
+		for map_number in range(MAP_SCENE_FALLBACK_MIN, MAP_SCENE_FALLBACK_MAX + 1):
+			var candidate_path := "res://scenes/maps/serverMap/server_room_%d.tscn" % map_number
+			if ResourceLoader.exists(candidate_path):
+				map_entries.append({
+					"number": map_number,
+					"path": candidate_path,
+				})
 	map_entries.sort_custom(_sort_map_entries)
 	return map_entries
 
