@@ -1,8 +1,8 @@
 # Uptime-Critical
 A 2d survival game about running a data center
 
-# To play game
-1) Download uptime-critical.exe
+## To Play Game
+1) Download Uptime-Critical.exe
 2) Run it
 
 ## Balance Pass 1 Targets
