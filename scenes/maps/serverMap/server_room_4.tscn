@@ -1,7 +1,7 @@
 [gd_scene format=4 uid="uid://c56xhoadyiibq"]
 
 [ext_resource type="TileSet" uid="uid://bantebqwyr5c1" path="res://assets/Tilesets/serverTileSetSize3.tres" id="1_dg4vb"]
-[ext_resource type="PackedScene" uid="uid://cv8cmv8i4rt01" path="res://scenes/units/breaker.tscn" id="6_14v4d"]
+[ext_resource type="PackedScene" path="res://scenes/units/breaker.tscn" id="6_14v4d"]
 
 [node name="serverRoom4" type="Node2D" unique_id=548434296]
 
