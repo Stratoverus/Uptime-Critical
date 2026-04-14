@@ -2,7 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://ds5mht8oniubt" path="res://assets/Tech Dungeon Roguelite - Asset Pack (DEMO)/tileset x3.png" id="2_5sbe7"]
 [ext_resource type="TileSet" uid="uid://bantebqwyr5c1" path="res://assets/Tilesets/serverTileSetSize3.tres" id="2_srf40"]
-[ext_resource type="PackedScene" uid="uid://cv8cmv8i4rt01" path="res://scenes/units/breaker.tscn" id="7_qybjm"]
+[ext_resource type="PackedScene" path="res://scenes/units/breaker.tscn" id="7_qybjm"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_hcefe"]
 texture = ExtResource("2_5sbe7")
