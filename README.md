@@ -1,6 +1,10 @@
 # Uptime-Critical
 A 2d survival game about running a data center
 
+# To play game
+1) Download uptime-critical.exe
+2) Run it
+
 ## Balance Pass 1 Targets
 
 The current economy pass is tuned around medium early-game pacing and healthier daisy chaining.
